@@ -21,3 +21,8 @@ spring:
   #       concurrency: 2
   #       max-concurrency: 10
   #       prefetch: 10
+
+  quartz:
+    job-store-type: memory
+    properties.org.quartz.threadPool.threadCount: 1
+
