@@ -13,20 +13,20 @@ public class QuartzConfig {
 
 
     @Bean
-    public JobDetail oneTimeJobDetail() {
+    public JobDetail startupJobDetail() {
         return JobBuilder.newJob(StartupJob.class)
-                .withIdentity("oneTimeJob")
+                .withIdentity("startupJob")
                 .withDescription("Runs once and completes")
                 .storeDurably()
                 .build();
     }
 
     @Bean
-    public Trigger oneTimeJobTrigger(JobDetail oneTimeJobDetail) {
+    public Trigger oneTimeJobTrigger(JobDetail startupJobDetail) {
         return TriggerBuilder.newTrigger()
-                .forJob(oneTimeJobDetail)
-                .withIdentity("oneTimeTrigger")
-                .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
+                .forJob(startupJobDetail)
+                .withIdentity("startupJobTrigger")
+                .startNow()
                 .build();
     }
 }

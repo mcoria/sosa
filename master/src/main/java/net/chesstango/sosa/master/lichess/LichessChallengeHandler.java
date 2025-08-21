@@ -18,6 +18,8 @@ public class LichessChallengeHandler {
 
     private boolean acceptChallenges;
 
+    private volatile String pendingChallengeId;
+
     public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy) {
         this.client = client;
         this.fnIsBusy = fnIsBusy;
@@ -26,38 +28,52 @@ public class LichessChallengeHandler {
 
 
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
-        log.info("ChallengeCreatedEvent: {}", event.id());
+        log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
-            if (isChallengeAcceptable(event)) {
-                acceptChallenge(event);
+            if (pendingChallengeId == null) {
+                if (isChallengeAcceptable(event)) {
+                    acceptChallenge(event);
+                } else {
+                    declineChallenge(event);
+                }
             } else {
+                log.info("[{}] There is a pending challenge {} at this time", event.id(), pendingChallengeId);
                 declineChallenge(event);
             }
         } else {
-            log.info("Not accepting more challenges at this time {}", event.id());
+            log.info("[{}] Not accepting more challenges at this time", event.id());
             declineChallenge(event);
         }
     }
 
     public void challengeCanceled(Event.ChallengeCanceledEvent event) {
-        log.info("ChallengeCanceledEvent: {}", event.id());
+        log.info("[{}] ChallengeCanceledEvent", event.id());
+        pendingChallengeId = null;
     }
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
-        log.info("ChallengeDeclinedEvent: {}", event.id());
+        log.info("[{}] ChallengeDeclinedEvent", event.id());
+        pendingChallengeId = null;
     }
 
     public void stopAcceptingChallenges() {
         this.acceptChallenges = false;
     }
 
+
+    /**
+     * PRIVATE METHODS
+     *
+     */
+
     private void acceptChallenge(Event.ChallengeEvent challengeEvent) {
-        log.info("Accepting challenge {}", challengeEvent.id());
+        log.info("[{}] Accepting challenge", challengeEvent.id());
         client.challengeAccept(challengeEvent.id());
+        pendingChallengeId = challengeEvent.id();
     }
 
     private void declineChallenge(Event.ChallengeEvent challengeEvent) {
-        log.info("Declining challenge {}", challengeEvent.id());
+        log.info("[{}] Declining challenge", challengeEvent.id());
         client.challengeDecline(challengeEvent.id());
     }
 
@@ -66,8 +82,11 @@ public class LichessChallengeHandler {
         Optional<ChallengeInfo.Player> challengedPlayer = challengeEvent.challenge().players().challengedOpt();
 
         if (challengerPlayer.isEmpty() || challengedPlayer.isEmpty()) {
+            log.warn("[{}] Challenge has no challenger or challenged player", challengeEvent.id());
             return false;
-        } else if (client.isMe(challengerPlayer.get().user())) { // Siempre acepto mis propios challenges
+        }
+
+        if (client.isMe(challengerPlayer.get().user())) { // Siempre acepto mis propios challenges
             return true;
         }
 
@@ -81,6 +100,7 @@ public class LichessChallengeHandler {
 
     private boolean isChallengerAcceptable(ChallengeInfo.Player player, Enums.Speed speed) {
         if (player.user().titleOpt().isEmpty()) { // Quiere decir que es human - aceptamos en todos los casos
+            log.info("Challenger {} is human", player.user().id());
             return true;
         }
 

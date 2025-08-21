@@ -5,6 +5,7 @@ import chariot.ClientAuth;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.jobs.ChallengerScheduler;
+import net.chesstango.sosa.master.lichess.LichessChallengeHandler;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.master.lichess.LichessClientBean;
 import net.chesstango.sosa.master.lichess.LichessClientImp;
@@ -28,6 +29,8 @@ public class BotStreamLoop {
 
     private final ChallengerTask challengerTask;
 
+    private final LichessChallengeHandler lichessChallengeHandler;
+
     public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
                          ChallengerScheduler challengerScheduler,
                          LichessClientBean lichessClientBean,
@@ -35,6 +38,7 @@ public class BotStreamLoop {
         this.bot_token = bot_token;
         this.lichessClientBean = lichessClientBean;
         this.challengerTask = challengerTask;
+        this.lichessChallengeHandler = new LichessChallengeHandler(lichessClientBean, () -> false);
     }
 
     @Async("ioBoundExecutor")
@@ -55,12 +59,12 @@ public class BotStreamLoop {
             events.forEach(event -> {
                 log.info("event received: {}", event);
                 switch (event.type()) {
-                    case challenge -> log.info("challenge");
-                    // lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event);
-                    case challengeCanceled -> log.info("challenge");
-                    //lichessChallengeHandler.challengeCanceled((Event.ChallengeCanceledEvent) event);
-                    case challengeDeclined -> log.info("challenge");
-                    //lichessChallengeHandler.challengeDeclined((Event.ChallengeDeclinedEvent) event);
+                    case challenge ->
+                            lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event);
+                    case challengeCanceled ->
+                            lichessChallengeHandler.challengeCanceled((Event.ChallengeCanceledEvent) event);
+                    case challengeDeclined ->
+                            lichessChallengeHandler.challengeDeclined((Event.ChallengeDeclinedEvent) event);
                     case gameStart -> log.info("challenge");
                     //gameStart((Event.GameStartEvent) event);
                     case gameFinish -> log.info("challenge");
