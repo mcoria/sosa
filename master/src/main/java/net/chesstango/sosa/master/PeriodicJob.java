@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @PersistJobDataAfterExecution
 @Component
 @Slf4j
-public class SampleJob extends QuartzJobBean {
+public class PeriodicJob extends QuartzJobBean {
 
 
     private final DemoProducer demoProducer;
 
-    public SampleJob(@Autowired DemoProducer demoProducer) {
+    public PeriodicJob(@Autowired DemoProducer demoProducer) {
         this.demoProducer = demoProducer;
     }
 

@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.SampleJob;
+import net.chesstango.sosa.master.OnceJob;
+import net.chesstango.sosa.master.PeriodicJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +11,7 @@ public class QuartzConfig {
 
     @Bean
     public JobDetail sampleJobDetail() {
-        return JobBuilder.newJob(SampleJob.class)
+        return JobBuilder.newJob(PeriodicJob.class)
                 .withIdentity("sampleJob")
                 .withDescription("Runs a sample task")
                 .storeDurably()              // keep job even without trigger
@@ -37,4 +38,21 @@ public class QuartzConfig {
                 .build();
     }
 
+    @Bean
+    public JobDetail oneTimeJobDetail() {
+        return JobBuilder.newJob(OnceJob.class)
+                .withIdentity("oneTimeJob")
+                .withDescription("Runs once and completes")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean
+    public Trigger oneTimeJobTrigger(JobDetail oneTimeJobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(oneTimeJobDetail)
+                .withIdentity("oneTimeTrigger")
+                .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
+                .build();
+    }
 }
