@@ -1,4 +1,4 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.master.lichess;
 
 import chariot.ClientAuth;
 import chariot.api.ChallengesApiAuthCommon;

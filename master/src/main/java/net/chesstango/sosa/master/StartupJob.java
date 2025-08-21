@@ -11,17 +11,20 @@ import org.springframework.stereotype.Component;
 @PersistJobDataAfterExecution
 @Component
 @Slf4j
-public class OnceJob extends QuartzJobBean {
+public class StartupJob extends QuartzJobBean {
 
-    private final MyService myService;
+    private final BotStreamLoop botStreamLoop;
 
-    public OnceJob(MyService myService) {
-        this.myService = myService;
+    public StartupJob(BotStreamLoop botStreamLoop) {
+        this.botStreamLoop = botStreamLoop;
     }
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        log.info("OnceJob ..");
-        myService.doWorkAsync();
+        // Aca deberia determinar si suspendo o inicio el loop
+        // En caso que inicie, deberia cancelar esta tarea
+        // En caso que NO inicie, deberia volver a planificar la tarea
+        log.info("Triggering BotStreamLoop ...");
+        botStreamLoop.doWorkAsync();
     }
 }

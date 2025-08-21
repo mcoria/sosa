@@ -1,7 +1,6 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.OnceJob;
-import net.chesstango.sosa.master.PeriodicJob;
+import net.chesstango.sosa.master.StartupJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,7 @@ public class QuartzConfig {
 
     @Bean
     public JobDetail oneTimeJobDetail() {
-        return JobBuilder.newJob(OnceJob.class)
+        return JobBuilder.newJob(StartupJob.class)
                 .withIdentity("oneTimeJob")
                 .withDescription("Runs once and completes")
                 .storeDurably()
