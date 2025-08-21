@@ -1,6 +1,8 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.worker;
 
-import net.chesstango.sosa.master.configs.RabbitConfig;
+
+import net.chesstango.sosa.model.DemoPayload;
+import net.chesstango.sosa.worker.configs.RabbitConfig;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;

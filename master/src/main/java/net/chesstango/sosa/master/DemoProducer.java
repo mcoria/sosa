@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master;
 
 import net.chesstango.sosa.master.configs.RabbitConfig;
+import net.chesstango.sosa.model.DemoPayload;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 

@@ -27,8 +27,9 @@
     </developers>
 
     <modules>
-        <module>master</module>
+        <module>model</module>
         <module>worker</module>
+        <module>master</module>
     </modules>
     <scm>
         <connection/>
@@ -40,6 +41,15 @@
         <java.version>21</java.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>net.chesstango</groupId>
+                <artifactId>sosa-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 
     <build>
