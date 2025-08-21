@@ -24,18 +24,21 @@ public class BotStreamLoop {
 
     private final String bot_token;
 
-    private final ChallengerScheduler challengerScheduler;
-
     private final LichessClientBean lichessClientBean;
 
-    public BotStreamLoop(@Value("${app.bot_token}") String bot_token, ChallengerScheduler challengerScheduler, LichessClientBean lichessClientBean) {
+    private final ChallengerTask challengerTask;
+
+    public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
+                         ChallengerScheduler challengerScheduler,
+                         LichessClientBean lichessClientBean,
+                         ChallengerTask challengerTask) {
         this.bot_token = bot_token;
-        this.challengerScheduler = challengerScheduler;
         this.lichessClientBean = lichessClientBean;
+        this.challengerTask = challengerTask;
     }
 
     @Async("ioBoundExecutor")
-    public CompletableFuture<String> doWorkAsync() {
+    public CompletableFuture<Void> doWorkAsync() {
         log.info("Connecting to Lichess");
 
         ClientAuth clientAuth = Client.auth(bot_token);
@@ -46,7 +49,7 @@ public class BotStreamLoop {
 
         try (Stream<Event> events = lichessClient.streamEvents()) {
 
-            challengerScheduler.scheduleOneOff();
+            challengerTask.doWorkAsync();
 
             log.info("Reading Lichess Stream Events");
             events.forEach(event -> {
@@ -72,6 +75,6 @@ public class BotStreamLoop {
         }
 
         // your work
-        return CompletableFuture.completedFuture("done");
+        return CompletableFuture.completedFuture(null);
     }
 }

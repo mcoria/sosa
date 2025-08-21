@@ -1,6 +1,5 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.jobs.ChallengerJob;
 import net.chesstango.sosa.master.jobs.StartupJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
@@ -11,20 +10,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class QuartzConfig {
-
-    /*
-
-    @Bean
-    public JobDetail sampleJobDetail() {
-        return JobBuilder.newJob(ChallengerJob.class)
-                .withIdentity("sampleJob")
-                .withDescription("Runs a sample task")
-                .storeDurably()              // keep job even without trigger
-                .requestRecovery(true)       // re-run if the scheduler crashed mid-run
-                .build();
-    }
-
-     */
 
 
     @Bean
