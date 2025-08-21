@@ -6,6 +6,7 @@ import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.jobs.ChallengerScheduler;
 import net.chesstango.sosa.master.lichess.LichessClient;
+import net.chesstango.sosa.master.lichess.LichessClientBean;
 import net.chesstango.sosa.master.lichess.LichessClientImp;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -25,9 +26,12 @@ public class BotStreamLoop {
 
     private final ChallengerScheduler challengerScheduler;
 
-    public BotStreamLoop(@Value("${app.bot_token}") String bot_token, ChallengerScheduler challengerScheduler) {
+    private final LichessClientBean lichessClientBean;
+
+    public BotStreamLoop(@Value("${app.bot_token}") String bot_token, ChallengerScheduler challengerScheduler, LichessClientBean lichessClientBean) {
         this.bot_token = bot_token;
         this.challengerScheduler = challengerScheduler;
+        this.lichessClientBean = lichessClientBean;
     }
 
     @Async("ioBoundExecutor")
@@ -37,6 +41,8 @@ public class BotStreamLoop {
         ClientAuth clientAuth = Client.auth(bot_token);
 
         LichessClient lichessClient = new LichessClientImp(clientAuth);
+
+        lichessClientBean.setImp(lichessClient);
 
         try (Stream<Event> events = lichessClient.streamEvents()) {
 
