@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.StartupJob;
+import net.chesstango.sosa.master.jobs.ChallengerJob;
+import net.chesstango.sosa.master.jobs.StartupJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,36 +10,19 @@ import org.springframework.context.annotation.Configuration;
 public class QuartzConfig {
 
     /*
+
     @Bean
     public JobDetail sampleJobDetail() {
-        return JobBuilder.newJob(PeriodicJob.class)
+        return JobBuilder.newJob(ChallengerJob.class)
                 .withIdentity("sampleJob")
                 .withDescription("Runs a sample task")
                 .storeDurably()              // keep job even without trigger
                 .requestRecovery(true)       // re-run if the scheduler crashed mid-run
-                .usingJobData("key", "value")
-                .build();
-    }
-
-    @Bean
-    public Trigger sampleJobTrigger(JobDetail sampleJobDetail) {
-        // Simple schedule (every 10 seconds)
-        SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInSeconds(10)
-                .repeatForever()
-                .withMisfireHandlingInstructionNextWithRemainingCount(); // choose misfire policy
-
-        //   CronScheduleBuilder schedule = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?")
-        //       .withMisfireHandlingInstructionDoNothing();
-
-        return TriggerBuilder.newTrigger()
-                .forJob(sampleJobDetail)
-                .withIdentity("sampleTrigger")
-                .withSchedule(schedule)
                 .build();
     }
 
      */
+
 
     @Bean
     public JobDetail oneTimeJobDetail() {

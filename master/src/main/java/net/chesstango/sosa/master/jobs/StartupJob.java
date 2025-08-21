@@ -1,6 +1,7 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.BotStreamLoop;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
