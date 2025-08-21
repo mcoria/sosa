@@ -8,41 +8,33 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class QuartzConfig {
 
-  @Bean
-  public JobDetail sampleJobDetail() {
-    return JobBuilder.newJob(SampleJob.class)
-        .withIdentity("sampleJob")
-        .withDescription("Runs a sample task")
-        .storeDurably()              // keep job even without trigger
-        .requestRecovery(true)       // re-run if the scheduler crashed mid-run
-        .usingJobData("key", "value")
-        .build();
-  }
+    @Bean
+    public JobDetail sampleJobDetail() {
+        return JobBuilder.newJob(SampleJob.class)
+                .withIdentity("sampleJob")
+                .withDescription("Runs a sample task")
+                .storeDurably()              // keep job even without trigger
+                .requestRecovery(true)       // re-run if the scheduler crashed mid-run
+                .usingJobData("key", "value")
+                .build();
+    }
 
-  @Bean
-  public Trigger sampleJobTrigger(JobDetail sampleJobDetail) {
-    // Simple schedule (every 10 seconds)
-    SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule()
-        .withIntervalInSeconds(10)
-        .repeatForever()
-        .withMisfireHandlingInstructionNextWithRemainingCount(); // choose misfire policy
+    @Bean
+    public Trigger sampleJobTrigger(JobDetail sampleJobDetail) {
+        // Simple schedule (every 10 seconds)
+        SimpleScheduleBuilder schedule = SimpleScheduleBuilder.simpleSchedule()
+                .withIntervalInSeconds(10)
+                .repeatForever()
+                .withMisfireHandlingInstructionNextWithRemainingCount(); // choose misfire policy
 
-    return TriggerBuilder.newTrigger()
-        .forJob(sampleJobDetail)
-        .withIdentity("sampleTrigger")
-        .withSchedule(schedule)
-        .build();
-  }
+        //   CronScheduleBuilder schedule = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?")
+        //       .withMisfireHandlingInstructionDoNothing();
 
-  // Alternatively, a cron trigger
-  // @Bean
-  // public Trigger sampleCronTrigger(JobDetail sampleJobDetail) {
-  //   CronScheduleBuilder schedule = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?")
-  //       .withMisfireHandlingInstructionDoNothing();
-  //   return TriggerBuilder.newTrigger()
-  //       .forJob(sampleJobDetail)
-  //       .withIdentity("sampleCronTrigger")
-  //       .withSchedule(schedule)
-  //       .build();
-  // }
+        return TriggerBuilder.newTrigger()
+                .forJob(sampleJobDetail)
+                .withIdentity("sampleTrigger")
+                .withSchedule(schedule)
+                .build();
+    }
+
 }
