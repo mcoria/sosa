@@ -39,6 +39,9 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+
+        <!-- Lichess communication protocol -->
+        <chariot.version>0.1.20</chariot.version>
     </properties>
 
     <dependencyManagement>
@@ -47,6 +50,11 @@
                 <groupId>net.chesstango</groupId>
                 <artifactId>sosa-model</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.tors42</groupId>
+                <artifactId>chariot</artifactId>
+                <version>${chariot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

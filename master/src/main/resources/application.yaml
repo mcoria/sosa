@@ -1,6 +1,10 @@
+app:
+  bot_token: ${BOT_TOKEN}
+
 spring:
   application:
     name: sosa
+
   main:
     web-application-type: none
 

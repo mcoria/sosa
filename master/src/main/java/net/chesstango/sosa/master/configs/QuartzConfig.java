@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class QuartzConfig {
 
+    /*
     @Bean
     public JobDetail sampleJobDetail() {
         return JobBuilder.newJob(PeriodicJob.class)
@@ -37,6 +38,8 @@ public class QuartzConfig {
                 .withSchedule(schedule)
                 .build();
     }
+
+     */
 
     @Bean
     public JobDetail oneTimeJobDetail() {
