@@ -13,8 +13,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class OnceJob extends QuartzJobBean {
 
+    private final MyService myService;
+
+    public OnceJob(MyService myService) {
+        this.myService = myService;
+    }
+
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        log.info("doing something once");
+        log.info("OnceJob ..");
+        myService.doWorkAsync();
     }
 }
