@@ -8,6 +8,9 @@ import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Mauricio Coria
+ */
 @DisallowConcurrentExecution
 @PersistJobDataAfterExecution
 @Component

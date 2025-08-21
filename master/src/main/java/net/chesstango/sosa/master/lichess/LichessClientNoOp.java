@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+/**
+ * @author Mauricio Coria
+ */
 public class LichessClientNoOp implements LichessClient {
     @Override
     public Stream<Event> streamEvents() {

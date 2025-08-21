@@ -5,6 +5,9 @@ import net.chesstango.sosa.model.DemoPayload;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Mauricio Coria
+ */
 @Service
 public class DemoProducer {
     private final RabbitTemplate rabbitTemplate;

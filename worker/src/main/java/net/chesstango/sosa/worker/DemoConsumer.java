@@ -7,6 +7,9 @@ import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Mauricio Coria
+ */
 @EnableRabbit
 @Component
 public class DemoConsumer {
