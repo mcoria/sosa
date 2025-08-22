@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -31,6 +34,9 @@ public class BotStreamLoop {
 
     private final LichessChallengeHandler lichessChallengeHandler;
 
+    private final Set<String> ongoingGames = Collections.synchronizedSet(new HashSet<>());
+
+
     public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
                          ChallengerScheduler challengerScheduler,
                          LichessClientBean lichessClientBean,
@@ -38,7 +44,7 @@ public class BotStreamLoop {
         this.bot_token = bot_token;
         this.lichessClientBean = lichessClientBean;
         this.challengerTask = challengerTask;
-        this.lichessChallengeHandler = new LichessChallengeHandler(lichessClientBean, () -> false);
+        this.lichessChallengeHandler = new LichessChallengeHandler(lichessClientBean, this::isBusy, this::startChallengerIfNotBusy);
     }
 
     @Async("ioBoundExecutor")
@@ -59,26 +65,47 @@ public class BotStreamLoop {
             events.forEach(event -> {
                 log.info("event received: {}", event);
                 switch (event.type()) {
-                    case challenge ->
-                            lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event);
+                    case challenge -> lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event);
                     case challengeCanceled ->
                             lichessChallengeHandler.challengeCanceled((Event.ChallengeCanceledEvent) event);
                     case challengeDeclined ->
                             lichessChallengeHandler.challengeDeclined((Event.ChallengeDeclinedEvent) event);
-                    case gameStart -> log.info("challenge");
-                    //gameStart((Event.GameStartEvent) event);
-                    case gameFinish -> log.info("challenge");
-                    //gameStop((Event.GameStopEvent) event);
+                    case gameStart -> gameStart((Event.GameStartEvent) event);
+                    case gameFinish -> gameFinish((Event.GameStopEvent) event);
                 }
             });
             log.info("main event loop finished");
         } catch (RuntimeException e) {
             log.error("main event loop failed", e);
-        } finally {
-
         }
 
         // your work
         return CompletableFuture.completedFuture(null);
+    }
+
+    private void gameStart(Event.GameStartEvent gameStartEvent) {
+        log.info("[{}] GameStartEvent", gameStartEvent.id());
+        if (!isBusy()) {
+            ongoingGames.add(gameStartEvent.id());
+        } else {
+            log.info("[{}] GameExecutor is busy, aborting game", gameStartEvent.id());
+            lichessClientBean.gameAbort(gameStartEvent.id());
+        }
+    }
+
+    private void gameFinish(Event.GameStopEvent gameStopEvent) {
+        log.info("[{}] GameStopEvent", gameStopEvent.id());
+        ongoingGames.remove(gameStopEvent.id());
+        startChallengerIfNotBusy();
+    }
+
+    private void startChallengerIfNotBusy() {
+        if (!isBusy()) {
+            challengerTask.doWorkAsync();
+        }
+    }
+
+    private boolean isBusy() {
+        return !ongoingGames.isEmpty();
     }
 }

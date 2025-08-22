@@ -3,7 +3,9 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -16,28 +18,31 @@ public class LichessChallengeHandler {
 
     private final Supplier<Boolean> fnIsBusy;
 
+    private final Set<String> ongoingChallenges = new HashSet<>();
+
+    private final Runnable onNoOngoingChallenges;
+
     private boolean acceptChallenges;
 
-    private volatile String pendingChallengeId;
-
-    public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy) {
+    public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy, Runnable onNoOngoingChallenges) {
         this.client = client;
         this.fnIsBusy = fnIsBusy;
+        this.onNoOngoingChallenges = onNoOngoingChallenges;
         this.acceptChallenges = true;
     }
 
 
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
-        if (acceptChallenges) {
-            if (pendingChallengeId == null) {
+        if (acceptChallenges && !fnIsBusy.get()) {
+            if (ongoingChallenges.isEmpty()) {
                 if (isChallengeAcceptable(event)) {
                     acceptChallenge(event);
                 } else {
                     declineChallenge(event);
                 }
             } else {
-                log.info("[{}] There is a pending challenge {} at this time", event.id(), pendingChallengeId);
+                log.info("[{}] There is an ongoing challenge at this time", event.id());
                 declineChallenge(event);
             }
         } else {
@@ -48,12 +53,18 @@ public class LichessChallengeHandler {
 
     public void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
-        pendingChallengeId = null;
+        ongoingChallenges.remove(event.id());
+        if (ongoingChallenges.isEmpty()) {
+            onNoOngoingChallenges.run();
+        }
     }
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-        pendingChallengeId = null;
+        ongoingChallenges.remove(event.id());
+        if (ongoingChallenges.isEmpty()) {
+            onNoOngoingChallenges.run();
+        }
     }
 
     public void stopAcceptingChallenges() {
@@ -69,7 +80,7 @@ public class LichessChallengeHandler {
     private void acceptChallenge(Event.ChallengeEvent challengeEvent) {
         log.info("[{}] Accepting challenge", challengeEvent.id());
         client.challengeAccept(challengeEvent.id());
-        pendingChallengeId = challengeEvent.id();
+        ongoingChallenges.add(challengeEvent.id());
     }
 
     private void declineChallenge(Event.ChallengeEvent challengeEvent) {
@@ -94,8 +105,7 @@ public class LichessChallengeHandler {
 
         return isVariantAcceptable(gameType.variant())                          // Chess variant
                 && isTimeControlAcceptable(gameType.timeControl())              // Time control
-                && isChallengerAcceptable(challengerPlayer.get(), gameType.timeControl().speed())
-                && !fnIsBusy.get();                                             // Not busy..
+                && isChallengerAcceptable(challengerPlayer.get(), gameType.timeControl().speed());
     }
 
     private boolean isChallengerAcceptable(ChallengeInfo.Player player, Enums.Speed speed) {
