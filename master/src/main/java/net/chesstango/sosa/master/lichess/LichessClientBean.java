@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
+import lombok.Setter;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -14,14 +15,12 @@ import java.util.stream.Stream;
  */
 @Component
 public class LichessClientBean implements LichessClient {
+
+    @Setter
     private LichessClient imp;
 
     public LichessClientBean() {
         this.imp = new LichessClientNoOp();
-    }
-
-    public void setImp(LichessClient imp) {
-        this.imp = imp;
     }
 
     @Override

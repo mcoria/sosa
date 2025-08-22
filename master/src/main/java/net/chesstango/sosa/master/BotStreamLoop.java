@@ -4,7 +4,6 @@ import chariot.Client;
 import chariot.ClientAuth;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.jobs.ChallengerScheduler;
 import net.chesstango.sosa.master.lichess.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -33,18 +32,19 @@ public class BotStreamLoop {
 
     private final LichessGameHandler lichessGameHandler;
 
-    private final Set<String> ongoingGames = Collections.synchronizedSet(new HashSet<>());
+    private final Set<String> ongoingSessions = Collections.synchronizedSet(new HashSet<>());
 
 
     public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
-                         ChallengerScheduler challengerScheduler,
                          LichessClientBean lichessClientBean,
-                         ChallengerTask challengerTask) {
+                         ChallengerTask challengerTask,
+                         LichessChallengeHandler lichessChallengeHandler,
+                         LichessGameHandler lichessGameHandler) {
         this.bot_token = bot_token;
         this.lichessClientBean = lichessClientBean;
         this.challengerTask = challengerTask;
-        this.lichessChallengeHandler = new LichessChallengeHandler(lichessClientBean, this::isBusy);
-        this.lichessGameHandler = new LichessGameHandler(lichessClientBean, this::isBusy);
+        this.lichessChallengeHandler = lichessChallengeHandler;
+        this.lichessGameHandler = lichessGameHandler;
     }
 
     @Async("ioBoundExecutor")
@@ -66,28 +66,28 @@ public class BotStreamLoop {
                 log.info("event received: {}", event);
                 switch (event.type()) {
                     case challenge -> {
-                        lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event);
-                        ongoingGames.add(event.id());
+                        lichessChallengeHandler.challengeCreated((Event.ChallengeCreatedEvent) event, this::isBusy);
+                        ongoingSessions.add(event.id());
                     }
                     case challengeCanceled -> {
                         lichessChallengeHandler.challengeCanceled((Event.ChallengeCanceledEvent) event);
-                        ongoingGames.remove(event.id());
+                        ongoingSessions.remove(event.id());
                     }
                     case challengeDeclined -> {
                         lichessChallengeHandler.challengeDeclined((Event.ChallengeDeclinedEvent) event);
-                        ongoingGames.remove(event.id());
+                        ongoingSessions.remove(event.id());
                     }
                     case gameStart -> {
-                        lichessGameHandler.gameStart((Event.GameStartEvent) event);
-                        ongoingGames.add(event.id());
+                        lichessGameHandler.gameStart((Event.GameStartEvent) event, this::isBusy);
+                        ongoingSessions.add(event.id());
                     }
                     case gameFinish -> {
                         lichessGameHandler.gameFinish((Event.GameStopEvent) event);
-                        ongoingGames.remove(event.id());
+                        ongoingSessions.remove(event.id());
                     }
                 }
 
-                if (ongoingGames.isEmpty()) {
+                if (ongoingSessions.isEmpty()) {
                     challengerTask.doWorkAsync();
                 }
             });
@@ -107,6 +107,6 @@ public class BotStreamLoop {
     }
 
     private boolean isBusy() {
-        return !ongoingGames.isEmpty();
+        return !ongoingSessions.isEmpty();
     }
 }

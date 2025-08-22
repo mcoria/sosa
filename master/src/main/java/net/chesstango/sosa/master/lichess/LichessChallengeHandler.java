@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -11,21 +12,19 @@ import java.util.function.Supplier;
  * @author Mauricio Coria
  */
 @Slf4j
+@Component
 public class LichessChallengeHandler {
     private final LichessClient client;
 
-    private final Supplier<Boolean> fnIsBusy;
-
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy) {
+    public LichessChallengeHandler(LichessClient client) {
         this.client = client;
-        this.fnIsBusy = fnIsBusy;
         this.acceptChallenges = true;
     }
 
 
-    public void challengeCreated(Event.ChallengeCreatedEvent event) {
+    public void challengeCreated(Event.ChallengeCreatedEvent event, Supplier<Boolean> fnIsBusy) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
             if (!fnIsBusy.get()) {

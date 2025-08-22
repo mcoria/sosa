@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.function.Supplier;
 
@@ -9,18 +10,16 @@ import java.util.function.Supplier;
  * @author Mauricio Coria
  */
 @Slf4j
+@Component
 public class LichessGameHandler {
 
     private final LichessClient client;
 
-    private final Supplier<Boolean> fnIsBusy;
-
-    public LichessGameHandler(LichessClient client, Supplier<Boolean> fnIsBusy) {
+    public LichessGameHandler(LichessClient client) {
         this.client = client;
-        this.fnIsBusy = fnIsBusy;
     }
 
-    public void gameStart(Event.GameStartEvent gameStartEvent) {
+    public void gameStart(Event.GameStartEvent gameStartEvent, Supplier<Boolean> fnIsBusy) {
         log.info("[{}] GameStartEvent", gameStartEvent.id());
         if (!fnIsBusy.get()) {
 
