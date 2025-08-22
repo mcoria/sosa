@@ -3,9 +3,7 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -18,24 +16,19 @@ public class LichessChallengeHandler {
 
     private final Supplier<Boolean> fnIsBusy;
 
-    private final Set<String> ongoingChallenges = new HashSet<>();
-
-    private final Runnable onNoOngoingChallenges;
-
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy, Runnable onNoOngoingChallenges) {
+    public LichessChallengeHandler(LichessClient client, Supplier<Boolean> fnIsBusy) {
         this.client = client;
         this.fnIsBusy = fnIsBusy;
-        this.onNoOngoingChallenges = onNoOngoingChallenges;
         this.acceptChallenges = true;
     }
 
 
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
-        if (acceptChallenges && !fnIsBusy.get()) {
-            if (ongoingChallenges.isEmpty()) {
+        if (acceptChallenges) {
+            if (!fnIsBusy.get()) {
                 if (isChallengeAcceptable(event)) {
                     acceptChallenge(event);
                 } else {
@@ -53,18 +46,10 @@ public class LichessChallengeHandler {
 
     public void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
-        ongoingChallenges.remove(event.id());
-        if (ongoingChallenges.isEmpty()) {
-            onNoOngoingChallenges.run();
-        }
     }
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-        ongoingChallenges.remove(event.id());
-        if (ongoingChallenges.isEmpty()) {
-            onNoOngoingChallenges.run();
-        }
     }
 
     public void stopAcceptingChallenges() {
@@ -80,7 +65,7 @@ public class LichessChallengeHandler {
     private void acceptChallenge(Event.ChallengeEvent challengeEvent) {
         log.info("[{}] Accepting challenge", challengeEvent.id());
         client.challengeAccept(challengeEvent.id());
-        ongoingChallenges.add(challengeEvent.id());
+
     }
 
     private void declineChallenge(Event.ChallengeEvent challengeEvent) {
