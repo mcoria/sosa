@@ -5,6 +5,7 @@ import chariot.model.GameStateEvent;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 /**
@@ -16,6 +17,8 @@ public class LichessGame implements Runnable {
     private final LichessClient client;
     private final Event.GameStartEvent gameStartEvent;
     private final String gameId;
+    private GameStateEvent.Full gameFullEvent;
+    private int moveCounter;
 
     public LichessGame(LichessClient client, Event.GameStartEvent gameStartEvent) {
         this.client = client;
@@ -23,6 +26,15 @@ public class LichessGame implements Runnable {
         this.gameId = gameStartEvent.gameId();
     }
 
+    public boolean expired() {
+        if (gameFullEvent != null) {
+            ZonedDateTime createdAt = gameFullEvent.createdAt();
+            ZonedDateTime now = ZonedDateTime.now();
+            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
+            return diff > 60 && moveCounter < 2;
+        }
+        return false;
+    }
 
     @Override
     public void run() {
@@ -51,6 +63,7 @@ public class LichessGame implements Runnable {
 
     public void accept(GameStateEvent.Full gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
+        gameFullEvent = gameEvent;
     }
 
     public void accept(GameStateEvent.State gameEvent) {

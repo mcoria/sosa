@@ -1,7 +1,7 @@
 package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.Scheduler;
+import org.quartz.*;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,27 +9,24 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class ChallengerScheduler {
+public class DynamicScheduler {
     private final Scheduler scheduler;
 
-    public ChallengerScheduler(Scheduler scheduler) {
+    public DynamicScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
 
-    /*
-    public void scheduleOneOff() {
+    public void scheduleGameWatchDog(String gameId) {
         try {
-            JobDetail job = JobBuilder.newJob(ChallengerJob.class)
-                    .withIdentity("challengerJob")
+            JobDetail job = JobBuilder.newJob(GameWatchDogJob.class)
+                    .withIdentity("gameWatchDogJob")
+                    .usingJobData("gameId", gameId)
                     .storeDurably()
                     .build();
 
             Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity("oneOffTrigger")
-                    .startAt(DateBuilder.futureDate(1, DateBuilder.IntervalUnit.SECOND))
-                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                            .withIntervalInSeconds(10)
-                            .repeatForever())
+                    .withIdentity("gameWatchDogTrigger")
+                    .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
                     .build();
 
             scheduler.scheduleJob(job, trigger);
@@ -37,5 +34,5 @@ public class ChallengerScheduler {
             log.error("Error", e);
             throw new RuntimeException(e);
         }
-    }*/
+    }
 }

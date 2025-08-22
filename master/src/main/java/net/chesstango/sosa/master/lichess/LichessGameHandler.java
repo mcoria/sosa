@@ -1,8 +1,8 @@
 package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Event;
-import chariot.model.GameStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * @author Mauricio Coria
@@ -20,12 +19,18 @@ import java.util.stream.Stream;
 public class LichessGameHandler {
 
     private final LichessClient client;
+
+    private final DynamicScheduler dynamicScheduler;
+
     private final Executor ioBoundExecutor;
 
-    private Map<String, LichessGame> activeGames = new HashMap<>();
+    private final Map<String, LichessGame> activeGames = new HashMap<>();
 
-    public LichessGameHandler(LichessClient client, @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
+    public LichessGameHandler(LichessClient client,
+                              DynamicScheduler dynamicScheduler,
+                              @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
         this.client = client;
+        this.dynamicScheduler = dynamicScheduler;
         this.ioBoundExecutor = ioBoundExecutor;
     }
 
@@ -36,7 +41,9 @@ public class LichessGameHandler {
 
             activeGames.put(gameStartEvent.id(), lichessGame);
 
-            ioBoundExecutor.execute(lichessGame::run);
+            ioBoundExecutor.execute(lichessGame);
+
+            dynamicScheduler.scheduleGameWatchDog(gameStartEvent.id());
 
         } else {
             log.info("[{}] GameExecutor is busy, aborting game", gameStartEvent.id());
@@ -48,7 +55,14 @@ public class LichessGameHandler {
         log.info("[{}] GameStopEvent", gameStopEvent.id());
     }
 
-
-
-
+    public void watchDog(String gameId) {
+        log.info("[{}] WatchDog", gameId);
+        LichessGame lichessGame = activeGames.get(gameId);
+        if (lichessGame != null) {
+            if (lichessGame.expired()) {
+                log.info("[{}] Game watchdog: game is expired", gameId);
+                client.gameAbort(gameId);
+            }
+        }
+    }
 }
