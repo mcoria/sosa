@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -27,7 +28,7 @@ public class LichessGameHandler {
 
     private final Executor ioBoundExecutor;
 
-    private final Map<String, LichessGame> activeGames = new HashMap<>();
+    private final Map<String, LichessGame> activeGames = Collections.synchronizedMap(new HashMap<>());
 
     public LichessGameHandler(LichessClient client,
                               DynamicScheduler dynamicScheduler,
@@ -67,9 +68,11 @@ public class LichessGameHandler {
 
     public void watchDog(String gameId) {
         LichessGame lichessGame = activeGames.get(gameId);
-        if (lichessGame.expired()) {
-            log.info("[{}] Game watchdog: game is expired", gameId);
-            client.gameAbort(gameId);
+        if (lichessGame != null) {
+            if (lichessGame.expired()) {
+                log.info("[{}] Game watchdog: game is expired", gameId);
+                client.gameAbort(gameId);
+            }
         }
     }
 }
