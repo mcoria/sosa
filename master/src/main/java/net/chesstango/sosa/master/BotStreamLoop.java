@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -26,23 +23,17 @@ public class BotStreamLoop {
 
     private final LichessClientBean lichessClientBean;
 
-    private final LichessChallenger lichessChallenger;
-
     private final LichessChallengeHandler lichessChallengeHandler;
 
     private final LichessGameHandler lichessGameHandler;
 
-    private final Set<String> ongoingGames = Collections.synchronizedSet(new HashSet<>());
-
 
     public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
                          LichessClientBean lichessClientBean,
-                         LichessChallenger lichessChallenger,
                          LichessChallengeHandler lichessChallengeHandler,
                          LichessGameHandler lichessGameHandler) {
         this.bot_token = bot_token;
         this.lichessClientBean = lichessClientBean;
-        this.lichessChallenger = lichessChallenger;
         this.lichessChallengeHandler = lichessChallengeHandler;
         this.lichessGameHandler = lichessGameHandler;
     }
@@ -64,14 +55,8 @@ public class BotStreamLoop {
                 switch (event.type()) {
                     case challenge, challengeCanceled, challengeDeclined ->
                             lichessChallengeHandler.handleChallengeEvent(event);
-                    case gameStart -> {
-                        lichessGameHandler.gameStart((Event.GameStartEvent) event);
-                        ongoingGames.add(event.id());
-                    }
-                    case gameFinish -> {
-                        lichessGameHandler.gameFinish((Event.GameStopEvent) event);
-                        ongoingGames.remove(event.id());
-                    }
+                    case gameStart -> lichessGameHandler.handleGameStart((Event.GameStartEvent) event);
+                    case gameFinish -> lichessGameHandler.handleGameFinish((Event.GameStopEvent) event);
                 }
             });
             log.info("main event loop finished");
@@ -83,13 +68,4 @@ public class BotStreamLoop {
         return CompletableFuture.completedFuture(null);
     }
 
-    private void startChallengerIfNotBusy() {
-        if (!isBusy()) {
-            lichessChallenger.challengeRandom();
-        }
-    }
-
-    private boolean isBusy() {
-        return !ongoingGames.isEmpty();
-    }
 }

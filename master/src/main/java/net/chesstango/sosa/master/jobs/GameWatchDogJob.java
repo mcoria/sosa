@@ -23,11 +23,9 @@ public class GameWatchDogJob extends QuartzJobBean {
         this.lichessGameHandler = lichessGameHandler;
     }
 
-
     @Override
     protected void executeInternal(JobExecutionContext context) {
         String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
-        log.info("[{}] Gaugau", gameId);
         lichessGameHandler.watchDog(gameId);
     }
 }

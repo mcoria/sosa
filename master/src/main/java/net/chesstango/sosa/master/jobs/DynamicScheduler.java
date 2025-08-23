@@ -32,7 +32,7 @@ public class DynamicScheduler {
 
             scheduler.scheduleJob(job, trigger);
         } catch (SchedulerException e) {
-            log.error("Error", e);
+            log.error("SchedulerException:", e);
             throw new RuntimeException(e);
         }
     }

@@ -2,17 +2,12 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.BusyEvent;
-import net.chesstango.sosa.master.events.OnGoingChallengesEvent;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
+import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.events.ChallengeEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 /**
@@ -20,29 +15,20 @@ import java.util.function.Predicate;
  */
 @Slf4j
 @Service
-public class LichessChallengeHandler implements ApplicationListener<BusyEvent> {
+public class LichessChallengeHandler {
     private final LichessClient client;
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final SosaState sosaState;
+
     private boolean acceptChallenges;
 
-    private final CircularFifoQueue<String> acceptedChallenges = new CircularFifoQueue<>();
-    private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
-    private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
-
-    private final AtomicBoolean isBusy = new AtomicBoolean(false);
-    private final AtomicBoolean onGoingChallenges = new AtomicBoolean(false);
-
-    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher) {
+    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, SosaState sosaState) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.sosaState = sosaState;
         this.acceptChallenges = true;
-    }
-
-    @Override
-    public void onApplicationEvent(BusyEvent event) {
-        isBusy.set(event.isBusy());
     }
 
     public void handleChallengeEvent(Event event) {
@@ -51,59 +37,35 @@ public class LichessChallengeHandler implements ApplicationListener<BusyEvent> {
             case challengeCanceled -> challengeCanceled((Event.ChallengeCanceledEvent) event);
             case challengeDeclined -> challengeDeclined((Event.ChallengeDeclinedEvent) event);
         }
-
-        Set<String> onGoingChallengesSet = new HashSet<>(acceptedChallenges);
-        onGoingChallengesSet.removeAll(declinedChallenges);
-        onGoingChallengesSet.removeAll(canceledChallenges);
-
-        boolean onGoingChallengesCurrent = !onGoingChallengesSet.isEmpty();
-        if (onGoingChallengesCurrent != onGoingChallenges.get()) {
-            log.info("OnGoingChallenges changed: {}", onGoingChallengesCurrent);
-            onGoingChallenges.set(onGoingChallengesCurrent);
-            applicationEventPublisher.publishEvent(new OnGoingChallengesEvent(this, onGoingChallengesCurrent));
-        }
-
     }
 
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
-            if (!isBusy.get()) {
-                if (declinedChallenges.contains(event.id())) {
-                    log.info("[{}] Challenge declined before", event.id());
-                    declineChallenge(event);
-                    return;
-                }
-
-                if (canceledChallenges.contains(event.id())) {
-                    log.info("[{}] Challenge canceled before", event.id());
-                    declineChallenge(event);
-                    return;
-                }
-
+            if (!sosaState.isBusy()) {
                 if (isChallengeAcceptable(event)) {
-                    acceptChallenge(event);
+                    sentAcceptChallenge(event);
                 } else {
-                    declineChallenge(event);
+                    sentDeclineChallenge(event);
                 }
             } else {
                 log.info("[{}] Busy at this time", event.id());
-                declineChallenge(event);
+                sentDeclineChallenge(event);
             }
         } else {
             log.info("[{}] Not accepting more challenges at this time", event.id());
-            declineChallenge(event);
+            sentDeclineChallenge(event);
         }
     }
 
     public void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
-        canceledChallenges.add(event.id());
+        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CANCELLED, event.id()));
     }
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-        declinedChallenges.add(event.id());
+        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
     public void stopAcceptingChallenges() {
@@ -116,16 +78,16 @@ public class LichessChallengeHandler implements ApplicationListener<BusyEvent> {
      *
      */
 
-    private void acceptChallenge(Event.ChallengeEvent event) {
+    private void sentAcceptChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Accepting challenge", event.id());
         client.challengeAccept(event.id());
-        acceptedChallenges.add(event.id());
+        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_ACCEPTED, event.id()));
     }
 
-    private void declineChallenge(Event.ChallengeEvent event) {
+    private void sentDeclineChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Declining challenge", event.id());
         client.challengeDecline(event.id());
-        declinedChallenges.add(event.id());
+        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
     private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
