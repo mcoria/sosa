@@ -38,6 +38,11 @@ public class LichessClientNoOp implements LichessClient {
     }
 
     @Override
+    public void cancelChallenge(String challengeId) {
+        throw new RuntimeException("No implementation");
+    }
+
+    @Override
     public void gameMove(String gameId, String moveUci) {
         throw new RuntimeException("No implementation");
     }

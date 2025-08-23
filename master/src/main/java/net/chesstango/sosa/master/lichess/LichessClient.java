@@ -22,6 +22,8 @@ public interface LichessClient {
 
     void challengeDecline(String challengeId);
 
+    void cancelChallenge(String challengeId);
+
     void gameMove(String gameId, String moveUci);
 
     void gameResign(String gameId);

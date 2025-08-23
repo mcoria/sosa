@@ -21,8 +21,6 @@ public class LichessChallengeHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final DynamicScheduler dynamicScheduler;
-
     private final SosaState sosaState;
 
     private boolean acceptChallenges;
@@ -30,7 +28,6 @@ public class LichessChallengeHandler {
     public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, DynamicScheduler dynamicScheduler, SosaState sosaState) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
-        this.dynamicScheduler = dynamicScheduler;
         this.sosaState = sosaState;
         this.acceptChallenges = true;
     }
@@ -47,7 +44,7 @@ public class LichessChallengeHandler {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
             if (!sosaState.isGameInProgress()) {
-                if (!sosaState.isChallengeInProgress(Optional.of(event.id()))) {
+                if (!sosaState.thereIsChallengeInProgress(Optional.of(event.id()))) {
                     if (isChallengeAcceptable(event)) {
                         sentAcceptChallenge(event);
                     } else {

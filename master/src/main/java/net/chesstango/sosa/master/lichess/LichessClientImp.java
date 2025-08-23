@@ -55,6 +55,11 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
+    public synchronized void cancelChallenge(String challengeId) {
+        client.bot().cancelChallenge(challengeId);
+    }
+
+    @Override
     public synchronized void gameMove(String gameId, String moveUci) {
         client.bot().move(gameId, moveUci);
     }

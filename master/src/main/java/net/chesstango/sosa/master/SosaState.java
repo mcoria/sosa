@@ -24,7 +24,6 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
 
-
     @Override
     public synchronized void onApplicationEvent(SosaEvent event) {
         if (event instanceof GameEvent gameEvent) {
@@ -55,7 +54,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     }
 
     public synchronized boolean isBusy() {
-        return isChallengeInProgress(Optional.empty()) || isGameInProgress();
+        return thereIsChallengeInProgress(Optional.empty()) || isGameInProgress();
     }
 
     public synchronized boolean isGameInProgress() {
@@ -64,7 +63,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         return !onGoingGamesSet.isEmpty();
     }
 
-    public synchronized boolean isChallengeInProgress(Optional<String> excludedChallengeId) {
+    public synchronized boolean thereIsChallengeInProgress(Optional<String> excludedChallengeId) {
         Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
 
         onGoingChallengesSet.addAll(acceptedChallenges);
@@ -78,4 +77,14 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         return !onGoingChallengesSet.isEmpty();
     }
 
+    public synchronized boolean isChallengePending(String challengeId) {
+        Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
+
+        onGoingChallengesSet.addAll(acceptedChallenges);
+
+        onGoingChallengesSet.removeAll(declinedChallenges);
+        onGoingChallengesSet.removeAll(canceledChallenges);
+
+        return onGoingChallengesSet.contains(challengeId);
+    }
 }

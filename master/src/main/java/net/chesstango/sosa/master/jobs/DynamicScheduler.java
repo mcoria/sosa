@@ -39,9 +39,24 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
             }
         }
     }
-
     private void scheduleChallengeWatchDog(String challengeId) {
+        try {
+            JobDetail job = JobBuilder.newJob(ChallengeWatchDogJob.class)
+                    .withIdentity(String.format("challengeWatchDogJob-%s", challengeId))
+                    .usingJobData("challengeId", challengeId)
+                    .storeDurably()
+                    .build();
 
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity(String.format("challengeWatchDogTrigger-%s", challengeId))
+                    .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
+                    .build();
+
+            scheduler.scheduleJob(job, trigger);
+        } catch (SchedulerException e) {
+            log.error("SchedulerException:", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private void scheduleGameWatchDog(String gameId) {

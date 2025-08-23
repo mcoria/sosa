@@ -49,6 +49,11 @@ public class LichessClientBean implements LichessClient {
     }
 
     @Override
+    public void cancelChallenge(String challengeId) {
+        imp.cancelChallenge(challengeId);
+    }
+
+    @Override
     public void gameMove(String gameId, String moveUci) {
         imp.gameMove(gameId, moveUci);
     }

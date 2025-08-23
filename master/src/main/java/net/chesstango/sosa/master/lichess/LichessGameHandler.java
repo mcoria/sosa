@@ -61,11 +61,11 @@ public class LichessGameHandler {
         applicationEventPublisher.publishEvent(gameEvent);
     }
 
-    public void  watchDog(String gameId) {
+    public void watchDog(String gameId) {
         LichessGame lichessGame = activeGames.get(gameId);
         if (lichessGame != null) {
             if (lichessGame.expired()) {
-                log.info("[{}] Game watchdog: game is expired", gameId);
+                log.info("[{}] Abortin expired game", gameId);
                 client.gameAbort(gameId);
             }
         }
