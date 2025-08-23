@@ -1,8 +1,14 @@
 package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.ChallengeEvent;
+import net.chesstango.sosa.master.events.GameEvent;
+import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
 
@@ -11,7 +17,7 @@ import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
  */
 @Service
 @Slf4j
-public class DynamicScheduler {
+public class DynamicScheduler implements ApplicationListener<SosaEvent> {
     public static final int EXPIRED_TOLERANCE = 5;
 
     private final Scheduler scheduler;
@@ -20,7 +26,25 @@ public class DynamicScheduler {
         this.scheduler = scheduler;
     }
 
-    public void scheduleGameWatchDog(String gameId) {
+
+    @Override
+    public void onApplicationEvent(SosaEvent event) {
+        if (event instanceof ChallengeEvent challengeEvent) {
+            if (Objects.requireNonNull(challengeEvent.getType()) == ChallengeEvent.Type.CHALLENGE_ACCEPTED) {
+                scheduleChallengeWatchDog(challengeEvent.getChallengeId());
+            }
+        } else if (event instanceof GameEvent gameEvent) {
+            if (Objects.requireNonNull(gameEvent.getType()) == GameEvent.Type.GAME_STARED) {
+                scheduleGameWatchDog(gameEvent.getGameId());
+            }
+        }
+    }
+
+    private void scheduleChallengeWatchDog(String challengeId) {
+
+    }
+
+    private void scheduleGameWatchDog(String gameId) {
         try {
             JobDetail job = JobBuilder.newJob(GameWatchDogJob.class)
                     .withIdentity(String.format("gameWatchDogJob-%s", gameId))
@@ -39,4 +63,5 @@ public class DynamicScheduler {
             throw new RuntimeException(e);
         }
     }
+
 }

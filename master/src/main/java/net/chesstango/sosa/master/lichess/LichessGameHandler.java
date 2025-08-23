@@ -24,8 +24,6 @@ public class LichessGameHandler {
 
     private final LichessClient client;
 
-    private final DynamicScheduler dynamicScheduler;
-
     private final Executor ioBoundExecutor;
 
     private final Map<String, LichessGame> activeGames = Collections.synchronizedMap(new HashMap<>());
@@ -35,7 +33,6 @@ public class LichessGameHandler {
                               ApplicationEventPublisher applicationEventPublisher,
                               @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
         this.client = client;
-        this.dynamicScheduler = dynamicScheduler;
         this.applicationEventPublisher = applicationEventPublisher;
         this.ioBoundExecutor = ioBoundExecutor;
     }
@@ -52,8 +49,6 @@ public class LichessGameHandler {
         applicationEventPublisher.publishEvent(gameEvent);
 
         ioBoundExecutor.execute(lichessGame);
-
-        dynamicScheduler.scheduleGameWatchDog(gameStartEvent.id());
     }
 
     public void handleGameFinish(Event.GameStopEvent gameStopEvent) {
@@ -66,7 +61,7 @@ public class LichessGameHandler {
         applicationEventPublisher.publishEvent(gameEvent);
     }
 
-    public void watchDog(String gameId) {
+    public void  watchDog(String gameId) {
         LichessGame lichessGame = activeGames.get(gameId);
         if (lichessGame != null) {
             if (lichessGame.expired()) {

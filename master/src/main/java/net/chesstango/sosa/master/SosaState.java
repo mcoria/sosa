@@ -68,9 +68,11 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
 
         onGoingChallengesSet.addAll(acceptedChallenges);
+
         onGoingChallengesSet.removeAll(declinedChallenges);
         onGoingChallengesSet.removeAll(canceledChallenges);
 
+        // Remove excluded challenge if present
         excludedChallengeId.ifPresent(onGoingChallengesSet::remove);
 
         return !onGoingChallengesSet.isEmpty();

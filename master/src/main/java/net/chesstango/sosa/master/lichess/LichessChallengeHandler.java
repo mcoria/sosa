@@ -4,6 +4,7 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.events.ChallengeEvent;
+import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,16 @@ public class LichessChallengeHandler {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final DynamicScheduler dynamicScheduler;
+
     private final SosaState sosaState;
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, SosaState sosaState) {
+    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, DynamicScheduler dynamicScheduler, SosaState sosaState) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.dynamicScheduler = dynamicScheduler;
         this.sosaState = sosaState;
         this.acceptChallenges = true;
     }
@@ -82,7 +86,6 @@ public class LichessChallengeHandler {
      * PRIVATE METHODS
      *
      */
-
     private void sentAcceptChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Accepting challenge", event.id());
         client.challengeAccept(event.id());
