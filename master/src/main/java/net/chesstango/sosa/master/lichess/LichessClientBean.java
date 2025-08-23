@@ -3,7 +3,7 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.Setter;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Optional;
@@ -13,11 +13,11 @@ import java.util.stream.Stream;
 /**
  * @author Mauricio Coria
  */
-@Component
+@Service
 public class LichessClientBean implements LichessClient {
 
     @Setter
-    private LichessClient imp;
+    private volatile LichessClient imp;
 
     public LichessClientBean() {
         this.imp = new LichessClientNoOp();
@@ -35,8 +35,7 @@ public class LichessClientBean implements LichessClient {
 
     @Override
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
-        imp.challenge(user, challengeBuilderConsumer);
-        return null;
+        return imp.challenge(user, challengeBuilderConsumer);
     }
 
     @Override

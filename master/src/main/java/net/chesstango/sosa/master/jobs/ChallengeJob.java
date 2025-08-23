@@ -1,7 +1,7 @@
 package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.LichessGameHandler;
+import net.chesstango.sosa.master.lichess.LichessChallenger;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
@@ -15,19 +15,18 @@ import org.springframework.stereotype.Component;
 @PersistJobDataAfterExecution
 @Component
 @Slf4j
-public class GameWatchDogJob extends QuartzJobBean {
+public class ChallengeJob extends QuartzJobBean {
 
-    private final LichessGameHandler lichessGameHandler;
+    private final LichessChallenger lichessChallenger;
 
-    public GameWatchDogJob(LichessGameHandler lichessGameHandler) {
-        this.lichessGameHandler = lichessGameHandler;
+    public ChallengeJob(LichessChallenger lichessChallenger) {
+        this.lichessChallenger = lichessChallenger;
     }
 
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
-        log.info("[{}] Gaugau", gameId);
-        lichessGameHandler.watchDog(gameId);
+        lichessChallenger.challengeRandom();
     }
+
 }

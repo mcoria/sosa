@@ -2,41 +2,42 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import net.chesstango.sosa.master.events.BusyEvent;
+import net.chesstango.sosa.master.events.OnGoingChallengesEvent;
+import net.chesstango.sosa.master.events.SosaEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Mauricio Coria
  */
-@Service
 @Slf4j
-public class LichessChallenger {
-
+@Service
+public class LichessChallenger implements ApplicationListener<SosaEvent> {
     private final LichessChallengerBot lichessChallengerBot;
     private final LichessChallengerUser lichessChallengerUser;
 
+    private final AtomicBoolean isBusy = new AtomicBoolean(false);
+    private final AtomicBoolean onGoingChallenges = new AtomicBoolean(false);
+
     public LichessChallenger(LichessClient client) {
-        lichessChallengerBot = new LichessChallengerBot(client);
-        lichessChallengerUser = new LichessChallengerUser(client);
+        this.lichessChallengerBot = new LichessChallengerBot(client);
+        this.lichessChallengerUser = new LichessChallengerUser(client);
     }
 
-    @Async("ioBoundExecutor")
-    public CompletableFuture<Void> doWorkAsync(Consumer<Challenge> fnChallengeConsumer) {
-        log.info("Challenging random bot");
-
-        Optional<Challenge> challenge = challengeRandomBot();
-
-        if (challenge.isPresent()) {
-            fnChallengeConsumer.accept(challenge.get());
-        } else {
-            log.warn("No challenges found");
+    public void challengeRandom() {
+        if (!isBusy.get() && !onGoingChallenges.get()) {
+            log.info("Challenging random bot");
+            Optional<Challenge> challenge = challengeRandomBot();
+            if (challenge.isPresent()) {
+                log.info("[{}] Challenge sent: {}", challenge.get().id(), challenge);
+            } else {
+                log.warn("Couldn't sent challenge");
+            }
         }
-
-        return CompletableFuture.completedFuture(null);
     }
 
     private Optional<Challenge> challengeRandomBot() {
@@ -46,5 +47,14 @@ public class LichessChallenger {
 
     private Optional<Challenge> challengeUser(String username, ChallengeType challengeType) {
         return lichessChallengerUser.challengeUser(username, challengeType);
+    }
+
+    @Override
+    public void onApplicationEvent(SosaEvent event) {
+        if (event instanceof BusyEvent busyEvent) {
+            isBusy.set(busyEvent.isBusy());
+        } else if (event instanceof OnGoingChallengesEvent onGoingChallengesEvent) {
+            onGoingChallenges.set(onGoingChallengesEvent.isOnGoing());
+        }
     }
 }

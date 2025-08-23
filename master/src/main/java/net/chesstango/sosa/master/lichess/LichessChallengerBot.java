@@ -33,10 +33,12 @@ public class LichessChallengerBot {
         Challenger challenger = challengerBotList.get(rand.nextInt(challengerBotList.size()));
         User aBot = challenger.pickRandomBot();
         if (aBot != null) {
-            return Optional.of(client.challenge(aBot, challenger::consumeChallengeBuilder));
+            Challenge challenge = client.challenge(aBot, challenger::consumeChallengeBuilder);
+            return Optional.of(challenge);
         }
 
         log.warn("No bots online :S");
+
         return Optional.empty();
     }
 

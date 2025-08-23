@@ -2,14 +2,15 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.BusyEvent;
 import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
 
 /**
  * @author Mauricio Coria
@@ -17,6 +18,9 @@ import java.util.function.Supplier;
 @Slf4j
 @Component
 public class LichessGameHandler {
+
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private final LichessClient client;
 
@@ -28,31 +32,36 @@ public class LichessGameHandler {
 
     public LichessGameHandler(LichessClient client,
                               DynamicScheduler dynamicScheduler,
+                              ApplicationEventPublisher applicationEventPublisher,
                               @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
         this.client = client;
         this.dynamicScheduler = dynamicScheduler;
         this.ioBoundExecutor = ioBoundExecutor;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    public void gameStart(Event.GameStartEvent gameStartEvent, Supplier<Boolean> fnIsBusy) {
+    public void gameStart(Event.GameStartEvent gameStartEvent) {
         log.info("[{}] GameStartEvent", gameStartEvent.id());
-        if (!fnIsBusy.get()) {
-            LichessGame lichessGame = new LichessGame(client, gameStartEvent);
 
-            activeGames.put(gameStartEvent.id(), lichessGame);
+        LichessGame lichessGame = new LichessGame(client, gameStartEvent);
 
-            ioBoundExecutor.execute(lichessGame);
+        activeGames.put(gameStartEvent.id(), lichessGame);
 
-            dynamicScheduler.scheduleGameWatchDog(gameStartEvent.id());
+        BusyEvent busyEvent = new BusyEvent(this, true);
 
-        } else {
-            log.info("[{}] GameExecutor is busy, aborting game", gameStartEvent.id());
-            client.gameAbort(gameStartEvent.id());
-        }
+        applicationEventPublisher.publishEvent(busyEvent);
+
+        ioBoundExecutor.execute(lichessGame);
+
+        dynamicScheduler.scheduleGameWatchDog(gameStartEvent.id());
     }
 
     public void gameFinish(Event.GameStopEvent gameStopEvent) {
         log.info("[{}] GameStopEvent", gameStopEvent.id());
+
+        BusyEvent busyEvent = new BusyEvent(this, false);
+
+        applicationEventPublisher.publishEvent(busyEvent);
     }
 
     public void watchDog(String gameId) {
