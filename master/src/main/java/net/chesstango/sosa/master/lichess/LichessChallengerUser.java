@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master.lichess;
 
 import chariot.api.ChallengesApiAuthCommon;
+import chariot.model.Challenge;
 import chariot.model.Enums;
 import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class LichessChallengerUser {
         this.client = client;
     }
 
-    public void challengeUser(String username, ChallengeType challengeType) {
+    public Optional<Challenge> challengeUser(String username, ChallengeType challengeType) {
         Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer = (builder) -> {
             switch (challengeType) {
                 case BULLET -> builder.clockBullet2m1s()
@@ -40,9 +41,10 @@ public class LichessChallengerUser {
         Optional<UserAuth> user = client.findUser(username);
 
         if (user.isPresent()) {
-            client.challenge(user.get(), challengeBuilderConsumer);
-        } else {
-            log.info("User '{}' not found", username);
+            return Optional.of(client.challenge(user.get(), challengeBuilderConsumer));
         }
+
+        log.info("User '{}' not found", username);
+        return Optional.empty();
     }
 }

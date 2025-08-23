@@ -33,7 +33,7 @@ public class LichessGame implements Runnable {
             long diff = now.toEpochSecond() - createdAt.toEpochSecond();
             return diff > 60 && moveCounter < 2;
         }
-        return false;
+        return true;
     }
 
     @Override

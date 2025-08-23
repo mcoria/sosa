@@ -2,6 +2,7 @@ package net.chesstango.sosa.master;// Java
 
 import chariot.Client;
 import chariot.ClientAuth;
+import chariot.model.Challenge;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.lichess.*;
@@ -26,7 +27,7 @@ public class BotStreamLoop {
 
     private final LichessClientBean lichessClientBean;
 
-    private final ChallengerTask challengerTask;
+    private final LichessChallenger lichessChallenger;
 
     private final LichessChallengeHandler lichessChallengeHandler;
 
@@ -37,12 +38,12 @@ public class BotStreamLoop {
 
     public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
                          LichessClientBean lichessClientBean,
-                         ChallengerTask challengerTask,
+                         LichessChallenger lichessChallenger,
                          LichessChallengeHandler lichessChallengeHandler,
                          LichessGameHandler lichessGameHandler) {
         this.bot_token = bot_token;
         this.lichessClientBean = lichessClientBean;
-        this.challengerTask = challengerTask;
+        this.lichessChallenger = lichessChallenger;
         this.lichessChallengeHandler = lichessChallengeHandler;
         this.lichessGameHandler = lichessGameHandler;
     }
@@ -58,7 +59,7 @@ public class BotStreamLoop {
         lichessClientBean.setImp(lichessClient);
 
         // Ya se conectó, ahora podemos comenzar a desafiar otros bots
-        challengerTask.doWorkAsync();
+        lichessChallenger.doWorkAsync(this::onChallengeSent);
 
         try (Stream<Event> events = lichessClient.streamEvents()) {
             log.info("Reading Lichess Stream Events");
@@ -87,9 +88,7 @@ public class BotStreamLoop {
                     }
                 }
 
-                if (ongoingSessions.isEmpty()) {
-                    challengerTask.doWorkAsync();
-                }
+                startChallengerIfNotBusy();
             });
             log.info("main event loop finished");
         } catch (RuntimeException e) {
@@ -102,11 +101,15 @@ public class BotStreamLoop {
 
     private void startChallengerIfNotBusy() {
         if (!isBusy()) {
-            challengerTask.doWorkAsync();
+            lichessChallenger.doWorkAsync(this::onChallengeSent);
         }
     }
 
     private boolean isBusy() {
         return !ongoingSessions.isEmpty();
+    }
+
+    private void onChallengeSent(Challenge challenge) {
+        ongoingSessions.add(challenge.id());
     }
 }

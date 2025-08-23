@@ -1,10 +1,7 @@
 package net.chesstango.sosa.master.lichess;
 
 import chariot.api.ChallengesApiAuthCommon;
-import chariot.model.Enums;
-import chariot.model.StatsPerf;
-import chariot.model.StatsPerfType;
-import chariot.model.User;
+import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -32,14 +29,15 @@ public class LichessChallengerBot {
         );
     }
 
-    public void challengeRandomBot() {
+    public Optional<Challenge> challengeRandomBot() {
         Challenger challenger = challengerBotList.get(rand.nextInt(challengerBotList.size()));
         User aBot = challenger.pickRandomBot();
         if (aBot != null) {
-            client.challenge(aBot, challenger::consumeChallengeBuilder);
-        } else {
-            log.warn("No bots online :S");
+            return Optional.of(client.challenge(aBot, challenger::consumeChallengeBuilder));
         }
+
+        log.warn("No bots online :S");
+        return Optional.empty();
     }
 
     void loadOnlineBots() {

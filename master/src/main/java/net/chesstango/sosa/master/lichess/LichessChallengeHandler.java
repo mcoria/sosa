@@ -64,7 +64,6 @@ public class LichessChallengeHandler {
     private void acceptChallenge(Event.ChallengeEvent challengeEvent) {
         log.info("[{}] Accepting challenge", challengeEvent.id());
         client.challengeAccept(challengeEvent.id());
-
     }
 
     private void declineChallenge(Event.ChallengeEvent challengeEvent) {

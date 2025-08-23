@@ -34,8 +34,9 @@ public class LichessClientBean implements LichessClient {
     }
 
     @Override
-    public void challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
+    public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         imp.challenge(user, challengeBuilderConsumer);
+        return null;
     }
 
     @Override

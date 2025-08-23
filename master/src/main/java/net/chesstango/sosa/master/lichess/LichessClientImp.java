@@ -33,14 +33,15 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized void challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
-        client.bot()
-                .challenge(user.id(), challengeBuilderConsumer)
-                .ifPresentOrElse(challenge -> {
-                    log.info("Challenge sent successfully to {}", challenge);
-                }, () -> {
-                    throw new RuntimeException("Error sending challenge");
-                });
+    public synchronized Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
+        One<Challenge> optChallenge = client.bot()
+                .challenge(user.id(), challengeBuilderConsumer);
+
+        if(optChallenge.isPresent()){
+            return optChallenge.get();
+        } else {
+            throw new RuntimeException("Error sending challenge");
+        }
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface LichessClient {
 
     Stream<GameStateEvent> streamGameStateEvent(String gameId);
 
-    void challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
+    Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
 
     void challengeAccept(String challengeId);
 

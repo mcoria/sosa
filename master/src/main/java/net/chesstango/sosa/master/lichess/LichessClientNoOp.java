@@ -23,7 +23,7 @@ public class LichessClientNoOp implements LichessClient {
     }
 
     @Override
-    public void challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
+    public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         throw new RuntimeException("No implementation");
     }
 
