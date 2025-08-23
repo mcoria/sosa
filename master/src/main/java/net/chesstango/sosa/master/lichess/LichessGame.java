@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 @Getter
 @Slf4j
 public class LichessGame implements Runnable {
+    public static final int EXPIRED_THRESHOLD = 10;
     private final LichessClient client;
     private final Event.GameStartEvent gameStartEvent;
     private final String gameId;
@@ -31,7 +32,7 @@ public class LichessGame implements Runnable {
             ZonedDateTime createdAt = gameFullEvent.createdAt();
             ZonedDateTime now = ZonedDateTime.now();
             long diff = now.toEpochSecond() - createdAt.toEpochSecond();
-            return diff > 60 && moveCounter < 2;
+            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
         }
         return true;
     }
@@ -76,7 +77,6 @@ public class LichessGame implements Runnable {
 
     public void accept(GameStateEvent.OpponentGone gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
-
     }
 
 }

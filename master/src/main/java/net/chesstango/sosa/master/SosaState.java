@@ -28,7 +28,13 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     public synchronized void onApplicationEvent(SosaEvent event) {
         if (event instanceof GameEvent gameEvent) {
             switch (gameEvent.getType()) {
-                case GAME_STARED -> createdGames.add(gameEvent.getGameId());
+                case GAME_STARED -> {
+                    createdGames.add(gameEvent.getGameId());
+                    createdChallenges.remove(gameEvent.getGameId());
+                    acceptedChallenges.remove(gameEvent.getGameId());
+                    declinedChallenges.remove(gameEvent.getGameId());
+                    canceledChallenges.remove(gameEvent.getGameId());
+                }
                 case GAME_FINISHED -> finishedGames.add(gameEvent.getGameId());
                 default -> {
                     log.warn("Unknown game event type: {}", gameEvent.getType());
@@ -58,7 +64,8 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     }
 
     private boolean isChallengeInProgress() {
-        Set<String> onGoingChallengesSet = new HashSet<>(acceptedChallenges);
+        Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
+        onGoingChallengesSet.addAll(acceptedChallenges);
         onGoingChallengesSet.removeAll(declinedChallenges);
         onGoingChallengesSet.removeAll(canceledChallenges);
         return !onGoingChallengesSet.isEmpty();

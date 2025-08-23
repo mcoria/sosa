@@ -4,14 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.stereotype.Service;
 
+import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
+
 /**
  * @author Mauricio Coria
  */
 @Service
 @Slf4j
 public class DynamicScheduler {
-    private final Scheduler scheduler;
+    public static final int EXPIRED_TOLERANCE = 5;
 
+    private final Scheduler scheduler;
 
     public DynamicScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -27,7 +30,7 @@ public class DynamicScheduler {
 
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity(String.format("gameWatchDogTrigger-%s", gameId))
-                    .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
+                    .startAt(DateBuilder.futureDate(EXPIRED_THRESHOLD + EXPIRED_TOLERANCE, DateBuilder.IntervalUnit.SECOND))
                     .build();
 
             scheduler.scheduleJob(job, trigger);

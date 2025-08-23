@@ -66,13 +66,10 @@ public class LichessGameHandler {
     }
 
     public void watchDog(String gameId) {
-        log.info("[{}] WatchDog", gameId);
         LichessGame lichessGame = activeGames.get(gameId);
-        if (lichessGame != null) {
-            if (lichessGame.expired()) {
-                log.info("[{}] Game watchdog: game is expired", gameId);
-                client.gameAbort(gameId);
-            }
+        if (lichessGame.expired()) {
+            log.info("[{}] Game watchdog: game is expired", gameId);
+            client.gameAbort(gameId);
         }
     }
 }
