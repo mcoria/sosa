@@ -31,7 +31,8 @@ public class LichessChallenger  {
     public synchronized void challengeRandom() {
         if (!sosaState.isBusy()) {
             log.info("Challenging random bot");
-            Optional<Challenge> challengeOpt = challengeRandomBot();
+            //Optional<Challenge> challengeOpt = challengeRandomBot();
+            Optional<Challenge> challengeOpt = challengeUser("pepecardozo", ChallengeType.BULLET);
             if (challengeOpt.isPresent()) {
                 Challenge challenge = challengeOpt.get();
                 log.info("[{}] Challenge sent: {}", challenge.id(), challengeOpt);

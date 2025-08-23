@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -54,20 +55,24 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     }
 
     public synchronized boolean isBusy() {
-        return isChallengeInProgress() || isGameInProgress();
+        return isChallengeInProgress(Optional.empty()) || isGameInProgress();
     }
 
-    private boolean isGameInProgress() {
+    public synchronized boolean isGameInProgress() {
         Set<String> onGoingGamesSet = new HashSet<>(createdGames);
         onGoingGamesSet.removeAll(finishedGames);
         return !onGoingGamesSet.isEmpty();
     }
 
-    private boolean isChallengeInProgress() {
+    public synchronized boolean isChallengeInProgress(Optional<String> excludedChallengeId) {
         Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
+
         onGoingChallengesSet.addAll(acceptedChallenges);
         onGoingChallengesSet.removeAll(declinedChallenges);
         onGoingChallengesSet.removeAll(canceledChallenges);
+
+        excludedChallengeId.ifPresent(onGoingChallengesSet::remove);
+
         return !onGoingChallengesSet.isEmpty();
     }
 

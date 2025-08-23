@@ -42,14 +42,19 @@ public class LichessChallengeHandler {
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
-            if (!sosaState.isBusy()) {
-                if (isChallengeAcceptable(event)) {
-                    sentAcceptChallenge(event);
+            if (!sosaState.isGameInProgress()) {
+                if (!sosaState.isChallengeInProgress(Optional.of(event.id()))) {
+                    if (isChallengeAcceptable(event)) {
+                        sentAcceptChallenge(event);
+                    } else {
+                        sentDeclineChallenge(event);
+                    }
                 } else {
+                    log.info("[{}] There are in progress challenges", event.id());
                     sentDeclineChallenge(event);
                 }
             } else {
-                log.info("[{}] Busy at this time", event.id());
+                log.info("[{}] There are in progress games", event.id());
                 sentDeclineChallenge(event);
             }
         } else {
