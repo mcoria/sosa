@@ -15,9 +15,11 @@ import java.util.stream.Stream;
 @Slf4j
 public class LichessGame implements Runnable {
     public static final int EXPIRED_THRESHOLD = 10;
+
     private final LichessClient client;
     private final Event.GameStartEvent gameStartEvent;
     private final String gameId;
+
     private GameStateEvent.Full gameFullEvent;
     private int moveCounter;
 
@@ -25,16 +27,6 @@ public class LichessGame implements Runnable {
         this.client = client;
         this.gameStartEvent = gameStartEvent;
         this.gameId = gameStartEvent.gameId();
-    }
-
-    public boolean expired() {
-        if (gameFullEvent != null) {
-            ZonedDateTime createdAt = gameFullEvent.createdAt();
-            ZonedDateTime now = ZonedDateTime.now();
-            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
-            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
-        }
-        return true;
     }
 
     @Override
@@ -62,20 +54,30 @@ public class LichessGame implements Runnable {
         }
     }
 
-    public void accept(GameStateEvent.Full gameEvent) {
+    public boolean expired() {
+        if (gameFullEvent != null) {
+            ZonedDateTime createdAt = gameFullEvent.createdAt();
+            ZonedDateTime now = ZonedDateTime.now();
+            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
+            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
+        }
+        return true;
+    }
+
+    private void accept(GameStateEvent.Full gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
         gameFullEvent = gameEvent;
     }
 
-    public void accept(GameStateEvent.State gameEvent) {
+    private void accept(GameStateEvent.State gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
     }
 
-    public void accept(GameStateEvent.Chat gameEvent) {
+    private void accept(GameStateEvent.Chat gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
     }
 
-    public void accept(GameStateEvent.OpponentGone gameEvent) {
+    private void accept(GameStateEvent.OpponentGone gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
     }
 

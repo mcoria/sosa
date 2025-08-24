@@ -3,12 +3,10 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.GameEvent;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 /**
  * @author Mauricio Coria
@@ -21,17 +19,13 @@ public class LichessGameHandler {
 
     private final LichessClient client;
 
-    private final Executor ioBoundExecutor;
-
     private final Map<String, LichessGame> activeGames;
 
     public LichessGameHandler(LichessClient client,
                               ApplicationEventPublisher applicationEventPublisher,
-                              Map<String, LichessGame> activeGames,
-                              @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
+                              Map<String, LichessGame> activeGames) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
-        this.ioBoundExecutor = ioBoundExecutor;
         this.activeGames = activeGames;
     }
 
@@ -45,8 +39,6 @@ public class LichessGameHandler {
         GameEvent gameEvent = new GameEvent(this, GameEvent.Type.GAME_STARED, gameStartEvent.id());
 
         applicationEventPublisher.publishEvent(gameEvent);
-
-        ioBoundExecutor.execute(lichessGame);
     }
 
     public void handleGameFinish(Event.GameStopEvent gameStopEvent) {

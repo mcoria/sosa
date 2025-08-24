@@ -14,11 +14,13 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfig {
 
+    public static final String GAME_TASK_EXECUTOR = "gameTaskExecutor";
 
-    @Bean(name = "ioBoundExecutor")
-    public Executor ioBoundExecutor() {
+
+    @Bean(name = GAME_TASK_EXECUTOR)
+    public Executor gameTaskExecutor() {
         ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-        exec.setThreadNamePrefix("io-");
+        exec.setThreadNamePrefix("game-");
         exec.setCorePoolSize(32);
         exec.setMaxPoolSize(64);
         exec.setQueueCapacity(2000);
