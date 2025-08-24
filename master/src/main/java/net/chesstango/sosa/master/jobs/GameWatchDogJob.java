@@ -1,31 +1,42 @@
 package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.LichessGameHandler;
-import org.quartz.DisallowConcurrentExecution;
+import net.chesstango.sosa.master.lichess.LichessClient;
+import net.chesstango.sosa.master.lichess.LichessGame;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 /**
  * @author Mauricio Coria
  */
-@DisallowConcurrentExecution
 @PersistJobDataAfterExecution
 @Component
 @Slf4j
 public class GameWatchDogJob extends QuartzJobBean {
 
-    private final LichessGameHandler lichessGameHandler;
+    private final Map<String, LichessGame> activeGames;
 
-    public GameWatchDogJob(LichessGameHandler lichessGameHandler) {
-        this.lichessGameHandler = lichessGameHandler;
+    private final LichessClient client;
+
+    public GameWatchDogJob(Map<String, LichessGame> activeGames, LichessClient client) {
+        this.activeGames = activeGames;
+        this.client = client;
+
     }
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
         String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
-        lichessGameHandler.watchDog(gameId);
+        LichessGame lichessGame = activeGames.get(gameId);
+        if (lichessGame != null) {
+            if (lichessGame.expired()) {
+                log.info("[{}] Aborting expired game", gameId);
+                client.gameAbort(gameId);
+            }
+        }
     }
 }

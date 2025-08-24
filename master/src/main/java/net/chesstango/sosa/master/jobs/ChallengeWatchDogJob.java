@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 /**
  * @author Mauricio Coria
  */
-@DisallowConcurrentExecution
 @PersistJobDataAfterExecution
 @Component
 @Slf4j

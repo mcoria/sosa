@@ -3,13 +3,10 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.GameEvent;
-import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -26,15 +23,16 @@ public class LichessGameHandler {
 
     private final Executor ioBoundExecutor;
 
-    private final Map<String, LichessGame> activeGames = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, LichessGame> activeGames;
 
     public LichessGameHandler(LichessClient client,
-                              DynamicScheduler dynamicScheduler,
                               ApplicationEventPublisher applicationEventPublisher,
+                              Map<String, LichessGame> activeGames,
                               @Qualifier("ioBoundExecutor") Executor ioBoundExecutor) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
         this.ioBoundExecutor = ioBoundExecutor;
+        this.activeGames = activeGames;
     }
 
     public void handleGameStart(Event.GameStartEvent gameStartEvent) {
@@ -59,15 +57,5 @@ public class LichessGameHandler {
         GameEvent gameEvent = new GameEvent(this, GameEvent.Type.GAME_FINISHED, gameStopEvent.id());
 
         applicationEventPublisher.publishEvent(gameEvent);
-    }
-
-    public void watchDog(String gameId) {
-        LichessGame lichessGame = activeGames.get(gameId);
-        if (lichessGame != null) {
-            if (lichessGame.expired()) {
-                log.info("[{}] Abortin expired game", gameId);
-                client.gameAbort(gameId);
-            }
-        }
     }
 }

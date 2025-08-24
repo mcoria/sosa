@@ -35,7 +35,9 @@ public class SosaState implements ApplicationListener<SosaEvent> {
                     declinedChallenges.remove(gameEvent.getGameId());
                     canceledChallenges.remove(gameEvent.getGameId());
                 }
-                case GAME_FINISHED -> finishedGames.add(gameEvent.getGameId());
+                case GAME_FINISHED -> {
+                    finishedGames.add(gameEvent.getGameId());
+                }
                 default -> {
                     log.warn("Unknown game event type: {}", gameEvent.getType());
                 }
