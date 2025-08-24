@@ -14,10 +14,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public class LichessGameHandler {
+    private final LichessClient client;
 
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    private final LichessClient client;
 
     private final Map<String, LichessGame> activeGames;
 

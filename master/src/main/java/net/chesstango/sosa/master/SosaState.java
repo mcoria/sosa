@@ -18,8 +18,8 @@ import java.util.concurrent.Executor;
 
 import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
 
-@Component
 @Slf4j
+@Component
 public class SosaState implements ApplicationListener<SosaEvent> {
 
     private final Executor gameTaskExecutor;
