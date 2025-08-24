@@ -19,13 +19,13 @@ import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
 @Slf4j
 public class DynamicScheduler implements ApplicationListener<SosaEvent> {
     public static final int EXPIRED_TOLERANCE = 5;
+    public static final int CHALLENGE_EXPIRE = 15;
 
     private final Scheduler scheduler;
 
     public DynamicScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
-
 
     @Override
     public void onApplicationEvent(SosaEvent event) {
@@ -49,7 +49,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
 
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity(String.format("challengeWatchDogTrigger-%s", challengeId))
-                    .startAt(DateBuilder.futureDate(15, DateBuilder.IntervalUnit.SECOND))
+                    .startAt(DateBuilder.futureDate(CHALLENGE_EXPIRE, DateBuilder.IntervalUnit.SECOND))
                     .build();
 
             scheduler.scheduleJob(job, trigger);
