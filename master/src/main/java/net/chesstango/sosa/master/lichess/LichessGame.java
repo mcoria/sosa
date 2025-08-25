@@ -26,6 +26,7 @@ public class LichessGame implements Runnable {
     private final String gameId;
 
     private FEN startPosition;
+    private Event.GameStartEvent gameStartEvent;
     private GameStateEvent.Full gameFullEvent;
     private Color myColor;
     private int moveCounter;
@@ -35,9 +36,11 @@ public class LichessGame implements Runnable {
         this.gameId = gameId;
     }
 
-    public void setColor(Color color) {
-        this.myColor = color;
+    public void setGameStartEvent(Event.GameStartEvent gameStartEvent){
+        this.gameStartEvent = gameStartEvent;
+        this.myColor = getMyColor(gameStartEvent);
     }
+
 
     @Override
     public void run() {
@@ -141,5 +144,19 @@ public class LichessGame implements Runnable {
     private void sendChatMessage(String message) {
         log.info("[{}] Chat: [{}] >> {}", gameId, "chesstango", message);
         client.gameChat(gameId, message);
+    }
+
+    private Color getMyColor(Event.GameStartEvent gameStartEvent) {
+        // Indica el estado actual del tablero
+        GameInfo gameInfo = gameStartEvent.game();
+
+        // Si el tablero indica...
+        if (Enums.Color.white == gameInfo.color()) {
+            // // Que juegan blancas y es mi turno, soy blancas
+            return gameInfo.isMyTurn() ? Color.WHITE : Color.BLACK;
+        } else {
+            // // Que juegan negras y es mi turno, soy negras
+            return gameInfo.isMyTurn() ? Color.BLACK : Color.WHITE;
+        }
     }
 }
