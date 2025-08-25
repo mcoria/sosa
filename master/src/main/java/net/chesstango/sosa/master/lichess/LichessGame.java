@@ -3,9 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.GameStateEvent;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
@@ -15,8 +12,6 @@ import java.util.stream.Stream;
  */
 @Getter
 @Slf4j
-@Component
-@Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class LichessGame implements Runnable {
     public static final int EXPIRED_THRESHOLD = 10;
 

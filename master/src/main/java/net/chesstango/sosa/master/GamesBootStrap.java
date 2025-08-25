@@ -1,13 +1,12 @@
 package net.chesstango.sosa.master;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.configs.GameScope;
 import net.chesstango.sosa.master.events.GameEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
+import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import net.chesstango.sosa.master.lichess.LichessGame;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -23,13 +22,11 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     private final Executor gameTaskExecutor;
 
-    @Autowired
-    @Setter
-    @Getter
-    private LichessGame lichessGame;
+    private final ObjectFactory<LichessGame> lichessGameBeanFactory;
 
-    public GamesBootStrap(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor) {
+    public GamesBootStrap(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor, ObjectFactory<LichessGame> lichessGameBeanFactory, DynamicScheduler dynamicScheduler) {
         this.gameTaskExecutor = gameTaskExecutor;
+        this.lichessGameBeanFactory = lichessGameBeanFactory;
     }
 
     @Override
@@ -45,6 +42,8 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
         gameTaskExecutor.execute(() -> {
             try {
                 GameScope.setThreadConversationId(gameId);
+
+                LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
                 lichessGame.run();
 

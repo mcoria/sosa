@@ -6,7 +6,7 @@ import net.chesstango.sosa.master.events.GameEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
@@ -15,8 +15,8 @@ import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
 /**
  * @author Mauricio Coria
  */
-@Service
 @Slf4j
+@Component
 public class DynamicScheduler implements ApplicationListener<SosaEvent> {
     public static final int EXPIRED_TOLERANCE = 5;
     public static final int CHALLENGE_EXPIRE = 15;

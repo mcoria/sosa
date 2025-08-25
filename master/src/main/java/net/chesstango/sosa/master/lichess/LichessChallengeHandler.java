@@ -25,7 +25,7 @@ public class LichessChallengeHandler {
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, DynamicScheduler dynamicScheduler, SosaState sosaState) {
+    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, SosaState sosaState) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
         this.sosaState = sosaState;
