@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-public class LichessChallenger  {
+public class LichessChallenger {
     private final LichessChallengerBot lichessChallengerBot;
     private final LichessChallengerUser lichessChallengerUser;
     private final SosaState sosaState;
@@ -31,7 +31,8 @@ public class LichessChallenger  {
     public synchronized void challengeRandom() {
         if (!sosaState.isBusy()) {
             log.info("Challenging random bot");
-            Optional<Challenge> challengeOpt = challengeRandomBot();
+            //Optional<Challenge> challengeOpt = challengeRandomBot();
+            Optional<Challenge> challengeOpt = challengeUser("pepecardozo", ChallengeType.RAPID);
             if (challengeOpt.isPresent()) {
                 Challenge challenge = challengeOpt.get();
                 log.info("[{}] Challenge sent: {}", challenge.id(), challengeOpt);

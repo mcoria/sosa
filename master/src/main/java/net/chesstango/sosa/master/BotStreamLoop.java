@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
+
 /**
  * @author Mauricio Coria
  */
@@ -38,7 +40,7 @@ public class BotStreamLoop {
         this.lichessGameHandler = lichessGameHandler;
     }
 
-    @Async("ioBoundExecutor")
+    @Async(GAME_TASK_EXECUTOR)
     public CompletableFuture<Void> doWorkAsync() {
         log.info("Connecting to Lichess");
 

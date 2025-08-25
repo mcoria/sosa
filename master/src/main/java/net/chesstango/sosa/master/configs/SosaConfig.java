@@ -1,12 +1,9 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.lichess.LichessGame;
+import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.context.annotation.Scope;
 
 /**
  * @author Mauricio Coria
@@ -15,7 +12,16 @@ import java.util.Map;
 public class SosaConfig {
 
     @Bean
-    public Map<String, LichessGame> activeGames() {
-        return Collections.synchronizedMap(new HashMap<>());
+    public CustomScopeConfigurer customScopeConfigurer() {
+        CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+        configurer.addScope("game", new GameScope());
+        return configurer;
     }
+
+    @Bean
+    @Scope("game")
+    public String gameId() {
+        return GameScope.getThreadConversationId();
+    }
+
 }

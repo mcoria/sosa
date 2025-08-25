@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.configs.GameScope;
 import net.chesstango.sosa.master.events.ChallengeEvent;
 import net.chesstango.sosa.master.events.GameEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
@@ -11,7 +12,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -21,9 +21,9 @@ import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
 @Slf4j
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
-
     private final Executor gameTaskExecutor;
-    private final Map<String, LichessGame> activeGames;
+
+    private final LichessGame lichessGame;
 
     private final CircularFifoQueue<String> createdGames = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> finishedGames = new CircularFifoQueue<>();
@@ -34,9 +34,9 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
 
     public SosaState(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor,
-                     Map<String, LichessGame> activeGames) {
+                     LichessGame lichessGame) {
         this.gameTaskExecutor = gameTaskExecutor;
-        this.activeGames = activeGames;
+        this.lichessGame = lichessGame;
     }
 
     @Override
@@ -108,7 +108,15 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     }
 
     private void startGame(String gameId) {
-        LichessGame lichessGame = activeGames.get(gameId);
-        gameTaskExecutor.execute(lichessGame);
+        gameTaskExecutor.execute(() -> {
+            try {
+                GameScope.setThreadConversationId(gameId);
+
+                lichessGame.run();
+
+            } finally {
+                GameScope.unsetThreadConversationId();
+            }
+        });
     }
 }
