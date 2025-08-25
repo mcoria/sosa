@@ -25,10 +25,14 @@ public class StartupJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        // Aca deberia determinar si suspendo o inicio el loop
-        // En caso que inicie, deberia cancelar esta tarea
-        // En caso que NO inicie, deberia volver a planificar la tarea
-        log.info("Triggering BotStreamLoop ...");
-        botStreamLoop.doWorkAsync();
+        try {
+            // Aca deberia determinar si suspendo o inicio el loop
+            // En caso que inicie, deberia cancelar esta tarea
+            // En caso que NO inicie, deberia volver a planificar la tarea
+            log.info("Triggering BotStreamLoop ...");
+            botStreamLoop.doWorkAsync();
+        } catch (Exception e) {
+            log.error("Error executing GameWatchDogJob", e);
+        }
     }
 }

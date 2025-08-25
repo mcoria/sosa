@@ -1,29 +1,22 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.configs.GameScope;
 import net.chesstango.sosa.master.events.ChallengeEvent;
 import net.chesstango.sosa.master.events.GameEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import net.chesstango.sosa.master.lichess.LichessGame;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.Executor;
-
-import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
 
 @Slf4j
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
-    private final Executor gameTaskExecutor;
-
-    private final LichessGame lichessGame;
+    public static final int MAX_SIMULTANEOUS_GAMES = 2;
 
     private final CircularFifoQueue<String> createdGames = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> finishedGames = new CircularFifoQueue<>();
@@ -33,10 +26,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
 
-    public SosaState(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor,
-                     LichessGame lichessGame) {
-        this.gameTaskExecutor = gameTaskExecutor;
-        this.lichessGame = lichessGame;
+    public SosaState(LichessGame lichessGame) {
     }
 
     @Override
@@ -49,8 +39,6 @@ public class SosaState implements ApplicationListener<SosaEvent> {
                     acceptedChallenges.remove(gameEvent.getGameId());
                     declinedChallenges.remove(gameEvent.getGameId());
                     canceledChallenges.remove(gameEvent.getGameId());
-
-                    startGame(gameEvent.getGameId());
                 }
                 case GAME_FINISHED -> {
                     finishedGames.add(gameEvent.getGameId());
@@ -79,7 +67,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     public synchronized boolean isGameInProgress() {
         Set<String> onGoingGamesSet = new HashSet<>(createdGames);
         onGoingGamesSet.removeAll(finishedGames);
-        return !onGoingGamesSet.isEmpty();
+        return onGoingGamesSet.size() >= MAX_SIMULTANEOUS_GAMES;
     }
 
     public synchronized boolean thereIsChallengeInProgress(Optional<String> excludedChallengeId) {
@@ -105,18 +93,5 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         onGoingChallengesSet.removeAll(canceledChallenges);
 
         return onGoingChallengesSet.contains(challengeId);
-    }
-
-    private void startGame(String gameId) {
-        gameTaskExecutor.execute(() -> {
-            try {
-                GameScope.setThreadConversationId(gameId);
-
-                lichessGame.run();
-
-            } finally {
-                GameScope.unsetThreadConversationId();
-            }
-        });
     }
 }

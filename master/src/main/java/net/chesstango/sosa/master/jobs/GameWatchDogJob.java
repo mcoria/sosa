@@ -30,13 +30,17 @@ public class GameWatchDogJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
-        LichessGame lichessGame = activeGames.get(gameId);
-        if (lichessGame != null) {
-            if (lichessGame.expired()) {
-                log.info("[{}] Aborting expired game", gameId);
-                client.gameAbort(gameId);
+        try {
+            String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
+            LichessGame lichessGame = activeGames.get(gameId);
+            if (lichessGame != null) {
+                if (lichessGame.expired()) {
+                    log.info("[{}] Aborting expired game", gameId);
+                    client.gameAbort(gameId);
+                }
             }
+        } catch (Exception e) {
+            log.error("Error executing GameWatchDogJob", e);
         }
     }
 }
