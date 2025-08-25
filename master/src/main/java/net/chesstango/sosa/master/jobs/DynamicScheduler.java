@@ -2,7 +2,7 @@ package net.chesstango.sosa.master.jobs;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.ChallengeEvent;
-import net.chesstango.sosa.master.events.GameEvent;
+import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
 import org.springframework.context.ApplicationListener;
@@ -33,12 +33,11 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
             if (Objects.requireNonNull(challengeEvent.getType()) == ChallengeEvent.Type.CHALLENGE_ACCEPTED) {
                 scheduleChallengeWatchDog(challengeEvent.getChallengeId());
             }
-        } else if (event instanceof GameEvent gameEvent) {
-            if (Objects.requireNonNull(gameEvent.getType()) == GameEvent.Type.GAME_STARED) {
-                scheduleGameWatchDog(gameEvent.getGameId());
-            }
+        } else if (event instanceof GameStartEvent gameStartEvent) {
+            scheduleGameWatchDog(gameStartEvent.getGameId());
         }
     }
+
     private void scheduleChallengeWatchDog(String challengeId) {
         try {
             JobDetail job = JobBuilder.newJob(ChallengeWatchDogJob.class)

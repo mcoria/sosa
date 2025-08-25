@@ -2,7 +2,8 @@ package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.ChallengeEvent;
-import net.chesstango.sosa.master.events.GameEvent;
+import net.chesstango.sosa.master.events.GameFinishEvent;
+import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import net.chesstango.sosa.master.lichess.LichessGame;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -31,31 +32,21 @@ public class SosaState implements ApplicationListener<SosaEvent> {
 
     @Override
     public synchronized void onApplicationEvent(SosaEvent event) {
-        if (event instanceof GameEvent gameEvent) {
-            switch (gameEvent.getType()) {
-                case GAME_STARED -> {
-                    createdGames.add(gameEvent.getGameId());
-                    createdChallenges.remove(gameEvent.getGameId());
-                    acceptedChallenges.remove(gameEvent.getGameId());
-                    declinedChallenges.remove(gameEvent.getGameId());
-                    canceledChallenges.remove(gameEvent.getGameId());
-                }
-                case GAME_FINISHED -> {
-                    finishedGames.add(gameEvent.getGameId());
-                }
-                default -> {
-                    log.warn("Unknown game event type: {}", gameEvent.getType());
-                }
-            }
+        if (event instanceof GameStartEvent gameStartEvent) {
+            createdGames.add(gameStartEvent.getGameId());
+            createdChallenges.remove(gameStartEvent.getGameId());
+            acceptedChallenges.remove(gameStartEvent.getGameId());
+            declinedChallenges.remove(gameStartEvent.getGameId());
+            canceledChallenges.remove(gameStartEvent.getGameId());
+        } else if (event instanceof GameFinishEvent gameFinishEvent) {
+            finishedGames.add(gameFinishEvent.getGameId());
         } else if (event instanceof ChallengeEvent challengeEvent) {
             switch (challengeEvent.getType()) {
                 case CHALLENGE_CREATED -> createdChallenges.add(challengeEvent.getChallengeId());
                 case CHALLENGE_ACCEPTED -> acceptedChallenges.add(challengeEvent.getChallengeId());
                 case CHALLENGE_DECLINED -> declinedChallenges.add(challengeEvent.getChallengeId());
                 case CHALLENGE_CANCELLED -> canceledChallenges.add(challengeEvent.getChallengeId());
-                default -> {
-                    log.warn("Unknown challenge event type: {}", challengeEvent.getType());
-                }
+                default -> log.warn("Unknown challenge event type: {}", challengeEvent.getType());
             }
         }
     }

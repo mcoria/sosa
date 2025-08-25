@@ -4,10 +4,8 @@ import chariot.Client;
 import chariot.ClientAuth;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.GameEvent;
 import net.chesstango.sosa.master.lichess.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,12 @@
 package net.chesstango.sosa.master;
 
+import chariot.model.Enums;
+import chariot.model.Event;
+import chariot.model.GameInfo;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.board.Color;
 import net.chesstango.sosa.master.configs.GameScope;
-import net.chesstango.sosa.master.events.GameEvent;
+import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import net.chesstango.sosa.master.lichess.LichessGame;
@@ -11,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
@@ -31,19 +34,21 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     @Override
     public void onApplicationEvent(SosaEvent event) {
-        if (event instanceof GameEvent gameEvent) {
-            if (Objects.requireNonNull(gameEvent.getType()) == GameEvent.Type.GAME_STARED) {
-                startGame(gameEvent.getGameId());
-            }
+        if (event instanceof GameStartEvent gameStartEvent) {
+            startGame(gameStartEvent.getGameStartEvent());
         }
     }
 
-    private void startGame(String gameId) {
+    private void startGame(Event.GameStartEvent gameStartEvent) {
         gameTaskExecutor.execute(() -> {
             try {
+                String gameId = gameStartEvent.id();
+
                 GameScope.setThreadConversationId(gameId);
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
+
+                lichessGame.setColor(getColor(gameStartEvent));
 
                 lichessGame.run();
 
@@ -51,6 +56,17 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
                 GameScope.unsetThreadConversationId();
             }
         });
+    }
+
+    private Color getColor(Event.GameStartEvent gameStartEvent) {
+        GameInfo gameInfo = gameStartEvent.game();
+
+        // gameInfo.color() indica con que colo juego
+        if (Enums.Color.white == gameInfo.color()) {
+            return Color.WHITE;
+        } else {
+            return Color.BLACK;
+        }
     }
 
 }

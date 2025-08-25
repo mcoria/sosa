@@ -2,7 +2,8 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.GameEvent;
+import net.chesstango.sosa.master.events.GameFinishEvent;
+import net.chesstango.sosa.master.events.GameStartEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class LichessGameHandler {
     public void handleGameStart(Event.GameStartEvent gameStartEvent) {
         log.info("[{}] GameStartEvent", gameStartEvent.id());
 
-        GameEvent gameEvent = new GameEvent(this, GameEvent.Type.GAME_STARED, gameStartEvent.id());
+        GameStartEvent gameEvent = new GameStartEvent(this, gameStartEvent);
 
         applicationEventPublisher.publishEvent(gameEvent);
     }
@@ -30,8 +31,8 @@ public class LichessGameHandler {
     public void handleGameFinish(Event.GameStopEvent gameStopEvent) {
         log.info("[{}] GameStopEvent", gameStopEvent.id());
 
-        GameEvent gameEvent = new GameEvent(this, GameEvent.Type.GAME_FINISHED, gameStopEvent.id());
+        GameFinishEvent gameStartEvent = new GameFinishEvent(this, gameStopEvent);
 
-        applicationEventPublisher.publishEvent(gameEvent);
+        applicationEventPublisher.publishEvent(gameStartEvent);
     }
 }

@@ -25,6 +25,9 @@ public class SosaConfig {
     @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public LichessGame getLichessGame(LichessClient client) {
         String gameId = GameScope.getThreadConversationId();
+        if (gameId == null) {
+            throw new IllegalStateException("No gameId found in ThreadConversation");
+        }
         return new LichessGame(client, gameId);
     }
 

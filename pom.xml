@@ -40,15 +40,30 @@
     <properties>
         <java.version>21</java.version>
 
+        <!-- Decoding/encoding to different chess representations: FEN, EPD, PGN, SAN, LAN -->
+        <gardel.version>1.0.10</gardel.version>
+
+        <!-- Chesstango -->
+        <chesstango.version>1.2.0-SNAPSHOT</chesstango.version>
+
         <!-- Lichess communication protocol -->
         <chariot.version>0.1.20</chariot.version>
 
         <commons-collections.version>4.5.0</commons-collections.version>
-
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>net.chesstango</groupId>
+                <artifactId>board</artifactId>
+                <version>${chesstango.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.chesstango</groupId>
+                <artifactId>gardel</artifactId>
+                <version>${gardel.version}</version>
+            </dependency>
             <dependency>
                 <groupId>net.chesstango</groupId>
                 <artifactId>sosa-model</artifactId>

@@ -1,10 +1,17 @@
 package net.chesstango.sosa.master.lichess;
 
-import chariot.model.GameStateEvent;
+
+import chariot.model.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.board.Color;
+import net.chesstango.board.Game;
+import net.chesstango.board.position.PositionReader;
+import net.chesstango.gardel.fen.FEN;
+import net.chesstango.gardel.fen.FENParser;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -16,16 +23,20 @@ public class LichessGame implements Runnable {
     public static final int EXPIRED_THRESHOLD = 10;
 
     private final LichessClient client;
-
     private final String gameId;
 
+    private FEN startPosition;
     private GameStateEvent.Full gameFullEvent;
-
+    private Color myColor;
     private int moveCounter;
 
     public LichessGame(LichessClient client, String gameId) {
         this.client = client;
         this.gameId = gameId;
+    }
+
+    public void setColor(Color color) {
+        this.myColor = color;
     }
 
     @Override
@@ -66,6 +77,20 @@ public class LichessGame implements Runnable {
     private void accept(GameStateEvent.Full gameEvent) {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
         gameFullEvent = gameEvent;
+
+        GameType gameType = gameFullEvent.gameType();
+        Variant gameVariant = gameType.variant();
+
+        if (Variant.Basic.standard.equals(gameType.variant())) {
+            this.startPosition = FEN.of(FENParser.INITIAL_FEN);
+        } else if (gameVariant instanceof Variant.FromPosition fromPositionVariant) {
+            Opt<String> someFen = fromPositionVariant.fen();
+            this.startPosition = FEN.of(someFen.get());
+        } else {
+            throw new RuntimeException("GameVariant not supported variant");
+        }
+
+        gameState(gameFullEvent.state());
     }
 
     private void accept(GameStateEvent.State gameEvent) {
@@ -80,4 +105,42 @@ public class LichessGame implements Runnable {
         log.info("[{}] GameStateEvent {}", gameId, gameEvent);
     }
 
+    private void gameState(GameStateEvent.State state) {
+        log.info("[{}] gameState: {}", gameId, state);
+
+        Enums.Status status = state.status();
+
+        switch (status) {
+            case mate, resign, outoftime, stalemate, draw -> sendChatMessage("good game!!!");
+            case aborted -> sendChatMessage("goodbye!!!");
+            case started, created -> play(state);
+            default -> log.warn("[{}] No action handler for status {}", gameId, status);
+        }
+    }
+
+    private void play(GameStateEvent.State state) {
+        moveCounter = state.moveList().size();
+
+        Game game = Game.from(startPosition, state.moveList());
+
+        PositionReader currentChessPosition = game
+                .getPosition();
+
+        if (Objects.equals(myColor, currentChessPosition.getCurrentTurn())) {
+
+            long wTime = state.wtime().toMillis();
+            long bTime = state.btime().toMillis();
+
+            long wInc = state.winc().toMillis();
+            long bInc = state.binc().toMillis();
+
+            //session.setMoves(state.moveList());
+            //session.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc);
+        }
+    }
+
+    private void sendChatMessage(String message) {
+        log.info("[{}] Chat: [{}] >> {}", gameId, "chesstango", message);
+        client.gameChat(gameId, message);
+    }
 }
