@@ -48,7 +48,7 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
-                lichessGame.setColor(getColor(gameStartEvent));
+                lichessGame.setColor(getMyColor(gameStartEvent));
 
                 lichessGame.run();
 
@@ -58,14 +58,17 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
         });
     }
 
-    private Color getColor(Event.GameStartEvent gameStartEvent) {
+    private Color getMyColor(Event.GameStartEvent gameStartEvent) {
+        // Indica el estado actual del tablero
         GameInfo gameInfo = gameStartEvent.game();
 
-        // gameInfo.color() indica con que colo juego
+        // Si el tablero indica...
         if (Enums.Color.white == gameInfo.color()) {
-            return Color.WHITE;
+            // // Que juegan blancas y es mi turno, soy blancas
+            return gameInfo.isMyTurn() ? Color.WHITE : Color.BLACK;
         } else {
-            return Color.BLACK;
+            // // Que juegan negras y es mi turno, soy negras
+            return gameInfo.isMyTurn() ? Color.BLACK : Color.WHITE;
         }
     }
 

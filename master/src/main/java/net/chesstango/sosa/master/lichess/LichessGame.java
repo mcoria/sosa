@@ -127,7 +127,6 @@ public class LichessGame implements Runnable {
                 .getPosition();
 
         if (Objects.equals(myColor, currentChessPosition.getCurrentTurn())) {
-
             long wTime = state.wtime().toMillis();
             long bTime = state.btime().toMillis();
 

@@ -17,7 +17,7 @@ import java.util.Set;
 @Slf4j
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
-    public static final int MAX_SIMULTANEOUS_GAMES = 2;
+    public static final int MAX_SIMULTANEOUS_GAMES = 1;
 
     private final CircularFifoQueue<String> createdGames = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> finishedGames = new CircularFifoQueue<>();
