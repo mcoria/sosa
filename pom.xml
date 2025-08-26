@@ -29,6 +29,7 @@
     <modules>
         <module>model</module>
         <module>worker</module>
+        <module>worker-init</module>
         <module>master</module>
     </modules>
     <scm>

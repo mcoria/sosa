@@ -26,3 +26,4 @@ replay_pid*
 master/target/
 model/target/
 worker/target/
+worker-init/target/
