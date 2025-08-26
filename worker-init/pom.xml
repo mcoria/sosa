@@ -79,6 +79,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <name>worker-init</name>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>
