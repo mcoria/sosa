@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @EnableRabbit
 @Component
 @Slf4j
-public class InitConsumer {
+public class WorkerConsumer {
 
 
     @RabbitListener(queues = RabbitConfig.NEW_GAMES_QUEUE)
@@ -22,7 +22,7 @@ public class InitConsumer {
         // Process message
         log.info("Received: {}", payload);
 
-        NewInitApplication.countDownLatch.countDown();
+
 
 
     }
