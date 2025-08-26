@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class WorkerConsumer {
 
 
-    @RabbitListener(queues = RabbitConfig.NEW_GAMES_QUEUE)
+    @RabbitListener(queues = "${gameId}")
     public void handle(NewGame payload) {
         // Process message
         log.info("Received: {}", payload);

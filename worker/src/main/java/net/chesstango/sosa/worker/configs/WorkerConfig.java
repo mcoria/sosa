@@ -1,10 +1,13 @@
 package net.chesstango.sosa.worker.configs;
 
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * @author Mauricio Coria
  */
-@EnableAsync
+
+@Configuration
+@PropertySource("file:C:\\java\\projects\\chess\\chess-utils\\engines\\game.properties")
 public class WorkerConfig {
 }
