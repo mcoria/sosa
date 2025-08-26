@@ -7,10 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Mauricio Coria
  */
 @SpringBootApplication
-public class SosaMasterApplication {
+public class MasterApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SosaMasterApplication.class, args);
+        SpringApplication.run(MasterApplication.class, args);
     }
 
 }

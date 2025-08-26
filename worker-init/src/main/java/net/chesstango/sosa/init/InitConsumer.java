@@ -10,6 +10,8 @@ import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.stereotype.Component;
 
+import static net.chesstango.sosa.init.configs.RabbitConfig.NEW_GAMES_QUEUE;
+
 /**
  * @author Mauricio Coria
  */
@@ -17,8 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class InitConsumer {
-    public static final String NEW_GAMES_QUEUE = "new_games.queue";
-
     private final ConnectionFactory connectionFactory;
 
     public InitConsumer(ConnectionFactory connectionFactory) {
