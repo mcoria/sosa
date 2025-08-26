@@ -8,6 +8,6 @@ import org.springframework.context.annotation.PropertySource;
  */
 
 @Configuration
-@PropertySource("file:C:\\java\\projects\\chess\\chess-utils\\engines\\game.properties")
+@PropertySource("file:${WORKER_INIT_DIRECTORY}\\game.properties")
 public class WorkerConfig {
 }
