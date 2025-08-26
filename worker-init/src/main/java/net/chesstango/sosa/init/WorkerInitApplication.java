@@ -14,7 +14,9 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class WorkerInitApplication {
 
-    public static CountDownLatch countDownLatch = new CountDownLatch(1);
+    private static int exitCode = 0;
+
+    private static final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -24,7 +26,16 @@ public class WorkerInitApplication {
 
         countDownLatch.await();
 
-        SpringApplication.exit(context, () -> 0);
+        SpringApplication.exit(context, () -> exitCode);
     }
 
+    public static void finishFail() {
+        exitCode = -1;
+        countDownLatch.countDown();
+    }
+
+    public static void finishSuccess() {
+        exitCode = 0;
+        countDownLatch.countDown();
+    }
 }
