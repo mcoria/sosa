@@ -19,8 +19,11 @@ import static net.chesstango.sosa.init.configs.RabbitConfig.NEW_GAMES_QUEUE;
 public class InitConsumer {
     private final ConnectionFactory connectionFactory;
 
-    public InitConsumer(ConnectionFactory connectionFactory) {
+    private final PropertyWriter propertyWriter;
+
+    public InitConsumer(ConnectionFactory connectionFactory, PropertyWriter propertyWriter) {
         this.connectionFactory = connectionFactory;
+        this.propertyWriter = propertyWriter;
     }
 
     @PostConstruct
@@ -38,10 +41,9 @@ public class InitConsumer {
 
     @RabbitListener(queues = NEW_GAMES_QUEUE)
     public void handle(NewGame payload) {
-        // Process message
         log.info("Received: {}", payload);
 
-        //writePropertyFile(payload.getGameId());
+        propertyWriter.writePropertyFile(payload.getGameId());
 
         WorkerInitApplication.finishSuccess();
     }

@@ -23,7 +23,5 @@ public class WorkerConsumer {
         log.info("Received: {}", payload);
 
 
-
-
     }
 }

@@ -1,5 +1,6 @@
 package net.chesstango.sosa.master.jobs;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.ChallengeEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
@@ -25,6 +26,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
     private final Scheduler scheduler;
 
     @Value("${app.game_watch_dog}")
+    @Setter
     private Boolean gameWatchDogEnabled;
 
     public DynamicScheduler(Scheduler scheduler) {

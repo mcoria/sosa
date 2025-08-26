@@ -1,12 +1,13 @@
 package net.chesstango.sosa.master;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.ChallengeEvent;
 import net.chesstango.sosa.master.events.GameFinishEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
-import net.chesstango.sosa.master.lichess.LichessGame;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,11 @@ import java.util.Set;
 @Slf4j
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
-    public static final int MAX_SIMULTANEOUS_GAMES = 1;
+
+
+    @Setter
+    @Value("${app.maxSimultaneousGames}")
+    private int maxSimultaneousGames;
 
     private final CircularFifoQueue<String> createdGames = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> finishedGames = new CircularFifoQueue<>();
@@ -26,6 +31,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     private final CircularFifoQueue<String> acceptedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
+
 
     @Override
     public synchronized void onApplicationEvent(SosaEvent event) {
@@ -55,7 +61,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     public synchronized boolean isGameInProgress() {
         Set<String> onGoingGamesSet = new HashSet<>(createdGames);
         onGoingGamesSet.removeAll(finishedGames);
-        return onGoingGamesSet.size() >= MAX_SIMULTANEOUS_GAMES;
+        return onGoingGamesSet.size() >= maxSimultaneousGames;
     }
 
     public synchronized boolean thereIsChallengeInProgress(Optional<String> excludedChallengeId) {
