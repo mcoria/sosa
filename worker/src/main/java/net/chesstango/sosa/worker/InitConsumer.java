@@ -1,6 +1,7 @@
 package net.chesstango.sosa.worker;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.model.NewGame;
 import net.chesstango.sosa.worker.configs.RabbitConfig;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
@@ -12,11 +13,17 @@ import org.springframework.stereotype.Component;
  */
 @EnableRabbit
 @Component
-public class DemoConsumer {
+@Slf4j
+public class InitConsumer {
 
-    @RabbitListener(queues = RabbitConfig.QUEUE)
+
+    @RabbitListener(queues = RabbitConfig.NEW_GAMES_QUEUE)
     public void handle(NewGame payload) {
         // Process message
-        System.out.println("Received: " + payload);
+        log.info("Received: {}", payload);
+
+        NewInitApplication.countDownLatch.countDown();
+
+
     }
 }

@@ -4,7 +4,7 @@ app:
 
 spring:
   application:
-    name: sosa
+    name: sosa-master
 
   main:
     web-application-type: none
