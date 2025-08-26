@@ -14,3 +14,9 @@ spring:
     # Recommended for publishers:
     publisher-confirm-type: correlated
     publisher-returns: true
+
+    listener:
+      simple:
+        prefetch: 1
+      direct:
+        prefetch: 1
