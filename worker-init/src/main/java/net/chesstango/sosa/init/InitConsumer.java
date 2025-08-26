@@ -15,7 +15,6 @@ import static net.chesstango.sosa.init.configs.RabbitConfig.NEW_GAMES_QUEUE;
 /**
  * @author Mauricio Coria
  */
-@EnableRabbit
 @Component
 @Slf4j
 public class InitConsumer {
