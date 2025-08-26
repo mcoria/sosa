@@ -1,9 +1,6 @@
 package net.chesstango.sosa.master.configs;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -16,23 +13,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String EXCHANGE = "demo.exchange";
-    public static final String QUEUE = "demo.queue";
-    public static final String ROUTING_KEY = "demo.key";
+    public static final String CHESS_TANGO_EXCHANGE = "chesstango.exchange";
+    public static final String NEW_GAMES_QUEUE = "new_games.queue";
+    public static final String NEW_GAMES_ROUTING_KEY = "new_games.key";
 
     @Bean
     public Queue demoQueue() {
-        return new Queue(QUEUE, true);
+        return new Queue(NEW_GAMES_QUEUE, false);
     }
 
     @Bean
-    public TopicExchange demoExchange() {
-        return new TopicExchange(EXCHANGE, true, false);
+    public DirectExchange demoExchange() {
+        return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
     }
 
     @Bean
-    public Binding demoBinding(Queue demoQueue, TopicExchange demoExchange) {
-        return BindingBuilder.bind(demoQueue).to(demoExchange).with(ROUTING_KEY);
+    public Binding demoBinding(Queue demoQueue, DirectExchange demoExchange) {
+        return BindingBuilder.bind(demoQueue).to(demoExchange).with(NEW_GAMES_ROUTING_KEY);
     }
 
     @Bean

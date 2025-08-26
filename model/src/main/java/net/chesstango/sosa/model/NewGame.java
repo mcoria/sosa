@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DemoPayload {
-    private String id;
-    private String content;
+public class NewGame {
+    private String gameId;
 }

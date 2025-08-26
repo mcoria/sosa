@@ -1,7 +1,9 @@
 package net.chesstango.sosa.master.configs;
 
+import net.chesstango.sosa.master.NewGameProducer;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.master.lichess.LichessGame;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +25,22 @@ public class SosaConfig {
 
     @Bean
     @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public LichessGame getLichessGame(LichessClient client) {
+    public LichessGame lichessGame(LichessClient client) {
         String gameId = GameScope.getThreadConversationId();
         if (gameId == null) {
             throw new IllegalStateException("No gameId found in ThreadConversation");
         }
         return new LichessGame(client, gameId);
+    }
+
+    @Bean
+    @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    public NewGameProducer newGameProducer(RabbitTemplate rabbitTemplate) {
+        String gameId = GameScope.getThreadConversationId();
+        if (gameId == null) {
+            throw new IllegalStateException("No gameId found in ThreadConversation");
+        }
+        return new NewGameProducer(rabbitTemplate, gameId);
     }
 
 }

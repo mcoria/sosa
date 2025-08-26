@@ -27,9 +27,6 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> canceledChallenges = new CircularFifoQueue<>();
 
-    public SosaState(LichessGame lichessGame) {
-    }
-
     @Override
     public synchronized void onApplicationEvent(SosaEvent event) {
         if (event instanceof GameStartEvent gameStartEvent) {

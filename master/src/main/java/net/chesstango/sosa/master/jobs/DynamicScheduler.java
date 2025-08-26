@@ -5,6 +5,7 @@ import net.chesstango.sosa.master.events.ChallengeEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,9 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
 
     private final Scheduler scheduler;
 
+    @Value("${app.game_watch_dog}")
+    private Boolean gameWatchDogEnabled;
+
     public DynamicScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
     }
@@ -34,7 +38,9 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
                 scheduleChallengeWatchDog(challengeEvent.getChallengeId());
             }
         } else if (event instanceof GameStartEvent gameStartEvent) {
-            scheduleGameWatchDog(gameStartEvent.getGameId());
+            if (gameWatchDogEnabled) {
+                scheduleGameWatchDog(gameStartEvent.getGameId());
+            }
         }
     }
 

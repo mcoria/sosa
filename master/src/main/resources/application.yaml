@@ -1,5 +1,6 @@
 app:
   bot_token: ${BOT_TOKEN}
+  game_watch_dog: false
 
 spring:
   application:

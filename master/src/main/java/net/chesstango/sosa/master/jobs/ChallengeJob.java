@@ -26,7 +26,11 @@ public class ChallengeJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        lichessChallenger.challengeRandom();
+        try {
+            lichessChallenger.challengeRandom();
+        } catch (Exception e) {
+            log.error("Error executing ChallengeJob", e);
+        }
     }
 
 }
