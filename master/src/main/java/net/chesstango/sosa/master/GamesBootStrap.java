@@ -22,14 +22,14 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     private final Executor gameTaskExecutor;
 
-    private final NewGameProducer newGameProducer;
+    private final GameProducer gameProducer;
 
     private final ObjectFactory<LichessGame> lichessGameBeanFactory;
 
-    public GamesBootStrap(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor, ObjectFactory<LichessGame> lichessGameBeanFactory, DynamicScheduler dynamicScheduler, NewGameProducer newGameProducer) {
+    public GamesBootStrap(@Qualifier(GAME_TASK_EXECUTOR) Executor gameTaskExecutor, ObjectFactory<LichessGame> lichessGameBeanFactory, DynamicScheduler dynamicScheduler, GameProducer gameProducer) {
         this.gameTaskExecutor = gameTaskExecutor;
         this.lichessGameBeanFactory = lichessGameBeanFactory;
-        this.newGameProducer = newGameProducer;
+        this.gameProducer = gameProducer;
     }
 
     @Override
@@ -46,9 +46,9 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 GameScope.setThreadConversationId(gameId);
 
-                newGameProducer.setupGameQueue();
+                gameProducer.setupGameQueue();
 
-                newGameProducer.sendStartNewGame();
+                gameProducer.sendStartNewGame();
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
 

@@ -9,6 +9,7 @@ import net.chesstango.board.Game;
 import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.gardel.fen.FENParser;
+import net.chesstango.sosa.master.GameProducer;
 
 import java.time.ZonedDateTime;
 import java.util.Objects;
@@ -23,6 +24,7 @@ public class LichessGame implements Runnable {
     public static final int EXPIRED_THRESHOLD = 10;
 
     private final LichessClient client;
+    private final GameProducer gameProducer;
     private final String gameId;
 
     private FEN startPosition;
@@ -31,8 +33,9 @@ public class LichessGame implements Runnable {
     private Color myColor;
     private int moveCounter;
 
-    public LichessGame(LichessClient client, String gameId) {
+    public LichessGame(LichessClient client, GameProducer gameProducer, String gameId) {
         this.client = client;
+        this.gameProducer = gameProducer;
         this.gameId = gameId;
     }
 
@@ -92,6 +95,8 @@ public class LichessGame implements Runnable {
         } else {
             throw new RuntimeException("GameVariant not supported variant");
         }
+
+        gameProducer.setStartPosition(startPosition);
 
         gameState(gameFullEvent.state());
     }

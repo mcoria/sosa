@@ -1,6 +1,6 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.master.NewGameProducer;
+import net.chesstango.sosa.master.GameProducer;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.master.lichess.LichessGame;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -27,22 +27,22 @@ public class SosaConfig {
 
     @Bean
     @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public LichessGame lichessGame(LichessClient client) {
+    public LichessGame lichessGame(LichessClient client, GameProducer newGameProducer) {
         String gameId = GameScope.getThreadConversationId();
         if (gameId == null) {
             throw new IllegalStateException("No gameId found in ThreadConversation");
         }
-        return new LichessGame(client, gameId);
+        return new LichessGame(client, newGameProducer, gameId);
     }
 
     @Bean
     @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public NewGameProducer newGameProducer(AmqpAdmin amqpAdmin, DirectExchange demoExchange, RabbitTemplate rabbitTemplate) {
+    public GameProducer newGameProducer(AmqpAdmin amqpAdmin, DirectExchange demoExchange, RabbitTemplate rabbitTemplate) {
         String gameId = GameScope.getThreadConversationId();
         if (gameId == null) {
             throw new IllegalStateException("No gameId found in ThreadConversation");
         }
-        return new NewGameProducer(amqpAdmin, demoExchange, rabbitTemplate, gameId);
+        return new GameProducer(amqpAdmin, demoExchange, rabbitTemplate, gameId);
     }
 
 }

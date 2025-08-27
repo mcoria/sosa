@@ -1,8 +1,10 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.gardel.fen.FEN;
 import net.chesstango.sosa.master.configs.RabbitConfig;
 import net.chesstango.sosa.model.NewGame;
+import net.chesstango.sosa.model.StartPosition;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -10,15 +12,14 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
  * @author Mauricio Coria
  */
 @Slf4j
-public class NewGameProducer {
+public class GameProducer {
     private final AmqpAdmin amqpAdmin;
     private final DirectExchange demoExchange;
     private final RabbitTemplate rabbitTemplate;
     private final String gameId;
-    private Queue gameQueue;
 
 
-    public NewGameProducer(AmqpAdmin amqpAdmin, DirectExchange demoExchange, RabbitTemplate rabbitTemplate, String gameId) {
+    public GameProducer(AmqpAdmin amqpAdmin, DirectExchange demoExchange, RabbitTemplate rabbitTemplate, String gameId) {
         this.amqpAdmin = amqpAdmin;
         this.demoExchange = demoExchange;
         this.rabbitTemplate = rabbitTemplate;
@@ -37,10 +38,20 @@ public class NewGameProducer {
 
     public void setupGameQueue() {
         log.info("[{}] Setup gameQueue and binding to exchange", gameId);
-        gameQueue = new Queue(gameId, false, false, true);
+        Queue gameQueue = new Queue(gameId, false, false, true);
         amqpAdmin.declareQueue(gameQueue);
 
         Binding binding = BindingBuilder.bind(gameQueue).to(demoExchange).with(gameId);
         amqpAdmin.declareBinding(binding);
+    }
+
+    public void setStartPosition(FEN startPosition) {
+        log.info("[{}] Sending StartPosition event...", gameId);
+        StartPosition payload = new StartPosition(startPosition.toString());
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CHESS_TANGO_EXCHANGE,
+                gameId,
+                payload
+        );
     }
 }
