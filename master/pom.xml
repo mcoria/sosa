@@ -20,11 +20,11 @@
     <dependencies>
         <dependency>
             <groupId>net.chesstango</groupId>
-            <artifactId>board</artifactId>
+            <artifactId>gardel</artifactId>
         </dependency>
         <dependency>
             <groupId>net.chesstango</groupId>
-            <artifactId>gardel</artifactId>
+            <artifactId>board</artifactId>
         </dependency>
         <dependency>
             <groupId>net.chesstango</groupId>

@@ -98,22 +98,19 @@ public class LichessGame implements Runnable {
 
         gameProducer.setStartPosition(startPosition);
 
-        gameState(gameFullEvent.state());
+        accept(gameFullEvent.state());
     }
 
-    private void accept(GameStateEvent.State gameEvent) {
-        log.info("[{}] GameStateEvent {}", gameId, gameEvent);
-    }
 
     private void accept(GameStateEvent.Chat gameEvent) {
-        log.info("[{}] GameStateEvent {}", gameId, gameEvent);
+        log.info("[{}] GameStateEvent.Chat {}", gameId, gameEvent);
     }
 
     private void accept(GameStateEvent.OpponentGone gameEvent) {
-        log.info("[{}] GameStateEvent {}", gameId, gameEvent);
+        log.info("[{}] GameStateEvent.OpponentGone {}", gameId, gameEvent);
     }
 
-    private void gameState(GameStateEvent.State state) {
+    private void accept(GameStateEvent.State state) {
         log.info("[{}] gameState: {}", gameId, state);
 
         Enums.Status status = state.status();
@@ -151,16 +148,12 @@ public class LichessGame implements Runnable {
     }
 
     private Color getMyColor(Event.GameStartEvent gameStartEvent) {
-        // Indica el estado actual del tablero
         GameInfo gameInfo = gameStartEvent.game();
 
-        // Si el tablero indica...
         if (Enums.Color.white == gameInfo.color()) {
-            // // Que juegan blancas y es mi turno, soy blancas
-            return gameInfo.isMyTurn() ? Color.WHITE : Color.BLACK;
+            return Color.WHITE;
         } else {
-            // // Que juegan negras y es mi turno, soy negras
-            return gameInfo.isMyTurn() ? Color.BLACK : Color.WHITE;
+            return Color.BLACK;
         }
     }
 }

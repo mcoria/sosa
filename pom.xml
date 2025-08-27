@@ -62,6 +62,11 @@
             </dependency>
             <dependency>
                 <groupId>net.chesstango</groupId>
+                <artifactId>engine</artifactId>
+                <version>${chesstango.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.chesstango</groupId>
                 <artifactId>gardel</artifactId>
                 <version>${gardel.version}</version>
             </dependency>
