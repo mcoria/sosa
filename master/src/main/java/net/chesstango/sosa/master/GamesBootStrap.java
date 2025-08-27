@@ -46,6 +46,8 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 GameScope.setThreadConversationId(gameId);
 
+                newGameProducer.setupGameQueue();
+
                 newGameProducer.sendStartNewGame();
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
