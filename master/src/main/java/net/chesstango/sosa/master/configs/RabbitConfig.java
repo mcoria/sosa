@@ -56,20 +56,7 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter(DefaultClassMapper classMapper) {
-        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
-        converter.setClassMapper(classMapper);
-        return converter;
-    }
-
-    @Bean
-    public DefaultClassMapper classMapper() {
-        DefaultClassMapper classMapper = new DefaultClassMapper();
-        Map<String, Class<?>> idClassMapping = new HashMap<>();
-        idClassMapping.put("NewGame", NewGame.class);
-        idClassMapping.put("StartPosition", StartPosition.class);
-        idClassMapping.put("GoFast", GoFast.class);
-        classMapper.setIdClassMapping(idClassMapping);
-        return classMapper;
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }
