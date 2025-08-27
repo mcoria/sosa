@@ -39,7 +39,7 @@ public class LichessGame implements Runnable {
         this.gameId = gameId;
     }
 
-    public void setGameStartEvent(Event.GameStartEvent gameStartEvent){
+    public void setGameStartEvent(Event.GameStartEvent gameStartEvent) {
         this.gameStartEvent = gameStartEvent;
         this.myColor = getMyColor(gameStartEvent);
     }
@@ -141,8 +141,7 @@ public class LichessGame implements Runnable {
             long wInc = state.winc().toMillis();
             long bInc = state.binc().toMillis();
 
-            //session.setMoves(state.moveList());
-            //session.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc);
+            gameProducer.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
         }
     }
 

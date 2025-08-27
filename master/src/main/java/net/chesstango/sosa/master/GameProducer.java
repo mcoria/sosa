@@ -3,10 +3,13 @@ package net.chesstango.sosa.master;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.sosa.master.configs.RabbitConfig;
+import net.chesstango.sosa.model.GoFast;
 import net.chesstango.sosa.model.NewGame;
 import net.chesstango.sosa.model.StartPosition;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
+import java.util.List;
 
 /**
  * @author Mauricio Coria
@@ -26,6 +29,15 @@ public class GameProducer {
         this.gameId = gameId;
     }
 
+    public void setupGameQueue() {
+        log.info("[{}] Setup gameQueue and binding to exchange", gameId);
+        Queue gameQueue = new Queue(gameId, false, false, true);
+        amqpAdmin.declareQueue(gameQueue);
+
+        Binding binding = BindingBuilder.bind(gameQueue).to(demoExchange).with(gameId);
+        amqpAdmin.declareBinding(binding);
+    }
+
     public void sendStartNewGame() {
         log.info("[{}] Sending NewGame event...", gameId);
         NewGame payload = new NewGame(gameId);
@@ -36,18 +48,22 @@ public class GameProducer {
         );
     }
 
-    public void setupGameQueue() {
-        log.info("[{}] Setup gameQueue and binding to exchange", gameId);
-        Queue gameQueue = new Queue(gameId, false, false, true);
-        amqpAdmin.declareQueue(gameQueue);
-
-        Binding binding = BindingBuilder.bind(gameQueue).to(demoExchange).with(gameId);
-        amqpAdmin.declareBinding(binding);
-    }
-
     public void setStartPosition(FEN startPosition) {
         log.info("[{}] Sending StartPosition event...", gameId);
+
         StartPosition payload = new StartPosition(startPosition.toString());
+
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CHESS_TANGO_EXCHANGE,
+                gameId,
+                payload
+        );
+    }
+
+    public void goFast(int wTime, int bTime, int wInc, int bInc, List<String> strings) {
+        log.info("[{}] Sending GoFast event...", gameId);
+        GoFast payload = new GoFast(wTime, bTime, wInc, bInc, strings);
+
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CHESS_TANGO_EXCHANGE,
                 gameId,

@@ -1,13 +1,20 @@
 package net.chesstango.sosa.master.configs;
 
+import net.chesstango.sosa.model.GoFast;
+import net.chesstango.sosa.model.NewGame;
+import net.chesstango.sosa.model.StartPosition;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Mauricio Coria
@@ -35,11 +42,6 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
     public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory,
                                          Jackson2JsonMessageConverter converter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
@@ -51,5 +53,23 @@ public class RabbitConfig {
     @Bean
     public AmqpAdmin amqpAdmin(ConnectionFactory connectionFactory) {
         return new RabbitAdmin(connectionFactory);
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter(DefaultClassMapper classMapper) {
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        converter.setClassMapper(classMapper);
+        return converter;
+    }
+
+    @Bean
+    public DefaultClassMapper classMapper() {
+        DefaultClassMapper classMapper = new DefaultClassMapper();
+        Map<String, Class<?>> idClassMapping = new HashMap<>();
+        idClassMapping.put("NewGame", NewGame.class);
+        idClassMapping.put("StartPosition", StartPosition.class);
+        idClassMapping.put("GoFast", GoFast.class);
+        classMapper.setIdClassMapping(idClassMapping);
+        return classMapper;
     }
 }

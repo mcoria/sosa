@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 /**
  * @author Mauricio Coria
  */
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
