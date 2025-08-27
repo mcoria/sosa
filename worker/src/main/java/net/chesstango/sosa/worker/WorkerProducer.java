@@ -1,0 +1,34 @@
+package net.chesstango.sosa.worker;
+
+
+import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.model.GoResult;
+import net.chesstango.sosa.worker.configs.RabbitConfig;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * @author Mauricio Coria
+ */
+@Slf4j
+@Component
+public class WorkerProducer {
+    private final RabbitTemplate rabbitTemplate;
+    private final String gameId;
+
+    public WorkerProducer(RabbitTemplate rabbitTemplate, @Value("${gameId}") String gameId) {
+        this.rabbitTemplate = rabbitTemplate;
+        this.gameId = gameId;
+    }
+
+    public void sendResponse(String bestMove) {
+        log.info("Sending response: {}", bestMove);
+        GoResult payload = new GoResult(gameId, bestMove);
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CHESS_TANGO_EXCHANGE,
+                RabbitConfig.WORKER_RESPONDS_ROUTING_KEY,
+                payload
+        );
+    }
+}

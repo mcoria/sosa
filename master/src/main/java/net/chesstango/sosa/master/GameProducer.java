@@ -43,7 +43,7 @@ public class GameProducer {
         NewGame payload = new NewGame(gameId);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CHESS_TANGO_EXCHANGE,
-                RabbitConfig.NEW_GAMES_ROUTING_KEY,
+                RabbitConfig.MASTER_REQUESTS_ROUTING_KEY,
                 payload
         );
     }

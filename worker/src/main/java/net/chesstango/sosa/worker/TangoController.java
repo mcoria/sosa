@@ -25,9 +25,7 @@ import java.util.concurrent.Future;
 @Component
 public class TangoController implements AutoCloseable, SearchListener {
     private final SimpleMoveEncoder simpleMoveEncoder = new SimpleMoveEncoder();
-
     private final String gameId;
-
 
     private Tango tango;
     private Session session;
@@ -39,7 +37,11 @@ public class TangoController implements AutoCloseable, SearchListener {
     @PostConstruct
     public void init() {
         log.info("Initializing Tango");
-        tango = Tango.open(new Config());
+
+        Config config = new Config();
+        config.setSyncSearch(true);
+
+        tango = Tango.open(config);
     }
 
     @Override

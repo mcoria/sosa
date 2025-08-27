@@ -18,9 +18,11 @@ import org.springframework.stereotype.Component;
 public class WorkerConsumer {
 
     private final TangoController tangoController;
+    private final WorkerProducer workerProducer;
 
-    public WorkerConsumer(TangoController tangoController) {
+    public WorkerConsumer(TangoController tangoController, WorkerProducer workerProducer) {
         this.tangoController = tangoController;
+        this.workerProducer = workerProducer;
     }
 
     @RabbitHandler
@@ -35,10 +37,10 @@ public class WorkerConsumer {
     @RabbitHandler
     public synchronized void handle(GoFast goFast) {
         // Process message
-        log.info("Received: {}", goFast);
+        log.info("Processing: {}", goFast);
 
         String bestMove = tangoController.goFast(goFast.getWTime(), goFast.getBTime(), goFast.getWInc(), goFast.getBInc(), goFast.getMoves());
 
-
+        workerProducer.sendResponse(bestMove);
     }
 }

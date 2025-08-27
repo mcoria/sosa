@@ -1,20 +1,13 @@
 package net.chesstango.sosa.master.configs;
 
-import net.chesstango.sosa.model.GoFast;
-import net.chesstango.sosa.model.NewGame;
-import net.chesstango.sosa.model.StartPosition;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Mauricio Coria
@@ -23,22 +16,36 @@ import java.util.Map;
 public class RabbitConfig {
 
     public static final String CHESS_TANGO_EXCHANGE = "chesstango.exchange";
-    public static final String NEW_GAMES_QUEUE = "new_games.queue";
-    public static final String NEW_GAMES_ROUTING_KEY = "new_games.key";
+
+    public static final String MASTER_REQUESTS_QUEUE = "master_requests";
+    public static final String MASTER_REQUESTS_ROUTING_KEY = "master_requests_rk";
+
+    public static final String WORKER_RESPONDS_QUEUE = "worker_responds";
+    public static final String WORKER_RESPONDS_ROUTING_KEY = "worker_responds_rk";
 
     @Bean
-    public Queue demoQueue() {
-        return new Queue(NEW_GAMES_QUEUE, false);
-    }
-
-    @Bean
-    public DirectExchange demoExchange() {
+    public DirectExchange chessTangoExchange() {
         return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
     }
 
     @Bean
-    public Binding demoBinding(Queue demoQueue, DirectExchange demoExchange) {
-        return BindingBuilder.bind(demoQueue).to(demoExchange).with(NEW_GAMES_ROUTING_KEY);
+    public Queue masterRequestsQueue() {
+        return new Queue(MASTER_REQUESTS_QUEUE, false);
+    }
+
+    @Bean
+    public Binding masterRequestsBinding(Queue masterRequestsQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(masterRequestsQueue).to(chessTangoExchange).with(MASTER_REQUESTS_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue workerRespondsQueue() {
+        return new Queue(WORKER_RESPONDS_QUEUE, false);
+    }
+
+    @Bean
+    public Binding workerRespondsBinding(Queue workerRespondsQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(workerRespondsQueue).to(chessTangoExchange).with(WORKER_RESPONDS_ROUTING_KEY);
     }
 
     @Bean
