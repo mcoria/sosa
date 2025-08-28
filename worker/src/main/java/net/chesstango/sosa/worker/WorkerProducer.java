@@ -3,6 +3,7 @@ package net.chesstango.sosa.worker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.model.GoResult;
+import net.chesstango.sosa.model.WorkerStarted;
 import net.chesstango.sosa.worker.configs.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,17 @@ public class WorkerProducer {
         this.gameId = gameId;
     }
 
-    public void sendResponse(String bestMove) {
+    public void send_WorkerStarted() {
+        log.info("Sending WorkerStarted");
+        WorkerStarted payload = new WorkerStarted(gameId);
+        rabbitTemplate.convertAndSend(
+                RabbitConfig.CHESS_TANGO_EXCHANGE,
+                RabbitConfig.WORKER_RESPONDS_ROUTING_KEY,
+                payload
+        );
+    }
+
+    public void send_GoResult(String bestMove) {
         log.info("Sending response: {}", bestMove);
         GoResult payload = new GoResult(gameId, bestMove);
         rabbitTemplate.convertAndSend(
@@ -31,4 +42,5 @@ public class WorkerProducer {
                 payload
         );
     }
+
 }

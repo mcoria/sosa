@@ -22,6 +22,10 @@ public class WorkerApplication {
 
         ConfigurableApplicationContext context = SpringApplication.run(WorkerApplication.class, args);
 
+        WorkerProducer workerProducer = context.getBean(WorkerProducer.class);
+
+        workerProducer.send_WorkerStarted();
+
         log.info("Playing");
 
         countDownLatch.await();

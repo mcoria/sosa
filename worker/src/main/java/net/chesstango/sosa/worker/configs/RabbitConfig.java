@@ -1,12 +1,13 @@
 package net.chesstango.sosa.worker.configs;
 
-import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,6 +25,21 @@ public class RabbitConfig {
 
     public static final String WORKER_RESPONDS_QUEUE = "worker_responds";
     public static final String WORKER_RESPONDS_ROUTING_KEY = "worker_responds_rk";
+
+    @Bean
+    public DirectExchange chessTangoExchange() {
+        return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
+    }
+
+    @Bean
+    public Queue gameQueue(@Value("${gameId}") String gameId) {
+        return new Queue(gameId, false);
+    }
+
+    @Bean
+    public Binding gameQueueBinding(Queue gameQueue, DirectExchange chessTangoExchange, @Value("${gameId}") String gameId) {
+        return BindingBuilder.bind(gameQueue).to(chessTangoExchange).with(gameId);
+    }
 
 
     @Bean

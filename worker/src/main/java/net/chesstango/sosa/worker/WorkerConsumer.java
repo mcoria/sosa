@@ -40,7 +40,7 @@ public class WorkerConsumer {
 
         String bestMove = tangoController.goFast(goFast.getWTime(), goFast.getBTime(), goFast.getWInc(), goFast.getBInc(), goFast.getMoves());
 
-        workerProducer.sendResponse(bestMove);
+        workerProducer.send_GoResult(bestMove);
     }
 
     @RabbitHandler

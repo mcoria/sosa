@@ -62,30 +62,38 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 GameScope.setThreadConversationId(gameId);
 
-                gameProducer.openGameQueue();
-
                 gameProducer.send_GameStart();
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
                 lichessGame.setGameStartEvent(gameStartEvent);
 
-                lichessGame.run();
-
-                gameProducer.send_GameEnd();
-
-                Thread.sleep(500);
-
-                gameProducer.closeGameQueue();
-
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             } finally {
                 GameScope.unsetThreadConversationId();
             }
         });
 
         runningGames.put(gameStartEvent.id(), task);
+    }
+
+    public void workerStarted(String gameId) {
+        Future<?> task = gameLoopTaskExecutor.submit(() -> {
+            try {
+
+                GameScope.setThreadConversationId(gameId);
+
+                LichessGame lichessGame = lichessGameBeanFactory.getObject();
+
+                lichessGame.run();
+
+                gameProducer.send_GameEnd();
+
+            } finally {
+                GameScope.unsetThreadConversationId();
+            }
+        });
+
+        runningGames.put(gameId, task);
     }
 
 
@@ -109,5 +117,6 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
             }
         });
     }
+
 }
 
