@@ -39,35 +39,32 @@ public class GameProducer {
     }
 
     public void sendStartNewGame() {
-        log.info("[{}] Sending NewGame event...", gameId);
-        NewGame payload = new NewGame(gameId);
+        NewGame newGame = new NewGame(gameId);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CHESS_TANGO_EXCHANGE,
                 RabbitConfig.MASTER_REQUESTS_ROUTING_KEY,
-                payload
+                newGame
         );
+        log.info("[{}] NewGame sent", gameId);
     }
 
-    public void setStartPosition(FEN startPosition) {
-        log.info("[{}] Sending StartPosition event...", gameId);
-
-        StartPosition payload = new StartPosition(startPosition.toString());
-
+    public void setStartPosition(FEN fen) {
+        StartPosition startPosition = new StartPosition(fen.toString());
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CHESS_TANGO_EXCHANGE,
                 gameId,
-                payload
+                startPosition
         );
+        log.info("[{}] StartPosition sent", gameId);
     }
 
     public void goFast(int wTime, int bTime, int wInc, int bInc, List<String> strings) {
-        log.info("[{}] Sending GoFast event...", gameId);
-        GoFast payload = new GoFast(wTime, bTime, wInc, bInc, strings);
-
+        GoFast goFast = new GoFast(wTime, bTime, wInc, bInc, strings);
         rabbitTemplate.convertAndSend(
                 RabbitConfig.CHESS_TANGO_EXCHANGE,
                 gameId,
-                payload
+                goFast
         );
+        log.info("[{}] GoFast sent", gameId);
     }
 }

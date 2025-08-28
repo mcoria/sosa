@@ -35,21 +35,27 @@ public class SosaState implements ApplicationListener<SosaEvent> {
 
     @Override
     public synchronized void onApplicationEvent(SosaEvent event) {
-        if (event instanceof GameStartEvent gameStartEvent) {
-            createdGames.add(gameStartEvent.getGameId());
-            createdChallenges.remove(gameStartEvent.getGameId());
-            acceptedChallenges.remove(gameStartEvent.getGameId());
-            declinedChallenges.remove(gameStartEvent.getGameId());
-            canceledChallenges.remove(gameStartEvent.getGameId());
-        } else if (event instanceof GameFinishEvent gameFinishEvent) {
-            finishedGames.add(gameFinishEvent.getGameId());
-        } else if (event instanceof ChallengeEvent challengeEvent) {
-            switch (challengeEvent.getType()) {
-                case CHALLENGE_CREATED -> createdChallenges.add(challengeEvent.getChallengeId());
-                case CHALLENGE_ACCEPTED -> acceptedChallenges.add(challengeEvent.getChallengeId());
-                case CHALLENGE_DECLINED -> declinedChallenges.add(challengeEvent.getChallengeId());
-                case CHALLENGE_CANCELLED -> canceledChallenges.add(challengeEvent.getChallengeId());
-                default -> log.warn("Unknown challenge event type: {}", challengeEvent.getType());
+        switch (event) {
+            case ChallengeEvent challengeEvent -> {
+                switch (challengeEvent.getType()) {
+                    case CHALLENGE_CREATED -> createdChallenges.add(challengeEvent.getChallengeId());
+                    case CHALLENGE_ACCEPTED -> acceptedChallenges.add(challengeEvent.getChallengeId());
+                    case CHALLENGE_DECLINED -> declinedChallenges.add(challengeEvent.getChallengeId());
+                    case CHALLENGE_CANCELLED -> canceledChallenges.add(challengeEvent.getChallengeId());
+                    default -> log.warn("Unknown challenge event type: {}", challengeEvent.getType());
+                }
+            }
+            case GameStartEvent gameStartEvent -> {
+                createdGames.add(gameStartEvent.getGameId());
+                createdChallenges.remove(gameStartEvent.getGameId());
+                acceptedChallenges.remove(gameStartEvent.getGameId());
+                declinedChallenges.remove(gameStartEvent.getGameId());
+                canceledChallenges.remove(gameStartEvent.getGameId());
+            }
+            case GameFinishEvent gameFinishEvent -> {
+                finishedGames.add(gameFinishEvent.getGameId());
+            }
+            default -> {
             }
         }
     }

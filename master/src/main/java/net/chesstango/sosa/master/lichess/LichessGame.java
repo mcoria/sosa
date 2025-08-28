@@ -116,9 +116,9 @@ public class LichessGame implements Runnable {
         Enums.Status status = state.status();
 
         switch (status) {
+            case started, created -> play(state);
             case mate, resign, outoftime, stalemate, draw -> sendChatMessage("good game!!!");
             case aborted -> sendChatMessage("goodbye!!!");
-            case started, created -> play(state);
             default -> log.warn("[{}] No action handler for status {}", gameId, status);
         }
     }

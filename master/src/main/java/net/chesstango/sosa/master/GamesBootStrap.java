@@ -1,8 +1,10 @@
 package net.chesstango.sosa.master;
 
 import chariot.model.Event;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.configs.GameScope;
+import net.chesstango.sosa.master.events.GameFinishEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import net.chesstango.sosa.master.jobs.DynamicScheduler;
@@ -33,9 +35,11 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
     }
 
     @Override
-    public void onApplicationEvent(SosaEvent event) {
+    public void onApplicationEvent(@NonNull SosaEvent event) {
         if (event instanceof GameStartEvent gameStartEvent) {
             startGame(gameStartEvent.getGameStartEvent());
+        } else if (event instanceof GameFinishEvent gameFinishEvent) {
+            finishGame(gameFinishEvent.getGameStopEvent());
         }
     }
 
@@ -60,6 +64,10 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
                 GameScope.unsetThreadConversationId();
             }
         });
+    }
+
+
+    private void finishGame(Event.GameStopEvent gameStopEvent) {
     }
 
 }

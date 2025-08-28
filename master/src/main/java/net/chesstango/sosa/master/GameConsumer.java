@@ -22,7 +22,7 @@ public class GameConsumer {
 
     @RabbitListener(queues = WORKER_RESPONDS_QUEUE)
     public void handle(GoResult goResult) {
-        log.info("Received: {}", goResult);
+        log.info("[{}] Moving {}", goResult.getGameId(), goResult);
         client.gameMove(goResult.getGameId(), goResult.getMove());
     }
 }
