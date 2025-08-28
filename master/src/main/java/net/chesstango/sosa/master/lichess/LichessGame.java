@@ -96,7 +96,7 @@ public class LichessGame implements Runnable {
             throw new RuntimeException("GameVariant not supported variant");
         }
 
-        gameProducer.setStartPosition(startPosition);
+        gameProducer.send_StartPosition(startPosition);
 
         accept(gameFullEvent.state());
     }
@@ -138,7 +138,7 @@ public class LichessGame implements Runnable {
             long wInc = state.winc().toMillis();
             long bInc = state.binc().toMillis();
 
-            gameProducer.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
+            gameProducer.send_GoFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
         }
     }
 

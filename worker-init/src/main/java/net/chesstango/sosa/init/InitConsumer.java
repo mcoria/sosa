@@ -3,7 +3,7 @@ package net.chesstango.sosa.init;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.model.NewGame;
+import net.chesstango.sosa.model.GameStart;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -44,7 +44,7 @@ public class InitConsumer {
     }
 
     @RabbitListener(queues = MASTER_REQUESTS_QUEUE)
-    public void handle(NewGame payload) {
+    public void handle(GameStart payload) {
         log.info("Received: {}", payload);
 
         propertyWriter.writePropertyFile(payload.getGameId());

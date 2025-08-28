@@ -37,12 +37,12 @@ public class SosaConfig {
 
     @Bean
     @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public GameProducer newGameProducer(AmqpAdmin amqpAdmin, DirectExchange demoExchange, RabbitTemplate rabbitTemplate) {
+    public GameProducer newGameProducer(AmqpAdmin amqpAdmin, DirectExchange chessTangoExchange, RabbitTemplate rabbitTemplate) {
         String gameId = GameScope.getThreadConversationId();
         if (gameId == null) {
             throw new IllegalStateException("No gameId found in ThreadConversation");
         }
-        return new GameProducer(amqpAdmin, demoExchange, rabbitTemplate, gameId);
+        return new GameProducer(amqpAdmin, chessTangoExchange, rabbitTemplate, gameId);
     }
 
 }

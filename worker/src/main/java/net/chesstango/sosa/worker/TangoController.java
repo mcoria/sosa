@@ -45,9 +45,13 @@ public class TangoController implements AutoCloseable, SearchListener {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         log.info("Closing Tango");
-        tango.close();
+        try {
+            tango.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setStartPosition(FEN fen) {

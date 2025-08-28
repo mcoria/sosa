@@ -1,11 +1,12 @@
 package net.chesstango.sosa.master.configs;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Mauricio Coria
@@ -13,19 +14,17 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync
 public class AsyncConfig {
+    public static final String GAME_LOOP_EXECUTOR = "gameLoopExecutor";
+    public static final String GAME_FINISH_EXECUTOR = "gameFinishExecutor";
 
-    public static final String GAME_TASK_EXECUTOR = "gameTaskExecutor";
+    @Bean(name = GAME_LOOP_EXECUTOR, destroyMethod = "shutdown")
+    public ExecutorService gameLoopTaskExecutor(@Value("${app.maxSimultaneousGames}") int maxSimultaneousGames) {
+        return Executors.newFixedThreadPool(maxSimultaneousGames);
+    }
 
-
-    @Bean(name = GAME_TASK_EXECUTOR)
-    public Executor gameTaskExecutor() {
-        ThreadPoolTaskExecutor exec = new ThreadPoolTaskExecutor();
-        exec.setThreadNamePrefix("game-");
-        exec.setCorePoolSize(32);
-        exec.setMaxPoolSize(64);
-        exec.setQueueCapacity(2000);
-        exec.initialize();
-        return exec;
+    @Bean(name = GAME_FINISH_EXECUTOR, destroyMethod = "shutdown")
+    public ExecutorService gameFinishTaskExecutor(@Value("${app.maxSimultaneousGames}") int maxSimultaneousGames) {
+        return Executors.newFixedThreadPool(maxSimultaneousGames);
     }
 
 }

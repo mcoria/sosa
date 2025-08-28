@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewGame {
+public class GameEnd {
     private String gameId;
 }

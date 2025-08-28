@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-
-import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_TASK_EXECUTOR;
 
 /**
  * @author Mauricio Coria
@@ -40,8 +37,8 @@ public class BotStreamLoop {
         this.lichessGameHandler = lichessGameHandler;
     }
 
-    @Async(GAME_TASK_EXECUTOR)
-    public CompletableFuture<Void> doWorkAsync() {
+    @Async
+    public void doWorkAsync() {
         log.info("Connecting to Lichess");
 
         ClientAuth clientAuth = Client.auth(bot_token);
@@ -65,8 +62,5 @@ public class BotStreamLoop {
         } catch (RuntimeException e) {
             log.error("main event loop failed", e);
         }
-
-        // your work
-        return CompletableFuture.completedFuture(null);
     }
 }
