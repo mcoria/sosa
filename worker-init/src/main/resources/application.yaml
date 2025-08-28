@@ -6,7 +6,7 @@ spring:
     web-application-type: none
 
   rabbitmq:
-    host: localhost
+    host: ${RABBIT_HOST}
     port: 5672
     username: guest
     password: guest

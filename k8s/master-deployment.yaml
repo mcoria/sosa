@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sosa-master
+  labels:
+    app: sosa-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sosa-master
+  template:
+    metadata:
+      name: sosa-master
+      labels:
+        app: sosa-master
+    spec:
+      containers:
+        - name: sosa-master
+          image: sosa-master:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: RABBIT_HOST
+              value: "chesstango-rabbit-svc.default.svc.cluster.local"
+            - name: BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: lichess-secret
+                  key: BOT_TOKEN
+      restartPolicy: Always
