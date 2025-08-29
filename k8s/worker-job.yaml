@@ -1,20 +1,14 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: sosa-worker
-  labels:
-    app: sosa-worker
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: sosa-worker
+  completions: 2
   template:
     metadata:
       name: sosa-worker
-      labels:
-        app: sosa-worker
     spec:
+      restartPolicy: Never
       volumes:
         - name: ephemeral-storage
           emptyDir: { }
