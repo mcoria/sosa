@@ -27,4 +27,3 @@ spec:
                 secretKeyRef:
                   name: lichess-secret
                   key: BOT_TOKEN
-      restartPolicy: Always

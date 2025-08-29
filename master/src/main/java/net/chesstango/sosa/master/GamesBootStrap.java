@@ -79,7 +79,7 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     public void workerStarted(String gameId) {
         if (runningGames.containsKey(gameId)) {
-            log.error("[{}] Game is already running", gameId);
+            log.warn("[{}] Game is already running, ignoring message", gameId);
             throw new RuntimeException(String.format("[%s] Game is already running", gameId));
         }
         Future<?> task = gameLoopTaskExecutor.submit(() -> {

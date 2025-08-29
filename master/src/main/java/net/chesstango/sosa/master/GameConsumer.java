@@ -28,13 +28,22 @@ public class GameConsumer {
 
     @RabbitHandler
     public void handle(WorkerStarted workerStarted) {
-        log.info("[{}] WorkerStarted", workerStarted.getGameId());
-        gamesBootStrap.workerStarted(workerStarted.getGameId());
+        try {
+            log.info("[{}] WorkerStarted", workerStarted.getGameId());
+            gamesBootStrap.workerStarted(workerStarted.getGameId());
+        } catch (RuntimeException e) {
+            log.error("Error handling WorkerStarted", e);
+        }
     }
 
     @RabbitHandler
     public void handle(GoResult goResult) {
-        log.info("[{}] GoResult {}", goResult.getGameId(), goResult);
-        client.gameMove(goResult.getGameId(), goResult.getMove());
+        try {
+
+            log.info("[{}] GoResult {}", goResult.getGameId(), goResult);
+            client.gameMove(goResult.getGameId(), goResult.getMove());
+        } catch (RuntimeException e) {
+            log.error("Error handling GoResult", e);
+        }
     }
 }
