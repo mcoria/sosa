@@ -56,10 +56,13 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
     }
 
     private void startGame(Event.GameStartEvent gameStartEvent) {
-        Future<?> task = gameLoopTaskExecutor.submit(() -> {
+        String gameId = gameStartEvent.id();
+        if (runningGames.containsKey(gameStartEvent.id())) {
+            log.error("[{}] GameStartEvent already processed", gameId);
+            throw new RuntimeException(String.format("[%s] GameStartEvent already processed", gameId));
+        }
+        gameLoopTaskExecutor.execute(() -> {
             try {
-                String gameId = gameStartEvent.id();
-
                 GameScope.setThreadConversationId(gameId);
 
                 gameProducer.send_GameStart();
@@ -72,11 +75,13 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
                 GameScope.unsetThreadConversationId();
             }
         });
-
-        runningGames.put(gameStartEvent.id(), task);
     }
 
     public void workerStarted(String gameId) {
+        if (runningGames.containsKey(gameId)) {
+            log.error("[{}] Game is already running", gameId);
+            throw new RuntimeException(String.format("[%s] Game is already running", gameId));
+        }
         Future<?> task = gameLoopTaskExecutor.submit(() -> {
             try {
 
@@ -88,17 +93,19 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 gameProducer.send_GameEnd();
 
+            } catch (RuntimeException e) {
+                log.error("[{}] Error executing Game", gameId, e);
+                throw e;
             } finally {
                 GameScope.unsetThreadConversationId();
             }
         });
-
         runningGames.put(gameId, task);
     }
 
 
     private void finishGame(Event.GameStopEvent gameStopEvent) {
-        gameFinishTaskExecutor.submit(() -> {
+        gameFinishTaskExecutor.execute(() -> {
             try {
                 String gameId = gameStopEvent.id();
 
@@ -109,6 +116,7 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
                     log.info("[{}] LichessGame loop has not finished yet", gameId);
                     Thread.sleep(1000);
                 }
+                log.info("[{}] LichessGame stopped, pending cleaning....", gameId);
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

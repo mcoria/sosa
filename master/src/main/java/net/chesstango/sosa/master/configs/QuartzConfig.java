@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.configs;
 import net.chesstango.sosa.master.jobs.ChallengeJob;
 import net.chesstango.sosa.master.jobs.StartupJob;
 import org.quartz.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +35,11 @@ public class QuartzConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            name = "app.challengeJob",
+            havingValue = "true",
+            matchIfMissing = false
+    )
     public JobDetail challengeJobDetails() {
         return JobBuilder.newJob(ChallengeJob.class)
                 .withIdentity("challengeJob")
@@ -43,6 +49,11 @@ public class QuartzConfig {
     }
 
     @Bean
+    @ConditionalOnProperty(
+            name = "app.challengeJob",
+            havingValue = "true",
+            matchIfMissing = false
+    )
     public Trigger challengeJobTrigger(JobDetail challengeJobDetails) {
         return TriggerBuilder.newTrigger()
                 .forJob(challengeJobDetails)
