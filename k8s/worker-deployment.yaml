@@ -15,6 +15,21 @@ spec:
       labels:
         app: sosa-worker
     spec:
+      volumes:
+        - name: ephemeral-storage
+          emptyDir: { }
+      initContainers:
+        - name: sosa-worker-init
+          image: sosa-worker-init:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: RABBIT_HOST
+              value: "chesstango-rabbit-svc.default.svc.cluster.local"
+            - name: WORKER_INIT_DIRECTORY
+              value: "/data"
+          volumeMounts:
+            - name: ephemeral-storage
+              mountPath: /data
       containers:
         - name: sosa-worker
           image: sosa-worker:0.0.1-SNAPSHOT
@@ -22,4 +37,9 @@ spec:
           env:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
+            - name: WORKER_INIT_DIRECTORY
+              value: "/data"
+          volumeMounts:
+            - name: ephemeral-storage
+              mountPath: /data
       restartPolicy: Always
