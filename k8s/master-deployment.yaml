@@ -25,5 +25,15 @@ spec:
             - name: BOT_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: sosa-secret
-                  key: BOT_TOKEN
+                  name: sosa-secrets
+                  key: bot_token
+            - name: RABBIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_user
+            - name: RABBIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_password

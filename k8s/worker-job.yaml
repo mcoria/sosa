@@ -15,8 +15,8 @@ spec:
           emptyDir: { }
         - name: books-volume
           hostPath:
-            #path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
-            path: /home/mauricio/chesstango/books
+            path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
+            #path: /home/mauricio/chesstango/books
             type: Directory
       initContainers:
         - name: sosa-worker-init
@@ -27,6 +27,16 @@ spec:
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
+            - name: RABBIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_user
+            - name: RABBIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_password
           volumeMounts:
             - name: ipc-volume
               mountPath: /init-ipc-dir
@@ -39,6 +49,16 @@ spec:
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
+            - name: RABBIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_user
+            - name: RABBIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_password
           envFrom:
             - configMapRef:
                 name: sosa-config

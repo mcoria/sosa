@@ -26,8 +26,14 @@ spec:
               protocol: TCP
           env:
             - name: RABBITMQ_DEFAULT_USER
-              value: "guest"
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_user
             - name: RABBITMQ_DEFAULT_PASS
-              value: "guest"
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: rabbit_password
       restartPolicy: Always
       

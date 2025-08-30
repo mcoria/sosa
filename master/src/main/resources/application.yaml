@@ -1,8 +1,8 @@
 app:
   bot_token: ${BOT_TOKEN}
+  challengeJob: false
   game_watch_dog: false
   maxSimultaneousGames: 1
-  challengeJob: false
 
 spring:
   application:
@@ -14,8 +14,8 @@ spring:
   rabbitmq:
     host: ${RABBIT_HOST}
     port: 5672
-    username: guest
-    password: guest
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASSWORD}
     virtual-host: /
     # Recommended for publishers:
     publisher-confirm-type: correlated
