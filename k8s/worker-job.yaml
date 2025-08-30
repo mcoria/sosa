@@ -11,15 +11,16 @@ spec:
     spec:
       restartPolicy: Never
       volumes:
-        - name: ipc-dir
+        - name: ipc-volume
           emptyDir: { }
         - name: books-volume
           hostPath:
-            path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
+            #path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
+            path: /home/mauricio/chesstango/books
             type: Directory
       initContainers:
         - name: sosa-worker-init
-          image: sosa-worker-init:0.0.1-SNAPSHOT
+          image: coriamauricio/sosa-worker-init:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: RABBIT_HOST
@@ -27,11 +28,11 @@ spec:
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
           volumeMounts:
-            - name: ipc-dir
+            - name: ipc-volume
               mountPath: /init-ipc-dir
       containers:
         - name: sosa-worker
-          image: sosa-worker:0.0.1-SNAPSHOT
+          image: coriamauricio/sosa-worker:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: RABBIT_HOST
@@ -42,7 +43,7 @@ spec:
             - configMapRef:
                 name: sosa-config
           volumeMounts:
-            - name: ipc-dir
+            - name: ipc-volume
               mountPath: /init-ipc-dir
             - name: books-volume
               mountPath: /books/

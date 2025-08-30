@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sosa-config
+data:
+  # kv format
+  POLYGLOT_BOOK: "/books/polyglot/komodo.bin"
+  SYZYGY_DIRECTORY: "/books/syzygy/"
+

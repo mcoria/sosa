@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: sosa-master
-          image: sosa-master:0.0.1-SNAPSHOT
+          image: coriamauricio/sosa-master:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: RABBIT_HOST
