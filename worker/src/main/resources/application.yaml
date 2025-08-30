@@ -1,3 +1,7 @@
+app:
+  polyglot_book: ${POLYGLOT_BOOK}
+  syzygy_directory: ${SYZYGY_DIRECTORY}
+
 spring:
   application:
     name: sosa-worker

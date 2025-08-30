@@ -1,6 +1,7 @@
 package net.chesstango.sosa.worker;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.board.representations.move.SimpleMoveEncoder;
 import net.chesstango.engine.Config;
@@ -30,6 +31,14 @@ public class TangoController implements AutoCloseable, SearchListener {
     private Tango tango;
     private Session session;
 
+    @Setter
+    @Value("${app.polyglot_book}")
+    private String polyglot_book;
+
+    @Setter
+    @Value("${app.syzygy_directory}")
+    private String syzygy_directory;
+
     public TangoController(@Value("${gameId}") String gameId) {
         this.gameId = gameId;
     }
@@ -40,6 +49,16 @@ public class TangoController implements AutoCloseable, SearchListener {
 
         Config config = new Config();
         config.setSyncSearch(true);
+
+        if (polyglot_book != null) {
+            log.info("Setting polyglot book to {}", polyglot_book);
+            config.setPolyglotFile(polyglot_book);
+        }
+
+        if( syzygy_directory != null ){
+            log.info("Setting syzygy directory to {}", syzygy_directory);
+            config.setSyzygyDirectory(syzygy_directory);
+        }
 
         tango = Tango.open(config);
     }

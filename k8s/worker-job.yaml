@@ -3,7 +3,8 @@ kind: Job
 metadata:
   name: sosa-worker
 spec:
-  completions: 2
+  completions: 100
+  parallelism: 1
   template:
     metadata:
       name: sosa-worker
@@ -12,6 +13,10 @@ spec:
       volumes:
         - name: ephemeral-storage
           emptyDir: { }
+        - name: books-volume
+          hostPath:
+            path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
+            type: Directory
       initContainers:
         - name: sosa-worker-init
           image: sosa-worker-init:0.0.1-SNAPSHOT
@@ -33,6 +38,12 @@ spec:
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/data"
+            - name: POLYGLOT_BOOK
+              value: "/books/openings/polyglot-collection/komodo.bin"
+            - name: SYZYGY_DIRECTORY
+              value: "/books/syzygy/3-4-5"
           volumeMounts:
             - name: ephemeral-storage
               mountPath: /data
+            - name: books-volume
+              mountPath: /books/
