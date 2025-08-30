@@ -14,10 +14,8 @@ spec:
         - name: ipc-volume
           emptyDir: { }
         - name: books-volume
-          hostPath:
-            path: /run/desktop/mnt/host/c/java/projects/chess/chess-utils/books
-            #path: /home/mauricio/chesstango/books
-            type: Directory
+          persistentVolumeClaim:
+            claimName: chesstango-book-pvc
       initContainers:
         - name: sosa-worker-init
           image: coriamauricio/sosa-worker-init:latest
