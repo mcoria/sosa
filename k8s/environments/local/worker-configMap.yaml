@@ -5,6 +5,6 @@ metadata:
 data:
   POLYGLOT_BOOK: "/books/openings/polyglot-collection/komodo.bin"
   SYZYGY_DIRECTORY: "/books/syzygy/3-4-5"
-  CHALLENGE_JOB: "true"
-  GAME_WATCHDOG: "true"
+  CHALLENGE_JOB: "false"
+  GAME_WATCHDOG: "false"
 

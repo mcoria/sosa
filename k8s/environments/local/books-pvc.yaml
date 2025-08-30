@@ -8,3 +8,4 @@ spec:
   resources:
     requests:
       storage: 5Gi # Requesting storage that matches the PV's declared capacity
+  storageClassName: "manual-hostpath"

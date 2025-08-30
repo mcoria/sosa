@@ -21,7 +21,8 @@ import java.util.stream.Stream;
 @Getter
 @Slf4j
 public class LichessGame implements Runnable {
-    public static final int EXPIRED_THRESHOLD = 10;
+    // Settear un valor demasiado baja causa que el juego sea considerado expirado
+    public static final int EXPIRED_THRESHOLD = 90;
 
     private final LichessClient client;
     private final GameProducer gameProducer;
@@ -76,8 +77,13 @@ public class LichessGame implements Runnable {
             ZonedDateTime now = ZonedDateTime.now();
             long diff = now.toEpochSecond() - createdAt.toEpochSecond();
             return diff > EXPIRED_THRESHOLD && moveCounter < 2;
+        } else {
+            // Si no llegó gameFullEvent, probablemente el worker no disparó el loop run()
+            log.warn("[{}] gameFullEvent is null", gameId);
+
+            // Por lo tanto lo consideramos expirado
+            return true;
         }
-        return true;
     }
 
     private void accept(GameStateEvent.Full gameEvent) {

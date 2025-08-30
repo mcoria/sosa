@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_FINISH_EXECUTOR;
 import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_LOOP_EXECUTOR;
 
 
@@ -28,20 +28,16 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     private final ExecutorService gameLoopTaskExecutor;
 
-    private final ExecutorService gameFinishTaskExecutor;
-
     private final GameProducer gameProducer;
 
     private final ObjectFactory<LichessGame> lichessGameBeanFactory;
 
-    private final Map<String, Future<?>> runningGames = new ConcurrentHashMap<>();
+    private final Map<String, Future<?>> runningGames = Collections.synchronizedMap(new HashMap<>());
 
     public GamesBootStrap(@Qualifier(GAME_LOOP_EXECUTOR) ExecutorService gameLoopTaskExecutor,
-                          @Qualifier(GAME_FINISH_EXECUTOR) ExecutorService gameFinishTaskExecutor,
                           ObjectFactory<LichessGame> lichessGameBeanFactory,
                           GameProducer gameProducer) {
         this.gameLoopTaskExecutor = gameLoopTaskExecutor;
-        this.gameFinishTaskExecutor = gameFinishTaskExecutor;
         this.lichessGameBeanFactory = lichessGameBeanFactory;
         this.gameProducer = gameProducer;
     }
@@ -55,29 +51,28 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
         }
     }
 
-    private void startGame(Event.GameStartEvent gameStartEvent) {
+    private synchronized void startGame(Event.GameStartEvent gameStartEvent) {
         String gameId = gameStartEvent.id();
         if (runningGames.containsKey(gameStartEvent.id())) {
             log.error("[{}] GameStartEvent already processed", gameId);
             throw new RuntimeException(String.format("[%s] GameStartEvent already processed", gameId));
         }
-        gameLoopTaskExecutor.execute(() -> {
-            try {
-                GameScope.setThreadConversationId(gameId);
 
-                gameProducer.send_GameStart();
+        try {
+            GameScope.setThreadConversationId(gameId);
 
-                LichessGame lichessGame = lichessGameBeanFactory.getObject();
+            gameProducer.send_GameStart();
 
-                lichessGame.setGameStartEvent(gameStartEvent);
+            LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
-            } finally {
-                GameScope.unsetThreadConversationId();
-            }
-        });
+            lichessGame.setGameStartEvent(gameStartEvent);
+
+        } finally {
+            GameScope.unsetThreadConversationId();
+        }
     }
 
-    public void workerStarted(String gameId) {
+    public synchronized void workerStarted(String gameId) {
         if (runningGames.containsKey(gameId)) {
             log.warn("[{}] Game is already running, ignoring message", gameId);
             throw new RuntimeException(String.format("[%s] Game is already running", gameId));
@@ -104,26 +99,23 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
     }
 
 
-    private void finishGame(Event.GameStopEvent gameStopEvent) {
-        gameFinishTaskExecutor.execute(() -> {
+    private synchronized void finishGame(Event.GameStopEvent gameStopEvent) {
+        String gameId = gameStopEvent.id();
+
+        Future<?> task = runningGames.remove(gameId);
+        if (task != null) {
             try {
-                String gameId = gameStopEvent.id();
-
-                GameScope.setThreadConversationId(gameId);
-
-                Future<?> task = runningGames.remove(gameId);
                 while (!task.isDone()) {
                     log.info("[{}] LichessGame loop has not finished yet", gameId);
                     Thread.sleep(1000);
                 }
-                log.info("[{}] LichessGame stopped, pending cleaning....", gameId);
-
+                log.info("[{}] LichessGame loop has finished, pending cleaning....", gameId);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            } finally {
-                GameScope.unsetThreadConversationId();
             }
-        });
+        } else {
+            log.warn("[{}] Game worker has not started yet", gameId);
+        }
     }
 
 }

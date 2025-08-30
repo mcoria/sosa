@@ -15,15 +15,9 @@ import java.util.concurrent.Executors;
 @EnableAsync
 public class AsyncConfig {
     public static final String GAME_LOOP_EXECUTOR = "gameLoopExecutor";
-    public static final String GAME_FINISH_EXECUTOR = "gameFinishExecutor";
 
     @Bean(name = GAME_LOOP_EXECUTOR, destroyMethod = "shutdown")
     public ExecutorService gameLoopTaskExecutor(@Value("${app.maxSimultaneousGames}") int maxSimultaneousGames) {
-        return Executors.newFixedThreadPool(maxSimultaneousGames);
-    }
-
-    @Bean(name = GAME_FINISH_EXECUTOR, destroyMethod = "shutdown")
-    public ExecutorService gameFinishTaskExecutor(@Value("${app.maxSimultaneousGames}") int maxSimultaneousGames) {
         return Executors.newFixedThreadPool(maxSimultaneousGames);
     }
 

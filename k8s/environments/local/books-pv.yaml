@@ -10,3 +10,4 @@ spec:
   hostPath:
     path: "/run/desktop/mnt/host/c/java/projects/chess/chess-utils/books"
   persistentVolumeReclaimPolicy: Retain
+  storageClassName: "manual-hostpath"
