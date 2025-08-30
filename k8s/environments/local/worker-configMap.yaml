@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sosa-config
+  name: sosa-worker-config
 data:
-  # kv format
   POLYGLOT_BOOK: "/books/openings/polyglot-collection/komodo.bin"
   SYZYGY_DIRECTORY: "/books/syzygy/3-4-5"
+  CHALLENGE_JOB: "true"
+  GAME_WATCHDOG: "true"
 

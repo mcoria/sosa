@@ -59,7 +59,7 @@ spec:
                   key: rabbit_password
           envFrom:
             - configMapRef:
-                name: sosa-config
+                name: sosa-worker-config
           volumeMounts:
             - name: ipc-volume
               mountPath: /init-ipc-dir

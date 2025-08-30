@@ -1,7 +1,7 @@
 app:
-  bot_token: ${BOT_TOKEN}
-  challengeJob: false
-  game_watch_dog: false
+  botToken: ${BOT_TOKEN}
+  challengeJob: ${CHALLENGE_JOB:false}
+  gameWatchDog: ${GAME_WATCHDOG:false}
   maxSimultaneousGames: 1
 
 spring:

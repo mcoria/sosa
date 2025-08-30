@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class BotStreamLoop {
 
-    private final String bot_token;
+    private final String botToken;
 
     private final LichessClientBean lichessClientBean;
 
@@ -27,11 +27,11 @@ public class BotStreamLoop {
     private final LichessGameHandler lichessGameHandler;
 
 
-    public BotStreamLoop(@Value("${app.bot_token}") String bot_token,
+    public BotStreamLoop(@Value("${app.botToken}") String botToken,
                          LichessClientBean lichessClientBean,
                          LichessChallengeHandler lichessChallengeHandler,
                          LichessGameHandler lichessGameHandler) {
-        this.bot_token = bot_token;
+        this.botToken = botToken;
         this.lichessClientBean = lichessClientBean;
         this.lichessChallengeHandler = lichessChallengeHandler;
         this.lichessGameHandler = lichessGameHandler;
@@ -41,7 +41,7 @@ public class BotStreamLoop {
     public void doWorkAsync() {
         log.info("Connecting to Lichess");
 
-        ClientAuth clientAuth = Client.auth(bot_token);
+        ClientAuth clientAuth = Client.auth(botToken);
 
         LichessClient lichessClient = new LichessClientImp(clientAuth);
 

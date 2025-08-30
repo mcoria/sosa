@@ -25,7 +25,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
 
     private final Scheduler scheduler;
 
-    @Value("${app.game_watch_dog}")
+    @Value("${app.gameWatchDog}")
     @Setter
     private Boolean gameWatchDogEnabled;
 
