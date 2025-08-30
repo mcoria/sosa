@@ -38,10 +38,9 @@ spec:
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
-            - name: POLYGLOT_BOOK
-              value: "/books/openings/polyglot-collection/komodo.bin"
-            - name: SYZYGY_DIRECTORY
-              value: "/books/syzygy/3-4-5"
+          envFrom:
+            - configMapRef:
+                name: sosa-config
           volumeMounts:
             - name: ipc-dir
               mountPath: /init-ipc-dir

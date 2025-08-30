@@ -25,5 +25,5 @@ spec:
             - name: BOT_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: lichess-secret
+                  name: sosa-secret
                   key: BOT_TOKEN
