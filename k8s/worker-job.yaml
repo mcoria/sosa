@@ -11,7 +11,7 @@ spec:
     spec:
       restartPolicy: Never
       volumes:
-        - name: ephemeral-storage
+        - name: ipc-dir
           emptyDir: { }
         - name: books-volume
           hostPath:
@@ -25,10 +25,10 @@ spec:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
-              value: "/data"
+              value: "/init-ipc-dir"
           volumeMounts:
-            - name: ephemeral-storage
-              mountPath: /data
+            - name: ipc-dir
+              mountPath: /init-ipc-dir
       containers:
         - name: sosa-worker
           image: sosa-worker:0.0.1-SNAPSHOT
@@ -37,13 +37,13 @@ spec:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
-              value: "/data"
+              value: "/init-ipc-dir"
             - name: POLYGLOT_BOOK
               value: "/books/openings/polyglot-collection/komodo.bin"
             - name: SYZYGY_DIRECTORY
               value: "/books/syzygy/3-4-5"
           volumeMounts:
-            - name: ephemeral-storage
-              mountPath: /data
+            - name: ipc-dir
+              mountPath: /init-ipc-dir
             - name: books-volume
               mountPath: /books/
