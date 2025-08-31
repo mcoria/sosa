@@ -35,11 +35,11 @@ public class InitConsumer {
         try (Connection connection = connectionFactory.createConnection()) {
             if (!connection.isOpen()) {
                 log.error("Something went wrong with RabbitMQ connection");
-                WorkerInitApplication.finishFail();
+                //WorkerInitApplication.finishFail();
             }
         } catch (Exception e) {
             log.error("Error initializing RabbitMQ connection", e);
-            WorkerInitApplication.finishFail();
+            //WorkerInitApplication.finishFail();
         }
     }
 
@@ -50,7 +50,7 @@ public class InitConsumer {
         propertyWriter.writePropertyFile(payload.getGameId());
 
         if (exitOnWrite) {
-            WorkerInitApplication.finishSuccess();
+            //WorkerInitApplication.finishSuccess();
         }
     }
 }

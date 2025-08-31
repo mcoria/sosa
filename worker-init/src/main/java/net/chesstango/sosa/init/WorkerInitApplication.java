@@ -1,41 +1,59 @@
 package net.chesstango.sosa.init;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.concurrent.CountDownLatch;
 
 /**
+ *
+ * Este es un proceso en batch que:
+ * <p>
+ * - Notifica a master cuando un worker se ha iniciado
+ * - Espera un mensaje de inicio de juego. Se asegura que solo se inicia un juego por vez.
+ * - Escribe game.properties con los datos del juego
+ * - Finaliza con exito para iniciar el worker
+ *
  * @author Mauricio Coria
  */
 @SpringBootApplication
 @Slf4j
-public class WorkerInitApplication {
+public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerator {
 
-    private static int exitCode = 0;
+    private final JobLauncher jobLauncher;
 
-    private static final CountDownLatch countDownLatch = new CountDownLatch(1);
+    private final Job myJob;
 
-    public static void main(String[] args) throws InterruptedException {
+    private int exitCode = 0;
 
-        ConfigurableApplicationContext context = SpringApplication.run(WorkerInitApplication.class, args);
-
-        log.info("Listener started, waiting for new game");
-
-        countDownLatch.await();
-
-        SpringApplication.exit(context, () -> exitCode);
+    public WorkerInitApplication(JobLauncher jobLauncher, Job myJob) {
+        this.jobLauncher = jobLauncher;
+        this.myJob = myJob;
     }
 
-    public static void finishFail() {
-        exitCode = -1;
-        countDownLatch.countDown();
+    @Override
+    public void run(String... args) {
+        JobParameters jobParameters = new JobParametersBuilder()
+                .toJobParameters();
+        try {
+            jobLauncher.run(myJob, jobParameters);
+        } catch (Exception e) {
+            log.error("Error running job", e);
+            exitCode = 1;
+        }
     }
 
-    public static void finishSuccess() {
-        exitCode = 0;
-        countDownLatch.countDown();
+    @Override
+    public int getExitCode() {
+        return exitCode;
+    }
+
+    public static void main(String[] args) {
+        System.exit(SpringApplication.exit(SpringApplication.run(WorkerInitApplication.class, args)));
     }
 }

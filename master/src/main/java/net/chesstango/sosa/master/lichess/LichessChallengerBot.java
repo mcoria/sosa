@@ -58,12 +58,20 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
         User aBot = botQueue.pickBot();
 
         if (aBot != null) {
-            Challenger challenger = challengerTypes.get(rand.nextInt(challengerTypes.size()));
-            if (challenger.filer(aBot)) {
+            List<Challenger> challengerTypesShuffled = new ArrayList<>(challengerTypes);
+
+            Collections.shuffle(challengerTypesShuffled);
+
+            Optional<Challenger> challengerOpt = challengerTypesShuffled
+                    .stream()
+                    .filter(aChallenger -> aChallenger.filer(aBot))
+                    .findFirst();
+
+            if (challengerOpt.isPresent()) {
+                Challenger challenger = challengerOpt.get();
                 challenge = client.challenge(aBot, challenger::consumeChallengeBuilder);
             } else {
-                Map<StatsPerfType, StatsPerf> botRatings = aBot.ratings();
-                log.info("Rating: bot {} ({}) filtered out - Me ({})", aBot.id(), challenger.getRating(botRatings), challenger.myRating);
+                log.info("Rating: bot {} filtered out ", aBot.id());
             }
         } else {
             log.warn("No bots online :S");
