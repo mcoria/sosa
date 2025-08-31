@@ -1,9 +1,7 @@
 package net.chesstango.sosa.init;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
@@ -41,10 +39,16 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
         JobParameters jobParameters = new JobParametersBuilder()
                 .toJobParameters();
         try {
-            jobLauncher.run(myJob, jobParameters);
+            JobExecution execution = jobLauncher.run(myJob, jobParameters);
+            if (ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
+                log.info("Job completed successfully");
+            } else {
+                log.error("Job failed with exit status {}", execution.getExitStatus());
+                exitCode = 1;
+            }
         } catch (Exception e) {
-            log.error("Error running job", e);
-            exitCode = 1;
+            log.error("Exception running job", e);
+            exitCode = 2;
         }
     }
 
