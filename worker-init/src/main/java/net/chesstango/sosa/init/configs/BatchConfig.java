@@ -1,5 +1,7 @@
 package net.chesstango.sosa.init.configs;
 
+import net.chesstango.sosa.init.steps.ReadGame;
+import net.chesstango.sosa.init.steps.RegisterWorker;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -65,9 +67,24 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job myJob(JobRepository jobRepository, Step myStep) {
+    public Step registerWorkerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, RegisterWorker registerWorker) {
+        return new StepBuilder("registerWorkerStep", jobRepository)
+                .tasklet(registerWorker, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step readGameStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, ReadGame readGame) {
+        return new StepBuilder("readGameStep", jobRepository)
+                .tasklet(readGame, transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Job myJob(JobRepository jobRepository, Step registerWorkerStep, Step readGameStep) {
         return new JobBuilder("myJob", jobRepository)
-                .start(myStep)
+                .start(registerWorkerStep)
+                .next(readGameStep)
                 .build();
     }
 
