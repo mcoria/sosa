@@ -15,7 +15,6 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 @Configuration
 public class QuartzConfig {
 
-
     @Bean
     public JobDetail startupJobDetails() {
         return JobBuilder.newJob(StartupJob.class)

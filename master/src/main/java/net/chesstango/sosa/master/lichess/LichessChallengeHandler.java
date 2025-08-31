@@ -4,7 +4,6 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.events.ChallengeEvent;
-import net.chesstango.sosa.master.jobs.DynamicScheduler;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ public class LichessChallengeHandler {
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, ApplicationEventPublisher applicationEventPublisher, SosaState sosaState) {
+    public LichessChallengeHandler(LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
         this.client = client;
         this.applicationEventPublisher = applicationEventPublisher;
         this.sosaState = sosaState;
@@ -71,6 +70,13 @@ public class LichessChallengeHandler {
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
+
+
+        // Aca deberiamos agregar el bot a Redis para no intentar nuevamente si ya sabemos la respuesta
+//        if ("declineNoBot".equals(event.reason().key())) {
+//
+//        }
+
         applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 

@@ -23,6 +23,9 @@ public class RabbitConfig {
     public static final String WORKER_RESPONDS_QUEUE = "worker_responds";
     public static final String WORKER_RESPONDS_ROUTING_KEY = "worker_responds_rk";
 
+    public static final String BOTS_QUEUE = "bots";
+    public static final String BOTS_ROUTING_KEY = "bots_rk";
+
     @Bean
     public DirectExchange chessTangoExchange() {
         return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
@@ -46,6 +49,16 @@ public class RabbitConfig {
     @Bean
     public Binding workerRespondsBinding(Queue workerRespondsQueue, DirectExchange chessTangoExchange) {
         return BindingBuilder.bind(workerRespondsQueue).to(chessTangoExchange).with(WORKER_RESPONDS_ROUTING_KEY);
+    }
+
+    @Bean
+    public Queue botsQueue() {
+        return new Queue(BOTS_QUEUE, false);
+    }
+
+    @Bean
+    public Binding botsBinding(Queue botsQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(botsQueue).to(chessTangoExchange).with(BOTS_ROUTING_KEY);
     }
 
     @Bean

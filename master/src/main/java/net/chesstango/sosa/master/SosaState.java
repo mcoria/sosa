@@ -19,7 +19,6 @@ import java.util.Set;
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
 
-
     @Setter
     @Value("${app.maxSimultaneousGames}")
     private int maxSimultaneousGames;

@@ -2,7 +2,8 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
-import lombok.Setter;
+import net.chesstango.sosa.master.events.LichessConnected;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -16,12 +17,20 @@ import java.util.stream.Stream;
 @Service
 public class LichessClientBean implements LichessClient {
 
-    @Setter
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     private volatile LichessClient imp;
 
-    public LichessClientBean() {
+    public LichessClientBean(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
         this.imp = new LichessClientNoOp();
     }
+
+    public void setImp(LichessClient lichessClient) {
+        this.imp = lichessClient;
+        applicationEventPublisher.publishEvent(new LichessConnected(this));
+    }
+
 
     @Override
     public Stream<Event> streamEvents() {

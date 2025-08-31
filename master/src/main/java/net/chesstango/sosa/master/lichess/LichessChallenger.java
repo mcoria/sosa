@@ -21,8 +21,8 @@ public class LichessChallenger {
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public LichessChallenger(LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
-        this.lichessChallengerBot = new LichessChallengerBot(client);
+    public LichessChallenger(LichessChallengerBot lichessChallengerBot, LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
+        this.lichessChallengerBot = lichessChallengerBot;
         this.lichessChallengerUser = new LichessChallengerUser(client);
         this.sosaState = sosaState;
         this.applicationEventPublisher = applicationEventPublisher;
