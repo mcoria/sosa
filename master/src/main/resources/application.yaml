@@ -2,7 +2,6 @@ app:
   botToken: ${BOT_TOKEN}
   challengeJob: ${CHALLENGE_JOB:false}
   gameWatchDog: ${GAME_WATCHDOG:false}
-  maxSimultaneousGames: 1
 
 spring:
   application:
@@ -32,4 +31,3 @@ spring:
   quartz:
     job-store-type: memory
     properties.org.quartz.threadPool.threadCount: 1
-

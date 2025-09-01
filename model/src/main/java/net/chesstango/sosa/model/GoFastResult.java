@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GoResult {
+public class GoFastResult {
     private String gameId;
     private String move;
 }

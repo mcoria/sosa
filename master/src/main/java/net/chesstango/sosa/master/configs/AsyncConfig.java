@@ -17,8 +17,8 @@ public class AsyncConfig {
     public static final String GAME_LOOP_EXECUTOR = "gameLoopExecutor";
 
     @Bean(name = GAME_LOOP_EXECUTOR, destroyMethod = "shutdown")
-    public ExecutorService gameLoopTaskExecutor(@Value("${app.maxSimultaneousGames}") int maxSimultaneousGames) {
-        return Executors.newFixedThreadPool(maxSimultaneousGames);
+    public ExecutorService gameLoopTaskExecutor() {
+        return Executors.newFixedThreadPool(5);
     }
 
 }

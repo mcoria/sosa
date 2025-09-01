@@ -42,7 +42,7 @@ public class LichessChallengeHandler {
     public void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
-            if (!sosaState.isGameInProgress()) {
+            if (sosaState.thereAreAvailableWorkers()) {
                 if (!sosaState.thereIsChallengeInProgress(Optional.of(event.id()))) {
                     if (isChallengeAcceptable(event)) {
                         sentAcceptChallenge(event);

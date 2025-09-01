@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 
 /**
  * @author Mauricio Coria
@@ -11,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WorkerStarted {
+public class WorkerInitKeepAlive {
     private String workerId;
-    private String gameId;
 }

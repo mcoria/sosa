@@ -13,7 +13,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Este es un proceso en batch que:
  * <p>
  * - Notifica a master cuando un worker se ha iniciado
- * - Espera un mensaje de inicio de juego. Se asegura que solo se inicia un juego por vez.
+ * - Espera un mensaje de inicio de juego.
+ * -- Verificar que el mensaje de inicio no se procesó con anterioridad.
  * - Escribe game.properties con los datos del juego
  * - Finaliza con exito para iniciar el worker
  *

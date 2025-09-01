@@ -22,6 +22,9 @@ import java.util.concurrent.Future;
 import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_LOOP_EXECUTOR;
 
 
+/**
+ * @author Mauricio Coria
+ */
 @Component
 @Slf4j
 public class GamesBootStrap implements ApplicationListener<SosaEvent> {
