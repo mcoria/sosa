@@ -49,6 +49,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
                 acceptedChallenges.remove(gameStartEvent.getGameId());
                 declinedChallenges.remove(gameStartEvent.getGameId());
                 canceledChallenges.remove(gameStartEvent.getGameId());
+                availableWorkers.clear(); // Esperar a que todos los workers restantes vuelvan a registrarse
             }
             case GameFinishEvent gameFinishEvent -> {
                 finishedGames.add(gameFinishEvent.getGameId());
