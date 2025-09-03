@@ -3,7 +3,7 @@ package net.chesstango.sosa.master;
 import chariot.model.Event;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.configs.GameScope;
+import net.chesstango.sosa.master.configs.WorkerScope;
 import net.chesstango.sosa.master.events.GameFinishEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
@@ -60,10 +60,10 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
     private synchronized void startGame(Event.GameStartEvent gameStartEvent) {
         String gameId = gameStartEvent.id();
 
-        String workerId = sosaState.getNextWorker();
+        String workerId = sosaState.getNextWorker(gameId);
 
         try {
-            GameScope.setThreadConversationId(workerId);
+            WorkerScope.setThreadConversationId(workerId);
 
             gameProducer.send_GameStart(gameId);
 
@@ -72,14 +72,14 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
             lichessGame.setGameStartEvent(gameStartEvent);
 
         } finally {
-            GameScope.unsetThreadConversationId();
+            WorkerScope.unsetThreadConversationId();
         }
     }
 
     public synchronized void workerStarted(String workerId, String gameId) {
         Future<?> task = gameLoopTaskExecutor.submit(() -> {
             try {
-                GameScope.setThreadConversationId(workerId);
+                WorkerScope.setThreadConversationId(workerId);
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
@@ -91,7 +91,7 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
                 log.error("[{}] Error executing Game", gameId, e);
                 throw e;
             } finally {
-                GameScope.unsetThreadConversationId();
+                WorkerScope.unsetThreadConversationId();
             }
         });
         runningGames.put(gameId, task);

@@ -27,12 +27,12 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue workerQueue(@Value("${app.identity}") String identity) {
+    public Queue workerQueue(@Value("${app.workerId}") String identity) {
         return new Queue(identity, false);
     }
 
     @Bean
-    public Binding workerQueueBinding(Queue workerQueue, DirectExchange chessTangoExchange, @Value("${app.identity}") String identity) {
+    public Binding workerQueueBinding(Queue workerQueue, DirectExchange chessTangoExchange, @Value("${app.workerId}") String identity) {
         return BindingBuilder.bind(workerQueue).to(chessTangoExchange).with(identity);
     }
 

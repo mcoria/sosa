@@ -1,5 +1,5 @@
 app:
-  identity: ${IDENTITY:worker}
+  workerId: ${WORKER_ID:worker}
 
 spring:
   application:

@@ -11,8 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * @author Mauricio Coria
+ */
 @Slf4j
-public class GameScope implements Scope {
+public class WorkerScope implements Scope {
     private Map<String, WorkerScopeImp> scopes
             = Collections.synchronizedMap(new HashMap<>());
 
@@ -20,7 +23,7 @@ public class GameScope implements Scope {
 
     @Override
     public Object get(@NonNull String name, @NonNull ObjectFactory<?> objectFactory) {
-        WorkerScopeImp scope = scopes.computeIfAbsent(getConversationId(), GameScope::createScope);
+        WorkerScopeImp scope = scopes.computeIfAbsent(getConversationId(), WorkerScope::createScope);
         return scope.get(name, objectFactory);
     }
 

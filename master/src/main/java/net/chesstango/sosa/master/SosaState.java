@@ -88,16 +88,16 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     public void addAvailableWorker(String workerId) {
         try {
             availableWorkers.put(workerId);
-            log.info("Worker {} registered", workerId);
+            log.info("Worker available: {}", workerId);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String getNextWorker() {
+    public String getNextWorker(String gameId) {
         try {
             String workerId = availableWorkers.take();
-            log.info("Worker {} assigned", workerId);
+            log.info("[{}] Worker {} assigned to game", gameId, workerId);
             return workerId;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

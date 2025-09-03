@@ -1,6 +1,5 @@
 package net.chesstango.sosa.master.configs;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -20,5 +19,4 @@ public class AsyncConfig {
     public ExecutorService gameLoopTaskExecutor() {
         return Executors.newFixedThreadPool(5);
     }
-
 }

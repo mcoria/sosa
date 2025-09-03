@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WorkerReady {
-    private String workerId;
     private String gameId;
+    private String workerId;
 }

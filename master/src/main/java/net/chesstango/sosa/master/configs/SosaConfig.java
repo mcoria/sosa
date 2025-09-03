@@ -21,14 +21,14 @@ public class SosaConfig {
     @Bean
     public CustomScopeConfigurer customScopeConfigurer() {
         CustomScopeConfigurer configurer = new CustomScopeConfigurer();
-        configurer.addScope(WORKER_SCOPE, new GameScope());
+        configurer.addScope(WORKER_SCOPE, new WorkerScope());
         return configurer;
     }
 
     @Bean
     @Scope(value = WORKER_SCOPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public LichessGame lichessGame(LichessClient client, GameProducer newGameProducer) {
-        String workerId = GameScope.getThreadConversationId();
+        String workerId = WorkerScope.getThreadConversationId();
         if (workerId == null) {
             throw new IllegalStateException("No workerId found in ThreadConversation");
         }
@@ -38,7 +38,7 @@ public class SosaConfig {
     @Bean
     @Scope(value = WORKER_SCOPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public GameProducer newGameProducer(RabbitTemplate rabbitTemplate) {
-        String workerId = GameScope.getThreadConversationId();
+        String workerId = WorkerScope.getThreadConversationId();
         if (workerId == null) {
             throw new IllegalStateException("No workerId found in ThreadConversation");
         }

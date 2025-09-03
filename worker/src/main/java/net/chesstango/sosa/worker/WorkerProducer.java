@@ -4,7 +4,6 @@ package net.chesstango.sosa.worker;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.messages.master.GoFastResult;
 import net.chesstango.sosa.messages.master.WorkerReady;
-import net.chesstango.sosa.worker.configs.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,21 +18,21 @@ import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
 @Component
 public class WorkerProducer {
     private final RabbitTemplate rabbitTemplate;
-    private final String identity;
+    private final String workerId;
     private final String gameId;
 
 
     public WorkerProducer(RabbitTemplate rabbitTemplate,
-                          @Value("${app.identity}") String identity,
+                          @Value("${app.workerId}") String workerId,
                           @Value("${gameId}") String gameId) {
         this.rabbitTemplate = rabbitTemplate;
-        this.identity = identity;
+        this.workerId = workerId;
         this.gameId = gameId;
     }
 
     public void send_WorkerStarted() {
         log.info("Sending WorkerStarted");
-        WorkerReady payload = new WorkerReady(identity, gameId);
+        WorkerReady payload = new WorkerReady(gameId, workerId);
         rabbitTemplate.convertAndSend(
                 CHESS_TANGO_EXCHANGE,
                 MASTER_ROUTING_KEY,

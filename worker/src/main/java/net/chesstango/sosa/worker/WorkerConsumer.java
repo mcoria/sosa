@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author Mauricio Coria
  */
 @Slf4j
-@RabbitListener(queues = "${app.identity}")
+@RabbitListener(queues = "${app.workerId}")
 @Component
 public class WorkerConsumer {
 
@@ -29,7 +29,7 @@ public class WorkerConsumer {
 
     @RabbitHandler
     public synchronized void handle(StartPosition startPosition) {
-        log.info("Received: {}", startPosition);
+        log.info("[{}] {}", startPosition.getGameId(), startPosition);
 
         tangoController.setStartPosition(FEN.of(startPosition.getFen()));
     }
@@ -37,7 +37,7 @@ public class WorkerConsumer {
 
     @RabbitHandler
     public synchronized void handle(GoFast goFast) {
-        log.info("Received: {}", goFast);
+        log.info("[{}] {}", goFast.getGameId(), goFast);
 
         String bestMove = tangoController.goFast(goFast.getWTime(), goFast.getBTime(), goFast.getWInc(), goFast.getBInc(), goFast.getMoves());
 
@@ -45,8 +45,8 @@ public class WorkerConsumer {
     }
 
     @RabbitHandler
-    public synchronized void handle(GameEnd goFast) {
-        log.info("Received: {}", goFast);
+    public synchronized void handle(GameEnd gameEnd) {
+        log.info("[{}] {}", gameEnd.getGameId(), gameEnd);
 
         tangoController.close();
 

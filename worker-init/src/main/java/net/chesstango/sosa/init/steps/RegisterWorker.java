@@ -22,18 +22,18 @@ public class RegisterWorker implements Tasklet {
 
     private final RabbitTemplate rabbitTemplate;
 
-    private final String identity;
+    private final String workerId;
 
-    public RegisterWorker(RabbitTemplate rabbitTemplate, @Value("${app.identity}") String identity) {
+    public RegisterWorker(RabbitTemplate rabbitTemplate, @Value("${app.workerId}") String workerId) {
         this.rabbitTemplate = rabbitTemplate;
-        this.identity = identity;
+        this.workerId = workerId;
     }
 
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         log.info("Registering worker");
-        WorkerInit payload = new WorkerInit(identity);
+        WorkerInit payload = new WorkerInit(workerId);
         rabbitTemplate.convertAndSend(
                 CHESS_TANGO_EXCHANGE,
                 MASTER_ROUTING_KEY,
