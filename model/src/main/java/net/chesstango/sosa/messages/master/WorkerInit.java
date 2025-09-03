@@ -1,4 +1,4 @@
-package net.chesstango.sosa.model;
+package net.chesstango.sosa.messages.master;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GameStart {
-    private String gameId;
+public class WorkerInit {
+    private String workerId;
 }

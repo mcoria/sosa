@@ -2,12 +2,15 @@ package net.chesstango.sosa.worker;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.model.GoFastResult;
-import net.chesstango.sosa.model.WorkerStarted;
+import net.chesstango.sosa.messages.master.GoFastResult;
+import net.chesstango.sosa.messages.master.WorkerReady;
 import net.chesstango.sosa.worker.configs.RabbitConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import static net.chesstango.sosa.messages.Constants.CHESS_TANGO_EXCHANGE;
+import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
 
 /**
  * @author Mauricio Coria
@@ -30,10 +33,10 @@ public class WorkerProducer {
 
     public void send_WorkerStarted() {
         log.info("Sending WorkerStarted");
-        WorkerStarted payload = new WorkerStarted(identity, gameId);
+        WorkerReady payload = new WorkerReady(identity, gameId);
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                RabbitConfig.WORKER_RESPONDS_ROUTING_KEY,
+                CHESS_TANGO_EXCHANGE,
+                MASTER_ROUTING_KEY,
                 payload
         );
     }
@@ -42,8 +45,8 @@ public class WorkerProducer {
         log.info("Sending response: {}", bestMove);
         GoFastResult payload = new GoFastResult(gameId, bestMove);
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                RabbitConfig.WORKER_RESPONDS_ROUTING_KEY,
+                CHESS_TANGO_EXCHANGE,
+                MASTER_ROUTING_KEY,
                 payload
         );
     }

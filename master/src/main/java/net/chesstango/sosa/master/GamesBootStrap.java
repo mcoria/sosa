@@ -29,20 +29,23 @@ import static net.chesstango.sosa.master.configs.AsyncConfig.GAME_LOOP_EXECUTOR;
 @Slf4j
 public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
-    private final ExecutorService gameLoopTaskExecutor;
+    private final SosaState sosaState;
 
     private final GameProducer gameProducer;
+
+    private final ExecutorService gameLoopTaskExecutor;
 
     private final ObjectFactory<LichessGame> lichessGameBeanFactory;
 
     private final Map<String, Future<?>> runningGames = Collections.synchronizedMap(new HashMap<>());
 
-    public GamesBootStrap(@Qualifier(GAME_LOOP_EXECUTOR) ExecutorService gameLoopTaskExecutor,
+    public GamesBootStrap(SosaState sosaState, @Qualifier(GAME_LOOP_EXECUTOR) ExecutorService gameLoopTaskExecutor,
                           ObjectFactory<LichessGame> lichessGameBeanFactory,
                           GameProducer gameProducer) {
+        this.sosaState = sosaState;
+        this.gameProducer = gameProducer;
         this.gameLoopTaskExecutor = gameLoopTaskExecutor;
         this.lichessGameBeanFactory = lichessGameBeanFactory;
-        this.gameProducer = gameProducer;
     }
 
     @Override
@@ -56,15 +59,13 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     private synchronized void startGame(Event.GameStartEvent gameStartEvent) {
         String gameId = gameStartEvent.id();
-        if (runningGames.containsKey(gameStartEvent.id())) {
-            log.error("[{}] GameStartEvent already processed", gameId);
-            throw new RuntimeException(String.format("[%s] GameStartEvent already processed", gameId));
-        }
+
+        String workerId = sosaState.getNextWorker();
 
         try {
-            GameScope.setThreadConversationId(gameId);
+            GameScope.setThreadConversationId(workerId);
 
-            gameProducer.send_GameStart();
+            gameProducer.send_GameStart(gameId);
 
             LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
@@ -75,15 +76,10 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
         }
     }
 
-    public synchronized void workerStarted(String gameId) {
-        if (runningGames.containsKey(gameId)) {
-            log.warn("[{}] Game is already running, ignoring message", gameId);
-            throw new RuntimeException(String.format("[%s] Game is already running", gameId));
-        }
+    public synchronized void workerStarted(String workerId, String gameId) {
         Future<?> task = gameLoopTaskExecutor.submit(() -> {
             try {
-
-                GameScope.setThreadConversationId(gameId);
+                GameScope.setThreadConversationId(workerId);
 
                 LichessGame lichessGame = lichessGameBeanFactory.getObject();
 
@@ -104,7 +100,6 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
     private synchronized void finishGame(Event.GameStopEvent gameStopEvent) {
         String gameId = gameStopEvent.id();
-
         Future<?> task = runningGames.remove(gameId);
         if (task != null) {
             try {

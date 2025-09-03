@@ -26,23 +26,40 @@ public class LichessGame implements Runnable {
 
     private final LichessClient client;
     private final GameProducer gameProducer;
-    private final String gameId;
+    private final String workerId;
 
     private FEN startPosition;
+    private String gameId;
     private Event.GameStartEvent gameStartEvent;
     private GameStateEvent.Full gameFullEvent;
     private Color myColor;
     private int moveCounter;
 
-    public LichessGame(LichessClient client, GameProducer gameProducer, String gameId) {
+    public LichessGame(LichessClient client, GameProducer gameProducer, String workerId) {
         this.client = client;
         this.gameProducer = gameProducer;
-        this.gameId = gameId;
+        this.workerId = workerId;
     }
 
     public void setGameStartEvent(Event.GameStartEvent gameStartEvent) {
         this.gameStartEvent = gameStartEvent;
         this.myColor = getMyColor(gameStartEvent);
+        this.gameId = gameStartEvent.id();
+    }
+
+    public boolean expired() {
+        if (gameFullEvent != null) {
+            ZonedDateTime createdAt = gameFullEvent.createdAt();
+            ZonedDateTime now = ZonedDateTime.now();
+            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
+            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
+        } else {
+            // Si no llegó gameFullEvent, probablemente el worker no disparó el loop run()
+            log.warn("[{}] gameFullEvent is null", gameId);
+
+            // Por lo tanto lo consideramos expirado
+            return true;
+        }
     }
 
 
@@ -68,21 +85,6 @@ public class LichessGame implements Runnable {
         } catch (RuntimeException e) {
             log.error("Error executing onlineGame", e);
             System.exit(-1);
-        }
-    }
-
-    public boolean expired() {
-        if (gameFullEvent != null) {
-            ZonedDateTime createdAt = gameFullEvent.createdAt();
-            ZonedDateTime now = ZonedDateTime.now();
-            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
-            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
-        } else {
-            // Si no llegó gameFullEvent, probablemente el worker no disparó el loop run()
-            log.warn("[{}] gameFullEvent is null", gameId);
-
-            // Por lo tanto lo consideramos expirado
-            return true;
         }
     }
 

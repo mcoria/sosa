@@ -1,4 +1,4 @@
-package net.chesstango.sosa.model;
+package net.chesstango.sosa.messages.worker;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

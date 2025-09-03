@@ -1,7 +1,7 @@
 package net.chesstango.sosa.init.steps;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.model.GameStart;
+import net.chesstango.sosa.messages.worker.GameStart;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;

@@ -2,7 +2,6 @@ package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.ChallengeEvent;
-import net.chesstango.sosa.master.events.GameFinishEvent;
 import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -12,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author Mauricio Coria
@@ -20,10 +21,7 @@ import java.util.Set;
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
 
-    private final Set<String> availableWorkers = new HashSet<>();
-
-    private final CircularFifoQueue<String> createdGames = new CircularFifoQueue<>();
-    private final CircularFifoQueue<String> finishedGames = new CircularFifoQueue<>();
+    private final BlockingQueue<String> availableWorkers = new LinkedBlockingDeque<>();
 
     private final CircularFifoQueue<String> createdChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> acceptedChallenges = new CircularFifoQueue<>();
@@ -44,15 +42,10 @@ public class SosaState implements ApplicationListener<SosaEvent> {
                 }
             }
             case GameStartEvent gameStartEvent -> {
-                createdGames.add(gameStartEvent.getGameId());
                 createdChallenges.remove(gameStartEvent.getGameId());
                 acceptedChallenges.remove(gameStartEvent.getGameId());
                 declinedChallenges.remove(gameStartEvent.getGameId());
                 canceledChallenges.remove(gameStartEvent.getGameId());
-                availableWorkers.clear(); // Esperar a que todos los workers restantes vuelvan a registrarse
-            }
-            case GameFinishEvent gameFinishEvent -> {
-                finishedGames.add(gameFinishEvent.getGameId());
             }
             default -> {
             }
@@ -61,12 +54,6 @@ public class SosaState implements ApplicationListener<SosaEvent> {
 
     public synchronized boolean isBusy() {
         return thereIsChallengeInProgress(Optional.empty()) || !thereAreAvailableWorkers();
-    }
-
-    public synchronized boolean thereAreAvailableWorkers() {
-        Set<String> onGoingGamesSet = new HashSet<>(createdGames);
-        onGoingGamesSet.removeAll(finishedGames);
-        return onGoingGamesSet.size() < availableWorkers.size();
     }
 
     public synchronized boolean thereIsChallengeInProgress(Optional<String> excludedChallengeId) {
@@ -83,6 +70,10 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         return !onGoingChallengesSet.isEmpty();
     }
 
+    public synchronized boolean thereAreAvailableWorkers() {
+        return !availableWorkers.isEmpty();
+    }
+
     public synchronized boolean isChallengePending(String challengeId) {
         Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
 
@@ -94,15 +85,22 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         return onGoingChallengesSet.contains(challengeId);
     }
 
-    public synchronized void increaseWorkerSet(String workerId) {
-        if (availableWorkers.add(workerId)) {
+    public void addAvailableWorker(String workerId) {
+        try {
+            availableWorkers.put(workerId);
             log.info("Worker {} registered", workerId);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public synchronized void decreaseWorkerSet(String workerId) {
-        if (availableWorkers.remove(workerId)) {
-            log.info("Worker {} unregistered", workerId);
+    public String getNextWorker() {
+        try {
+            String workerId = availableWorkers.take();
+            log.info("Worker {} assigned", workerId);
+            return workerId;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

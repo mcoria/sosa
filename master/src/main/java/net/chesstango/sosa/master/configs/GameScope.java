@@ -13,32 +13,32 @@ import java.util.Map;
 
 @Slf4j
 public class GameScope implements Scope {
-    private Map<String, GameScopeImp> scopes
+    private Map<String, WorkerScopeImp> scopes
             = Collections.synchronizedMap(new HashMap<>());
 
-    private final static ThreadLocal<String> threadGameScope = new ThreadLocal<>();
+    private final static ThreadLocal<String> threadWorkerScope = new ThreadLocal<>();
 
     @Override
     public Object get(@NonNull String name, @NonNull ObjectFactory<?> objectFactory) {
-        GameScopeImp scope = scopes.computeIfAbsent(getConversationId(), GameScope::createScope);
+        WorkerScopeImp scope = scopes.computeIfAbsent(getConversationId(), GameScope::createScope);
         return scope.get(name, objectFactory);
     }
 
     @Nullable
     public Object remove(@NonNull String name) {
-        GameScopeImp scope = scopes.get(getConversationId());
+        WorkerScopeImp scope = scopes.get(getConversationId());
         return scope.remove(name);
     }
 
     @Override
     public void registerDestructionCallback(@NonNull String name, @NonNull Runnable callback) {
-        GameScopeImp scope = scopes.get(getConversationId());
+        WorkerScopeImp scope = scopes.get(getConversationId());
         scope.registerDestructionCallback(name, callback);
     }
 
     @Nullable
     public Object resolveContextualObject(@NonNull String key) {
-        GameScopeImp scope = scopes.get(getConversationId());
+        WorkerScopeImp scope = scopes.get(getConversationId());
         return scope.resolveContextualObject(key);
     }
 
@@ -48,25 +48,25 @@ public class GameScope implements Scope {
     }
 
     public static void setThreadConversationId(String id) {
-        threadGameScope.set(id);
+        threadWorkerScope.set(id);
     }
 
     public static String getThreadConversationId() {
-        return threadGameScope.get();
+        return threadWorkerScope.get();
     }
 
     public static void unsetThreadConversationId() {
-        threadGameScope.remove();
+        threadWorkerScope.remove();
     }
 
-    private static GameScopeImp createScope(String gameId) {
-        log.info("[{}] Creating GameScopeImp", gameId);
-        return new GameScopeImp(gameId);
+    private static WorkerScopeImp createScope(String workerId) {
+        log.info("[{}] Creating WorkerScopeImp", workerId);
+        return new WorkerScopeImp(workerId);
     }
 
 
-    private static class GameScopeImp implements Scope {
-        private final String gameId;
+    private static class WorkerScopeImp implements Scope {
+        private final String workerId;
 
         private final Map<String, Object> scopedObjects
                 = Collections.synchronizedMap(new HashMap<>());
@@ -74,8 +74,8 @@ public class GameScope implements Scope {
         private final Map<String, Runnable> destructionCallbacks
                 = Collections.synchronizedMap(new HashMap<>());
 
-        private GameScopeImp(String gameId) {
-            this.gameId = gameId;
+        private WorkerScopeImp(String workerId) {
+            this.workerId = workerId;
         }
 
         @Override
@@ -104,7 +104,7 @@ public class GameScope implements Scope {
 
         @Override
         public String getConversationId() {
-            return gameId;
+            return workerId;
         }
     }
 }

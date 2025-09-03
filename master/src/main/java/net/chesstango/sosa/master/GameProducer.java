@@ -2,12 +2,11 @@ package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.gardel.fen.FEN;
-import net.chesstango.sosa.master.configs.RabbitConfig;
-import net.chesstango.sosa.model.GameEnd;
-import net.chesstango.sosa.model.GameStart;
-import net.chesstango.sosa.model.GoFast;
-import net.chesstango.sosa.model.StartPosition;
-import org.springframework.amqp.core.*;
+import net.chesstango.sosa.messages.Constants;
+import net.chesstango.sosa.messages.worker.GameEnd;
+import net.chesstango.sosa.messages.worker.GameStart;
+import net.chesstango.sosa.messages.worker.GoFast;
+import net.chesstango.sosa.messages.worker.StartPosition;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.List;
@@ -18,53 +17,52 @@ import java.util.List;
 @Slf4j
 public class GameProducer {
     private final RabbitTemplate rabbitTemplate;
-    private final String gameId;
+    private final String workerId;
 
-
-    public GameProducer(RabbitTemplate rabbitTemplate, String gameId) {
+    public GameProducer(RabbitTemplate rabbitTemplate, String workerId) {
         this.rabbitTemplate = rabbitTemplate;
-        this.gameId = gameId;
+        this.workerId = workerId;
     }
 
     // Este mensaje va destinado a worker-init
-    public void send_GameStart() {
+    public void send_GameStart(String gameId) {
         GameStart gameStart = new GameStart(gameId);
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                RabbitConfig.MASTER_REQUESTS_ROUTING_KEY,
+                Constants.CHESS_TANGO_EXCHANGE,
+                workerId,
                 gameStart
         );
-        log.info("[{}] NewGame sent", gameId);
+        log.info("[{}] NewGame sent", workerId);
     }
 
     // Este mensaje va destinado a worker
     public void send_GameEnd() {
-        GameEnd gameEnd = new GameEnd(gameId);
+        GameEnd gameEnd = new GameEnd();
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                gameId,
+                Constants.CHESS_TANGO_EXCHANGE,
+                workerId,
                 gameEnd
         );
-        log.info("[{}] GameEnd sent", gameId);
+        log.info("[{}] GameEnd sent", workerId);
     }
 
     public void send_StartPosition(FEN fen) {
         StartPosition startPosition = new StartPosition(fen.toString());
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                gameId,
+                Constants.CHESS_TANGO_EXCHANGE,
+                workerId,
                 startPosition
         );
-        log.info("[{}] StartPosition sent", gameId);
+        log.info("[{}] StartPosition sent", workerId);
     }
 
     public void send_GoFast(int wTime, int bTime, int wInc, int bInc, List<String> strings) {
         GoFast goFast = new GoFast(wTime, bTime, wInc, bInc, strings);
         rabbitTemplate.convertAndSend(
-                RabbitConfig.CHESS_TANGO_EXCHANGE,
-                gameId,
+                Constants.CHESS_TANGO_EXCHANGE,
+                workerId,
                 goFast
         );
-        log.info("[{}] GoFast sent", gameId);
+        log.info("[{}] GoFast sent", workerId);
     }
 }

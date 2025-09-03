@@ -1,5 +1,6 @@
 package net.chesstango.sosa.master.configs;
 
+import net.chesstango.sosa.messages.Constants;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -15,40 +16,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String CHESS_TANGO_EXCHANGE = "chesstango.exchange";
-
-    public static final String MASTER_REQUESTS_QUEUE = "master_requests";
-    public static final String MASTER_REQUESTS_ROUTING_KEY = "master_requests_rk";
-
-    public static final String WORKER_RESPONDS_QUEUE = "worker_responds";
-    public static final String WORKER_RESPONDS_ROUTING_KEY = "worker_responds_rk";
-
     public static final String BOTS_QUEUE = "bots";
     public static final String BOTS_ROUTING_KEY = "bots_rk";
 
     @Bean
     public DirectExchange chessTangoExchange() {
-        return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
-    }
-
-    @Bean
-    public Queue masterRequestsQueue() {
-        return new Queue(MASTER_REQUESTS_QUEUE, false);
-    }
-
-    @Bean
-    public Binding masterRequestsBinding(Queue masterRequestsQueue, DirectExchange chessTangoExchange) {
-        return BindingBuilder.bind(masterRequestsQueue).to(chessTangoExchange).with(MASTER_REQUESTS_ROUTING_KEY);
+        return new DirectExchange(Constants.CHESS_TANGO_EXCHANGE, false, false);
     }
 
     @Bean
     public Queue workerRespondsQueue() {
-        return new Queue(WORKER_RESPONDS_QUEUE, false);
+        return new Queue(Constants.MASTER_QUEUE, false);
     }
 
     @Bean
     public Binding workerRespondsBinding(Queue workerRespondsQueue, DirectExchange chessTangoExchange) {
-        return BindingBuilder.bind(workerRespondsQueue).to(chessTangoExchange).with(WORKER_RESPONDS_ROUTING_KEY);
+        return BindingBuilder.bind(workerRespondsQueue).to(chessTangoExchange).with(Constants.MASTER_ROUTING_KEY);
     }
 
     @Bean

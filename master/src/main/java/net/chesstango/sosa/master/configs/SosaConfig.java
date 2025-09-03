@@ -16,31 +16,33 @@ import org.springframework.context.annotation.ScopedProxyMode;
 @Configuration
 public class SosaConfig {
 
+    public static final String WORKER_SCOPE = "worker_scope";
+
     @Bean
     public CustomScopeConfigurer customScopeConfigurer() {
         CustomScopeConfigurer configurer = new CustomScopeConfigurer();
-        configurer.addScope("game", new GameScope());
+        configurer.addScope(WORKER_SCOPE, new GameScope());
         return configurer;
     }
 
     @Bean
-    @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    @Scope(value = WORKER_SCOPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public LichessGame lichessGame(LichessClient client, GameProducer newGameProducer) {
-        String gameId = GameScope.getThreadConversationId();
-        if (gameId == null) {
-            throw new IllegalStateException("No gameId found in ThreadConversation");
+        String workerId = GameScope.getThreadConversationId();
+        if (workerId == null) {
+            throw new IllegalStateException("No workerId found in ThreadConversation");
         }
-        return new LichessGame(client, newGameProducer, gameId);
+        return new LichessGame(client, newGameProducer, workerId);
     }
 
     @Bean
-    @Scope(value = "game", proxyMode = ScopedProxyMode.TARGET_CLASS)
+    @Scope(value = WORKER_SCOPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
     public GameProducer newGameProducer(RabbitTemplate rabbitTemplate) {
-        String gameId = GameScope.getThreadConversationId();
-        if (gameId == null) {
-            throw new IllegalStateException("No gameId found in ThreadConversation");
+        String workerId = GameScope.getThreadConversationId();
+        if (workerId == null) {
+            throw new IllegalStateException("No workerId found in ThreadConversation");
         }
-        return new GameProducer(rabbitTemplate, gameId);
+        return new GameProducer(rabbitTemplate, workerId);
     }
 
 }

@@ -3,9 +3,9 @@ package net.chesstango.sosa.worker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.gardel.fen.FEN;
-import net.chesstango.sosa.model.GameEnd;
-import net.chesstango.sosa.model.GoFast;
-import net.chesstango.sosa.model.StartPosition;
+import net.chesstango.sosa.messages.worker.GameEnd;
+import net.chesstango.sosa.messages.worker.GoFast;
+import net.chesstango.sosa.messages.worker.StartPosition;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -14,11 +14,12 @@ import org.springframework.stereotype.Component;
  * @author Mauricio Coria
  */
 @Slf4j
-@RabbitListener(queues = "${gameId}")
+@RabbitListener(queues = "${app.identity}")
 @Component
 public class WorkerConsumer {
 
     private final TangoController tangoController;
+
     private final WorkerProducer workerProducer;
 
     public WorkerConsumer(TangoController tangoController, WorkerProducer workerProducer) {

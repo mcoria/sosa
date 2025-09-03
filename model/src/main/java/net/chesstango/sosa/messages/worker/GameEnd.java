@@ -1,6 +1,5 @@
-package net.chesstango.sosa.model;
+package net.chesstango.sosa.messages.worker;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,8 +8,6 @@ import lombok.NoArgsConstructor;
  * @author Mauricio Coria
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class GameEnd {
-    private String gameId;
 }

@@ -1,11 +1,18 @@
 package net.chesstango.sosa.init.configs;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import static net.chesstango.sosa.messages.Constants.CHESS_TANGO_EXCHANGE;
 
 /**
  * @author Mauricio Coria
@@ -13,13 +20,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableRabbit
 public class RabbitConfig {
-    public static final String CHESS_TANGO_EXCHANGE = "chesstango.exchange";
 
-    public static final String MASTER_REQUESTS_QUEUE = "master_requests";
-    public static final String MASTER_REQUESTS_ROUTING_KEY = "master_requests_rk";
+    @Bean
+    public DirectExchange chessTangoExchange() {
+        return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
+    }
 
-    public static final String WORKER_RESPONDS_QUEUE = "worker_responds";
-    public static final String WORKER_RESPONDS_ROUTING_KEY = "worker_responds_rk";
+    @Bean
+    public Queue workerQueue(@Value("${app.identity}") String identity) {
+        return new Queue(identity, false);
+    }
+
+    @Bean
+    public Binding workerQueueBinding(Queue workerQueue, DirectExchange chessTangoExchange, @Value("${app.identity}") String identity) {
+        return BindingBuilder.bind(workerQueue).to(chessTangoExchange).with(identity);
+    }
 
     @Bean
     public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory,

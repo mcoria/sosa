@@ -2,7 +2,8 @@ package net.chesstango.sosa.init.steps;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.model.GameStart;
+import net.chesstango.sosa.messages.worker.GameStart;
+import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
@@ -13,8 +14,6 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
-import static net.chesstango.sosa.init.configs.RabbitConfig.MASTER_REQUESTS_QUEUE;
-
 /**
  * @author Mauricio Coria
  */
@@ -24,16 +23,19 @@ public class ReadGame implements Tasklet, StepExecutionListener {
 
     private final RabbitTemplate rabbitTemplate;
 
+    private final Queue workerQueue;
+
     private GameStart gameStart;
 
-    public ReadGame(RabbitTemplate rabbitTemplate) {
+    public ReadGame(RabbitTemplate rabbitTemplate, Queue workerQueue) {
         this.rabbitTemplate = rabbitTemplate;
+        this.workerQueue = workerQueue;
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         log.info("Waiting GameStart message");
-        this.gameStart = (GameStart) rabbitTemplate.receiveAndConvert(MASTER_REQUESTS_QUEUE, -1);
+        this.gameStart = (GameStart) rabbitTemplate.receiveAndConvert(workerQueue.getName(), -1);
         if (gameStart == null) {
             log.warn("No GameStart message received");
             return RepeatStatus.FINISHED;

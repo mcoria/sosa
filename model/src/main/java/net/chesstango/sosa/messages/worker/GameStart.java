@@ -1,8 +1,9 @@
-package net.chesstango.sosa.model;
+package net.chesstango.sosa.messages.worker;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 
 /**
  * @author Mauricio Coria
@@ -10,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartPosition {
-    String fen;
+public class GameStart {
+    private String gameId;
 }

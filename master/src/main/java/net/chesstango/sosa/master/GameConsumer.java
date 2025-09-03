@@ -2,21 +2,21 @@ package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.model.GoFastResult;
-import net.chesstango.sosa.model.WorkerInitKeepAlive;
-import net.chesstango.sosa.model.WorkerStarted;
+import net.chesstango.sosa.messages.master.GoFastResult;
+import net.chesstango.sosa.messages.master.WorkerInit;
+import net.chesstango.sosa.messages.master.WorkerReady;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import static net.chesstango.sosa.master.configs.RabbitConfig.WORKER_RESPONDS_QUEUE;
+import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 
 /**
  * @author Mauricio Coria
  */
 @Slf4j
 @Component
-@RabbitListener(queues = WORKER_RESPONDS_QUEUE)
+@RabbitListener(queues = MASTER_QUEUE)
 public class GameConsumer {
     private final LichessClient client;
     private final SosaState sosaState;
@@ -30,22 +30,21 @@ public class GameConsumer {
     }
 
     @RabbitHandler
-    public void handle(WorkerInitKeepAlive workerInitKeepAlive) {
+    public void handle(WorkerInit workerInit) {
         try {
-            log.info("WorkerInitKeepAlive received");
-            sosaState.increaseWorkerSet(workerInitKeepAlive.getWorkerId());
+            log.info("WorkerInit received");
+            sosaState.addAvailableWorker(workerInit.getWorkerId());
         } catch (RuntimeException e) {
-            log.error("Error handling WorkerStarted", e);
+            log.error("Error handling WorkerInit", e);
         }
     }
 
 
     @RabbitHandler
-    public void handle(WorkerStarted workerStarted) {
+    public void handle(WorkerReady workerReady) {
         try {
-            log.info("[{}] WorkerStarted", workerStarted.getGameId());
-            sosaState.decreaseWorkerSet(workerStarted.getWorkerId());
-            gamesBootStrap.workerStarted(workerStarted.getGameId());
+            log.info("[{}] WorkerStarted", workerReady.getGameId());
+            gamesBootStrap.workerStarted(workerReady.getWorkerId(), workerReady.getGameId());
         } catch (RuntimeException e) {
             log.error("Error handling WorkerStarted", e);
         }
