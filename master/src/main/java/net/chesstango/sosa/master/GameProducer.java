@@ -32,37 +32,37 @@ public class GameProducer {
                 workerId,
                 gameStart
         );
-        log.info("[{}] NewGame sent", workerId);
+        log.info("[{}] NewGame sent", gameId);
     }
 
     // Este mensaje va destinado a worker
-    public void send_GameEnd() {
-        GameEnd gameEnd = new GameEnd();
+    public void send_GameEnd(String gameId) {
+        GameEnd gameEnd = new GameEnd(gameId);
         rabbitTemplate.convertAndSend(
                 Constants.CHESS_TANGO_EXCHANGE,
                 workerId,
                 gameEnd
         );
-        log.info("[{}] GameEnd sent", workerId);
+        log.info("[{}] GameEnd sent", gameId);
     }
 
-    public void send_StartPosition(FEN fen) {
-        StartPosition startPosition = new StartPosition(fen.toString());
+    public void send_StartPosition(String gameId, FEN fen) {
+        StartPosition startPosition = new StartPosition(gameId, fen.toString());
         rabbitTemplate.convertAndSend(
                 Constants.CHESS_TANGO_EXCHANGE,
                 workerId,
                 startPosition
         );
-        log.info("[{}] StartPosition sent", workerId);
+        log.info("[{}] StartPosition sent", gameId);
     }
 
-    public void send_GoFast(int wTime, int bTime, int wInc, int bInc, List<String> strings) {
-        GoFast goFast = new GoFast(wTime, bTime, wInc, bInc, strings);
+    public void send_GoFast(String gameId, int wTime, int bTime, int wInc, int bInc, List<String> strings) {
+        GoFast goFast = new GoFast(gameId, wTime, bTime, wInc, bInc, strings);
         rabbitTemplate.convertAndSend(
                 Constants.CHESS_TANGO_EXCHANGE,
                 workerId,
                 goFast
         );
-        log.info("[{}] GoFast sent", workerId);
+        log.info("[{}] GoFast sent", gameId);
     }
 }

@@ -115,4 +115,10 @@ public class LichessClientImp implements LichessClient {
         Many<UserAuth> users = client.users().byIds(List.of(username));
         return users.stream().findFirst();
     }
+
+
+    @Override
+    public synchronized Many<GameInfo> meOngoingGames() {
+        return client.games().ongoing();
+    }
 }

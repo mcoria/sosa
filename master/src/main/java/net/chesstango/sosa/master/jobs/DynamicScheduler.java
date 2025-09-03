@@ -12,22 +12,25 @@ import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 
-import static net.chesstango.sosa.master.lichess.LichessGame.EXPIRED_THRESHOLD;
-
 /**
  * @author Mauricio Coria
  */
 @Slf4j
 @Component
 public class DynamicScheduler implements ApplicationListener<SosaEvent> {
-    public static final int EXPIRED_TOLERANCE = 5;
-    public static final int CHALLENGE_EXPIRE = 15;
-
     private final Scheduler scheduler;
 
     @Value("${app.gameWatchDog}")
     @Setter
     private Boolean gameWatchDogEnabled;
+
+    @Value("${app.gameExpire}")
+    @Setter
+    public int GAME_EXPIRE = 30;
+
+    @Value("${app.challengeExpire}")
+    @Setter
+    public int CHALLENGE_EXPIRE = 15;
 
     public DynamicScheduler(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -76,7 +79,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
 
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity(String.format("gameWatchDogTrigger-%s", gameId))
-                    .startAt(DateBuilder.futureDate(EXPIRED_THRESHOLD + EXPIRED_TOLERANCE, DateBuilder.IntervalUnit.SECOND))
+                    .startAt(DateBuilder.futureDate(GAME_EXPIRE, DateBuilder.IntervalUnit.SECOND))
                     .build();
 
             scheduler.scheduleJob(job, trigger);

@@ -11,7 +11,6 @@ import net.chesstango.gardel.fen.FEN;
 import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.master.GameProducer;
 
-import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -21,9 +20,6 @@ import java.util.stream.Stream;
 @Getter
 @Slf4j
 public class LichessGame implements Runnable {
-    // Settear un valor demasiado baja causa que el juego sea considerado expirado
-    public static final int EXPIRED_THRESHOLD = 90;
-
     private final LichessClient client;
     private final GameProducer gameProducer;
     private final String workerId;
@@ -33,7 +29,6 @@ public class LichessGame implements Runnable {
     private Event.GameStartEvent gameStartEvent;
     private GameStateEvent.Full gameFullEvent;
     private Color myColor;
-    private int moveCounter;
 
     public LichessGame(LichessClient client, GameProducer gameProducer, String workerId) {
         this.client = client;
@@ -46,22 +41,6 @@ public class LichessGame implements Runnable {
         this.myColor = getMyColor(gameStartEvent);
         this.gameId = gameStartEvent.id();
     }
-
-    public boolean expired() {
-        if (gameFullEvent != null) {
-            ZonedDateTime createdAt = gameFullEvent.createdAt();
-            ZonedDateTime now = ZonedDateTime.now();
-            long diff = now.toEpochSecond() - createdAt.toEpochSecond();
-            return diff > EXPIRED_THRESHOLD && moveCounter < 2;
-        } else {
-            // Si no llegó gameFullEvent, probablemente el worker no disparó el loop run()
-            log.warn("[{}] gameFullEvent is null", gameId);
-
-            // Por lo tanto lo consideramos expirado
-            return true;
-        }
-    }
-
 
     @Override
     public void run() {
@@ -104,7 +83,7 @@ public class LichessGame implements Runnable {
             throw new RuntimeException("GameVariant not supported variant");
         }
 
-        gameProducer.send_StartPosition(startPosition);
+        gameProducer.send_StartPosition(gameId, startPosition);
 
         accept(gameFullEvent.state());
     }
@@ -132,8 +111,6 @@ public class LichessGame implements Runnable {
     }
 
     private void play(GameStateEvent.State state) {
-        moveCounter = state.moveList().size();
-
         Game game = Game.from(startPosition, state.moveList());
 
         PositionReader currentChessPosition = game
@@ -146,7 +123,7 @@ public class LichessGame implements Runnable {
             long wInc = state.winc().toMillis();
             long bInc = state.binc().toMillis();
 
-            gameProducer.send_GoFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
+            gameProducer.send_GoFast(gameId, (int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
         }
     }
 

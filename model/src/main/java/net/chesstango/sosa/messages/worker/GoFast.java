@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GoFast {
+    private String gameId;
     private int wTime;
     private int bTime;
     private int wInc;

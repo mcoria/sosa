@@ -1,12 +1,10 @@
 package net.chesstango.sosa.master.jobs;
 
+import chariot.model.Enums;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.configs.GameScope;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.master.lichess.LichessGame;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
@@ -20,27 +18,28 @@ public class GameWatchDogJob extends QuartzJobBean {
 
     private final LichessClient client;
 
-    private final ObjectProvider<LichessGame> lichessGameProvider;
-
-    public GameWatchDogJob(LichessClient client, ObjectProvider<LichessGame> lichessGameProvider) {
+    public GameWatchDogJob(LichessClient client) {
         this.client = client;
-        this.lichessGameProvider = lichessGameProvider;
     }
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
         try {
             String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
-            GameScope.setThreadConversationId(gameId);
-            LichessGame lichessGame = lichessGameProvider.getIfAvailable();
-            if (lichessGame != null) {
-                if (lichessGame.expired()) {
-                    log.info("[{}] Aborting expired game", gameId);
-                    client.gameAbort(gameId);
-                }
-            } else {
-                log.warn("[{}] No LichessGame available", gameId);
-            }
+            log.info("[{}] Game watchdog triggered", gameId);
+            client.meOngoingGames()
+                    .stream()
+                    .filter(gameInfo -> gameInfo.gameId().equals(gameId))
+                    .forEach(gameInfo -> {
+                        log.info("[{}] {}", gameInfo.gameId(), gameInfo);
+                        Enums.Status status = gameInfo.status();
+                        if (status.equals(Enums.Status.started)) {
+                            log.info("[{}] Aborting expired game", gameId);
+                            client.gameAbort(gameId);
+                        } else {
+                            log.info("[{}] Game is {}", gameInfo.gameId(), status);
+                        }
+                    });
         } catch (Exception e) {
             log.error("Error executing GameWatchDogJob", e);
         }

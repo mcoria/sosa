@@ -41,4 +41,6 @@ public interface LichessClient {
     Many<User> botsOnline();
 
     Optional<UserAuth> findUser(String username);
+
+    Many<GameInfo> meOngoingGames();
 }

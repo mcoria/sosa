@@ -85,7 +85,7 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
 
                 lichessGame.run();
 
-                gameProducer.send_GameEnd();
+                gameProducer.send_GameEnd(gameId);
 
             } catch (RuntimeException e) {
                 log.error("[{}] Error executing Game", gameId, e);

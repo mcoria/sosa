@@ -23,7 +23,7 @@ public class LichessClientBean implements LichessClient {
 
     public LichessClientBean(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
-        this.imp = new LichessClientNoOp();
+        this.imp = null;
     }
 
     public void setImp(LichessClient lichessClient) {
@@ -105,5 +105,10 @@ public class LichessClientBean implements LichessClient {
     @Override
     public Optional<UserAuth> findUser(String username) {
         return imp.findUser(username);
+    }
+
+    @Override
+    public Many<GameInfo> meOngoingGames() {
+        return imp.meOngoingGames();
     }
 }
