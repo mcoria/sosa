@@ -5,4 +5,4 @@ metadata:
 data:
   CHALLENGE_JOB: "true"
   GAME_WATCHDOG: "true"
-
+  CHALLENGE_TYPES: "bullet,blitz,rapid"
