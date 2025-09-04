@@ -5,6 +5,7 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessConnected;
 import net.chesstango.sosa.master.events.SosaEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +28,21 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
 
     private final List<Challenger> challengerTypes;
 
-    public LichessChallengerBot(LichessClient client, BotQueue botQueue) {
+    public LichessChallengerBot(LichessClient client,
+                                BotQueue botQueue,
+                                @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
-        this.challengerTypes = List.of(
-                new BulletChallengerBot(),
-                new BlitzChallengerBot(),
-                new RapidChallengerBot()
-        );
+        this.challengerTypes = new ArrayList<>();
+
+        challengeTypes.forEach(challengeType -> {
+            switch (challengeType.toLowerCase()) {
+                case "bullet" -> challengerTypes.add(new BulletChallengerBot());
+                case "blitz" -> challengerTypes.add(new BlitzChallengerBot());
+                case "rapid" -> challengerTypes.add(new RapidChallengerBot());
+                default -> log.warn("Unknown challenge type: {}", challengeType);
+            }
+        });
     }
 
     @Override

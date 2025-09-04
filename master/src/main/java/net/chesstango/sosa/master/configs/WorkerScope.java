@@ -63,7 +63,6 @@ public class WorkerScope implements Scope {
     }
 
     private static WorkerScopeImp createScope(String workerId) {
-        log.info("[{}] Creating WorkerScopeImp", workerId);
         return new WorkerScopeImp(workerId);
     }
 
@@ -79,6 +78,7 @@ public class WorkerScope implements Scope {
 
         private WorkerScopeImp(String workerId) {
             this.workerId = workerId;
+            log.info("WorkerScope created: {}", workerId);
         }
 
         @Override

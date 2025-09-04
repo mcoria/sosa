@@ -40,7 +40,7 @@ public class LichessClientImp implements LichessClient {
         if(optChallenge.isPresent()){
             return optChallenge.get();
         } else {
-            throw new RuntimeException("Error sending challenge");
+            throw new RuntimeException("Error sending challenge to " + user.id());
         }
     }
 

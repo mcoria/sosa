@@ -32,7 +32,6 @@ public class GameProducer {
                 workerId,
                 gameStart
         );
-        log.info("[{}] NewGame sent", gameId);
     }
 
     // Este mensaje va destinado a worker
@@ -43,7 +42,6 @@ public class GameProducer {
                 workerId,
                 gameEnd
         );
-        log.info("[{}] GameEnd sent", gameId);
     }
 
     public void send_StartPosition(String gameId, FEN fen) {
@@ -53,7 +51,6 @@ public class GameProducer {
                 workerId,
                 startPosition
         );
-        log.info("[{}] StartPosition sent", gameId);
     }
 
     public void send_GoFast(String gameId, int wTime, int bTime, int wInc, int bInc, List<String> strings) {
@@ -63,6 +60,5 @@ public class GameProducer {
                 workerId,
                 goFast
         );
-        log.info("[{}] GoFast sent", gameId);
     }
 }
