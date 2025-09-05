@@ -21,10 +21,14 @@ spec:
           image: coriamauricio/sosa-worker-init:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: RABBIT_HOST
-              value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
+            - name: WORKER_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RABBIT_HOST
+              value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: RABBIT_USER
               valueFrom:
                 secretKeyRef:
@@ -43,10 +47,14 @@ spec:
           image: coriamauricio/sosa-worker:latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: RABBIT_HOST
-              value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: WORKER_INIT_DIRECTORY
               value: "/init-ipc-dir"
+            - name: WORKER_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RABBIT_HOST
+              value: "chesstango-rabbit-svc.default.svc.cluster.local"
             - name: RABBIT_USER
               valueFrom:
                 secretKeyRef:
