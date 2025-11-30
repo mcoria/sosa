@@ -102,6 +102,12 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <name>sosa-master:${project.version}</name>
+                        <tags>
+                            <tag>coriamauricio/sosa-master:${project.version}</tag>
+                        </tags>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>

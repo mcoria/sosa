@@ -87,6 +87,12 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <image>
+                        <name>sosa-worker:${project.version}</name>
+                        <tags>
+                            <tag>coriamauricio/sosa-worker:${project.version}</tag>
+                        </tags>
+                    </image>
                 </configuration>
             </plugin>
         </plugins>
