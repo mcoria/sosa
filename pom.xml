@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -41,16 +41,16 @@
     <properties>
         <java.version>21</java.version>
 
+        <commons-collections.version>4.5.0</commons-collections.version>
+
+        <!-- Lichess communication protocol -->
+        <chariot.version>0.1.21</chariot.version>
+
         <!-- Decoding/encoding to different chess representations: FEN, EPD, PGN, SAN, LAN -->
-        <gardel.version>1.0.10</gardel.version>
+        <gardel.version>1.0.15</gardel.version>
 
         <!-- Chesstango -->
         <chesstango.version>1.2.0-SNAPSHOT</chesstango.version>
-
-        <!-- Lichess communication protocol -->
-        <chariot.version>0.1.20</chariot.version>
-
-        <commons-collections.version>4.5.0</commons-collections.version>
     </properties>
 
     <dependencyManagement>

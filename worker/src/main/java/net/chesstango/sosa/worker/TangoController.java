@@ -3,15 +3,10 @@ package net.chesstango.sosa.worker;
 import jakarta.annotation.PostConstruct;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.board.moves.Move;
 import net.chesstango.board.representations.move.SimpleMoveEncoder;
-import net.chesstango.engine.Config;
-import net.chesstango.engine.SearchListener;
-import net.chesstango.engine.Session;
-import net.chesstango.engine.Tango;
+import net.chesstango.engine.*;
 import net.chesstango.gardel.fen.FEN;
-import net.chesstango.search.PrincipalVariation;
-import net.chesstango.search.SearchResult;
-import net.chesstango.search.SearchResultByDepth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +21,11 @@ import java.util.concurrent.Future;
 @Component
 public class TangoController implements AutoCloseable, SearchListener {
     private final SimpleMoveEncoder simpleMoveEncoder = new SimpleMoveEncoder();
+
     private final String gameId;
 
     private Tango tango;
+
     private Session session;
 
     @Setter
@@ -85,11 +82,13 @@ public class TangoController implements AutoCloseable, SearchListener {
             session.setMoves(moves);
 
             log.info("[{}] Going fast: wTime {} bTime {} wInc {} bInc {} moves {}", gameId, wTime, bTime, wInc, bInc, moves);
-            Future<SearchResult> searchResultFuture = session.goFast(wTime, bTime, wInc, bInc);
+            Future<SearchResponse> searchResponseFuture = session.goFast(wTime, bTime, wInc, bInc);
 
-            SearchResult searchResult = searchResultFuture.get();
+            SearchResponse searchResponse = searchResponseFuture.get();
 
-            return simpleMoveEncoder.encode(searchResult.getBestMove());
+            Move move = searchResponse.move();
+
+            return simpleMoveEncoder.encode(move);
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -97,18 +96,16 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     @Override
     public void searchStarted() {
-        log.info("Search started");
+        log.info("[{}] Search started", gameId);
     }
 
     @Override
-    public void searchInfo(SearchResultByDepth searchResultByDepth) {
-        String pvString = String.format("%s %s", simpleMoveEncoder.encodeMoves(searchResultByDepth.getPrincipalVariation().stream().map(PrincipalVariation::move).toList()), searchResultByDepth.isPvComplete() ? "" : "*");
-        log.info("[{}] Depth {} seldepth {} eval {} pv {}", gameId, String.format("%2d", searchResultByDepth.getDepth()), String.format("%2d", searchResultByDepth.getDepth()), String.format("%8d", searchResultByDepth.getBestEvaluation()), pvString);
+    public void searchInfo(String searchInfo) {
+        log.info("[{}] {}", gameId, searchInfo);
     }
 
     @Override
-    public void searchFinished(SearchResult searchResult) {
-        String moveUci = simpleMoveEncoder.encode(searchResult.getBestMove());
-        log.info("[{}] Search finished: eval {} move {}", gameId, String.format("%8d", searchResult.getBestEvaluation()), moveUci);
+    public void searchFinished(SearchResponse searchResponse) {
+        log.info("[{}] {}", gameId, searchResponse);
     }
 }
