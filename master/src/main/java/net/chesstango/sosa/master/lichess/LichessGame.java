@@ -98,7 +98,7 @@ public class LichessGame implements Runnable {
     }
 
     private void accept(GameStateEvent.State state) {
-        log.info("[{}] gameState: {}", gameId, state);
+        log.info("[{}] GameStateEvent.State: {}", gameId, state);
 
         Enums.Status status = state.status();
 
@@ -116,7 +116,9 @@ public class LichessGame implements Runnable {
         PositionReader currentChessPosition = game
                 .getPosition();
 
-        if (Objects.equals(myColor, currentChessPosition.getCurrentTurn())) {
+        if (Objects.equals(myColor, currentChessPosition.getCurrentTurn())
+                && !game.getStatus().isFinalStatus()) { // Hay situaciones en donde es DRAW y el status sigue en STARTED
+
             long wTime = state.wtime().toMillis();
             long bTime = state.btime().toMillis();
 

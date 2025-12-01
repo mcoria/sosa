@@ -1,11 +1,10 @@
 package net.chesstango.sosa.messages;
 
 /**
- * Worker                            Master
+ * Worker Init                      Master
  *         ---- WorkerInit  --->    workerId: Worker activo que espera un juego de lichess
  *  gameId <--- GameStart   ----    gameId: Juego de lichess que se va a jugar
  *         ---- WorkerReady --->    workerId, gameId: Para iniciar el loop que lee los mensajes de juego de lichess
- *                                                    Lo almacena en Redis en caso que se reinicie master
  *
  *
  *   fen   <--- StartPosition ----

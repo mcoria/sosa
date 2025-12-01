@@ -1,6 +1,6 @@
 package net.chesstango.sosa.init.configs;
 
-import net.chesstango.sosa.init.steps.ReadGame;
+import net.chesstango.sosa.init.steps.WaitGameStart;
 import net.chesstango.sosa.init.steps.RegisterWorker;
 import net.chesstango.sosa.init.steps.WriteGamePropertyFile;
 import org.springframework.batch.core.Job;
@@ -24,30 +24,30 @@ public class BatchConfig {
 
     @Bean
     public Step registerWorkerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, RegisterWorker registerWorker) {
-        return new StepBuilder("registerWorkerStep", jobRepository)
+        return new StepBuilder("RegisterWorker", jobRepository)
                 .tasklet(registerWorker, transactionManager)
                 .build();
     }
 
     @Bean
-    public Step readGameStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, ReadGame readGame) {
-        return new StepBuilder("readGameStep", jobRepository)
-                .tasklet(readGame, transactionManager)
+    public Step waitGameStartStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, WaitGameStart waitGameStart) {
+        return new StepBuilder("WaitGameStart", jobRepository)
+                .tasklet(waitGameStart, transactionManager)
                 .build();
     }
 
     @Bean
     public Step writeGamePropertyFileStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, WriteGamePropertyFile writeGamePropertyFile) {
-        return new StepBuilder("writeGamePropertyFile", jobRepository)
+        return new StepBuilder("WriteGamePropertyFile", jobRepository)
                 .tasklet(writeGamePropertyFile, transactionManager)
                 .build();
     }
 
     @Bean
-    public Job myJob(JobRepository jobRepository, Step registerWorkerStep, Step readGameStep, Step writeGamePropertyFileStep) {
-        return new JobBuilder("myJob", jobRepository)
+    public Job workerInitJob(JobRepository jobRepository, Step registerWorkerStep, Step waitGameStartStep, Step writeGamePropertyFileStep) {
+        return new JobBuilder("WorkerInit", jobRepository)
                 .start(registerWorkerStep)
-                .next(readGameStep)
+                .next(waitGameStartStep)
                 .next(writeGamePropertyFileStep)
                 .build();
     }

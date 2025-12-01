@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class ReadGame implements Tasklet, StepExecutionListener {
+public class WaitGameStart implements Tasklet, StepExecutionListener {
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -27,7 +27,7 @@ public class ReadGame implements Tasklet, StepExecutionListener {
 
     private GameStart gameStart;
 
-    public ReadGame(RabbitTemplate rabbitTemplate, Queue workerQueue) {
+    public WaitGameStart(RabbitTemplate rabbitTemplate, Queue workerQueue) {
         this.rabbitTemplate = rabbitTemplate;
         this.workerQueue = workerQueue;
     }

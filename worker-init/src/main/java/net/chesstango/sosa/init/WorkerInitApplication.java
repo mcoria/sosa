@@ -26,13 +26,13 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
 
     private final JobLauncher jobLauncher;
 
-    private final Job myJob;
+    private final Job workerInitJob;
 
     private int exitCode = 0;
 
-    public WorkerInitApplication(JobLauncher jobLauncher, Job myJob) {
+    public WorkerInitApplication(JobLauncher jobLauncher, Job workerInitJob) {
         this.jobLauncher = jobLauncher;
-        this.myJob = myJob;
+        this.workerInitJob = workerInitJob;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
         JobParameters jobParameters = new JobParametersBuilder()
                 .toJobParameters();
         try {
-            JobExecution execution = jobLauncher.run(myJob, jobParameters);
+            JobExecution execution = jobLauncher.run(workerInitJob, jobParameters);
             if (ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
                 log.info("Job completed successfully");
             } else {
