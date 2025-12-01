@@ -18,7 +18,7 @@ package net.chesstango.sosa.messages;
  * @author Mauricio Coria
  */
 public class Constants {
-    public static final String CHESS_TANGO_EXCHANGE = "chesstango.exchange";
-    public static final String MASTER_QUEUE = "master_queue";
-    public static final String MASTER_ROUTING_KEY = "master_rk";
+    public static final String SOSA_EXCHANGE = "sosa.exchange";
+    public static final String MASTER_QUEUE = "sosa-master";
+    public static final String MASTER_ROUTING_KEY = "sosa_master_rk";
 }

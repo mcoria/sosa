@@ -72,7 +72,8 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     public void setStartPosition(FEN fen) {
         log.info("[{}] Setting startPosition {}", gameId, fen);
-        session = tango.newSession(fen);
+        session = tango.newSession();
+        session.setFen(fen);
         session.setSearchListener(this);
     }
 

@@ -10,7 +10,7 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import static net.chesstango.sosa.messages.Constants.CHESS_TANGO_EXCHANGE;
+import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
 
 /**
@@ -35,7 +35,7 @@ public class RegisterWorker implements Tasklet {
         log.info("Registering worker");
         WorkerInit payload = new WorkerInit(workerId);
         rabbitTemplate.convertAndSend(
-                CHESS_TANGO_EXCHANGE,
+                SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,
                 payload
         );

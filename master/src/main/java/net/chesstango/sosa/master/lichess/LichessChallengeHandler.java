@@ -45,21 +45,21 @@ public class LichessChallengeHandler {
             if (sosaState.thereAreAvailableWorkers()) {
                 if (!sosaState.thereIsChallengeInProgress(Optional.of(event.id()))) {
                     if (isChallengeAcceptable(event)) {
-                        sentAcceptChallenge(event);
+                        sendAcceptChallenge(event);
                     } else {
-                        sentDeclineChallenge(event);
+                        sendDeclineChallenge(event);
                     }
                 } else {
                     log.info("[{}] There are in progress challenges", event.id());
-                    sentDeclineChallenge(event);
+                    sendDeclineChallenge(event);
                 }
             } else {
                 log.info("[{}] There are in progress games", event.id());
-                sentDeclineChallenge(event);
+                sendDeclineChallenge(event);
             }
         } else {
             log.info("[{}] Not accepting more challenges at this time", event.id());
-            sentDeclineChallenge(event);
+            sendDeclineChallenge(event);
         }
     }
 
@@ -89,13 +89,13 @@ public class LichessChallengeHandler {
      * PRIVATE METHODS
      *
      */
-    private void sentAcceptChallenge(Event.ChallengeEvent event) {
+    private void sendAcceptChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Accepting challenge", event.id());
         client.challengeAccept(event.id());
         applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_ACCEPTED, event.id()));
     }
 
-    private void sentDeclineChallenge(Event.ChallengeEvent event) {
+    private void sendDeclineChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Declining challenge", event.id());
         client.challengeDecline(event.id());
         applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));

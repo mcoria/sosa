@@ -28,7 +28,7 @@ public class GameProducer {
     public void send_GameStart(String gameId) {
         GameStart gameStart = new GameStart(gameId);
         rabbitTemplate.convertAndSend(
-                Constants.CHESS_TANGO_EXCHANGE,
+                Constants.SOSA_EXCHANGE,
                 workerId,
                 gameStart
         );
@@ -38,7 +38,7 @@ public class GameProducer {
     public void send_GameEnd(String gameId) {
         GameEnd gameEnd = new GameEnd(gameId);
         rabbitTemplate.convertAndSend(
-                Constants.CHESS_TANGO_EXCHANGE,
+                Constants.SOSA_EXCHANGE,
                 workerId,
                 gameEnd
         );
@@ -47,7 +47,7 @@ public class GameProducer {
     public void send_StartPosition(String gameId, FEN fen) {
         StartPosition startPosition = new StartPosition(gameId, fen.toString());
         rabbitTemplate.convertAndSend(
-                Constants.CHESS_TANGO_EXCHANGE,
+                Constants.SOSA_EXCHANGE,
                 workerId,
                 startPosition
         );
@@ -56,7 +56,7 @@ public class GameProducer {
     public void send_GoFast(String gameId, int wTime, int bTime, int wInc, int bInc, List<String> strings) {
         GoFast goFast = new GoFast(gameId, wTime, bTime, wInc, bInc, strings);
         rabbitTemplate.convertAndSend(
-                Constants.CHESS_TANGO_EXCHANGE,
+                Constants.SOSA_EXCHANGE,
                 workerId,
                 goFast
         );

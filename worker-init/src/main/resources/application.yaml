@@ -1,5 +1,5 @@
 app:
-  workerId: ${WORKER_ID:worker}
+  workerId: ${WORKER_ID:sosa-worker}
 
 spring:
   application:

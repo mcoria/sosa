@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static net.chesstango.sosa.messages.Constants.CHESS_TANGO_EXCHANGE;
+import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 
 /**
  * @author Mauricio Coria
@@ -23,7 +23,7 @@ public class RabbitConfig {
 
     @Bean
     public DirectExchange chessTangoExchange() {
-        return new DirectExchange(CHESS_TANGO_EXCHANGE, false, false);
+        return new DirectExchange(SOSA_EXCHANGE, false, false);
     }
 
     @Bean

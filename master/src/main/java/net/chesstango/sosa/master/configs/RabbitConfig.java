@@ -21,7 +21,7 @@ public class RabbitConfig {
 
     @Bean
     public DirectExchange chessTangoExchange() {
-        return new DirectExchange(Constants.CHESS_TANGO_EXCHANGE, false, false);
+        return new DirectExchange(Constants.SOSA_EXCHANGE, false, false);
     }
 
     @Bean

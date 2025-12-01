@@ -8,7 +8,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import static net.chesstango.sosa.messages.Constants.CHESS_TANGO_EXCHANGE;
+import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
 
 /**
@@ -34,7 +34,7 @@ public class WorkerProducer {
         log.info("Sending WorkerStarted");
         WorkerReady payload = new WorkerReady(gameId, workerId);
         rabbitTemplate.convertAndSend(
-                CHESS_TANGO_EXCHANGE,
+                SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,
                 payload
         );
@@ -44,7 +44,7 @@ public class WorkerProducer {
         log.info("Sending response: {}", bestMove);
         GoFastResult payload = new GoFastResult(gameId, bestMove);
         rabbitTemplate.convertAndSend(
-                CHESS_TANGO_EXCHANGE,
+                SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,
                 payload
         );
