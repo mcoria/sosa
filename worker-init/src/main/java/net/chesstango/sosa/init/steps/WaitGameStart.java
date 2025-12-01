@@ -33,7 +33,7 @@ public class WaitGameStart implements Tasklet, StepExecutionListener {
     }
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         log.info("Waiting GameStart message");
         this.gameStart = (GameStart) rabbitTemplate.receiveAndConvert(workerQueue.getName(), -1);
         if (gameStart == null) {
