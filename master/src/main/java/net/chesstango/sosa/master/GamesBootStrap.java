@@ -1,6 +1,8 @@
 package net.chesstango.sosa.master;
 
+import chariot.model.Enums;
 import chariot.model.Event;
+import chariot.model.GameInfo;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.configs.WorkerScope;
@@ -65,7 +67,12 @@ public class GamesBootStrap implements ApplicationListener<SosaEvent> {
         try {
             WorkerScope.setThreadConversationId(workerId);
 
-            gameProducer.send_GameStart(gameId);
+            GameInfo gameInfo = gameStartEvent.game();
+
+            // gameInfo.color() indica con que color juego
+            String color = Enums.Color.white == gameInfo.color() ? "white" : "black";
+
+            gameProducer.send_GameStart(gameId, color);
 
             LichessGame lichessGame = lichessGameBeanFactory.getObject();
 

@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GameStart {
     private String gameId;
+    private String color;
 }

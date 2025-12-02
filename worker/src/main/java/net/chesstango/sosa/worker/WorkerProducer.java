@@ -18,7 +18,6 @@ import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
 @Component
 public class WorkerProducer {
     private final RabbitTemplate rabbitTemplate;
-    private final String workerId;
     private final String gameId;
 
 
@@ -26,18 +25,7 @@ public class WorkerProducer {
                           @Value("${app.workerId}") String workerId,
                           @Value("${gameId}") String gameId) {
         this.rabbitTemplate = rabbitTemplate;
-        this.workerId = workerId;
         this.gameId = gameId;
-    }
-
-    public void send_WorkerStarted() {
-        log.info("Sending WorkerStarted");
-        WorkerReady payload = new WorkerReady(gameId, workerId);
-        rabbitTemplate.convertAndSend(
-                SOSA_EXCHANGE,
-                MASTER_ROUTING_KEY,
-                payload
-        );
     }
 
     public void send_GoResult(String bestMove) {

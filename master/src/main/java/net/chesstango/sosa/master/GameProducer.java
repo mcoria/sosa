@@ -25,8 +25,8 @@ public class GameProducer {
     }
 
     // Este mensaje va destinado a worker-init
-    public void send_GameStart(String gameId) {
-        GameStart gameStart = new GameStart(gameId);
+    public void send_GameStart(String gameId, String color) {
+        GameStart gameStart = new GameStart(gameId, color);
         rabbitTemplate.convertAndSend(
                 Constants.SOSA_EXCHANGE,
                 workerId,
