@@ -12,7 +12,7 @@ package net.chesstango.sosa.messages;
  *   fen   <--- StartPosition ----
  *
  *         <--- GoFast       ----
- *         ---- GoFastResult --->   gameId, move: Para notificar el resultado de la jugada
+ *         ---- GoResult --->   gameId, move: Para notificar el resultado de la jugada
  *          .
  *          .
  *          .

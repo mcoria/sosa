@@ -20,9 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Slf4j
 @Component
 public class SosaState implements ApplicationListener<SosaEvent> {
-
     private final BlockingQueue<String> availableWorkers = new LinkedBlockingDeque<>();
-
     private final CircularFifoQueue<String> createdChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> acceptedChallenges = new CircularFifoQueue<>();
     private final CircularFifoQueue<String> declinedChallenges = new CircularFifoQueue<>();
@@ -53,7 +51,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
     }
 
     public synchronized boolean isBusy() {
-        return thereIsChallengeInProgress(Optional.empty()) || !thereAreAvailableWorkers();
+        return thereIsChallengeInProgress(Optional.empty());
     }
 
     public synchronized boolean thereIsChallengeInProgress(Optional<String> excludedChallengeId) {
@@ -69,7 +67,6 @@ public class SosaState implements ApplicationListener<SosaEvent> {
 
         return !onGoingChallengesSet.isEmpty();
     }
-
     public synchronized boolean thereAreAvailableWorkers() {
         return !availableWorkers.isEmpty();
     }

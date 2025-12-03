@@ -2,14 +2,13 @@ package net.chesstango.sosa.worker;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.messages.master.GoFastResult;
-import net.chesstango.sosa.messages.master.WorkerReady;
+import net.chesstango.sosa.messages.master.GoResult;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 import static net.chesstango.sosa.messages.Constants.MASTER_ROUTING_KEY;
+import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 
 /**
  * @author Mauricio Coria
@@ -30,7 +29,7 @@ public class WorkerProducer {
 
     public void send_GoResult(String bestMove) {
         log.info("Sending response: {}", bestMove);
-        GoFastResult payload = new GoFastResult(gameId, bestMove);
+        GoResult payload = new GoResult(gameId, bestMove);
         rabbitTemplate.convertAndSend(
                 SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,

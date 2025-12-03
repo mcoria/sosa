@@ -1,4 +1,4 @@
-package net.chesstango.sosa.messages.worker;
+package net.chesstango.sosa.messages.master;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,10 +7,11 @@ import lombok.NoArgsConstructor;
 /**
  * @author Mauricio Coria
  */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StartPosition {
+public class GoResult {
     private String gameId;
-    private String fen;
+    private String move;
 }
