@@ -97,7 +97,7 @@ public class LichessClientBean implements LichessClient {
     }
 
     @Override
-    public Many<User> botsOnline() {
+    public Stream<User> botsOnline() {
         return imp.botsOnline();
     }
 

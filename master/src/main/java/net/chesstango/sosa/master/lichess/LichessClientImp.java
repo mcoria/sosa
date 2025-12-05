@@ -82,8 +82,8 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized Many<User> botsOnline() {
-        return client.bot().botsOnline();
+    public synchronized Stream<User> botsOnline() {
+        return client.bot().botsOnline().stream();
     }
 
     @Override

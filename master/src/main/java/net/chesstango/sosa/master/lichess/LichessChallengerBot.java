@@ -22,18 +22,14 @@ public class LichessChallengerBot {
 
     private final LichessClient client;
 
-    private final SosaState sosaState;
-
     private final BotQueue botQueue;
 
     private final List<Challenger> challengerTypes;
 
     public LichessChallengerBot(LichessClient client,
-                                SosaState sosaState,
                                 BotQueue botQueue,
                                 @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
-        this.sosaState = sosaState;
         this.botQueue = botQueue;
         this.challengerTypes = new ArrayList<>();
 
@@ -47,8 +43,8 @@ public class LichessChallengerBot {
         });
     }
 
-    public void updateRating() {
-        Map<StatsPerfType, StatsPerf> myRatings = sosaState.getMyProfile().ratings();
+    public void updateRating(UserAuth myProfile) {
+        Map<StatsPerfType, StatsPerf> myRatings = myProfile.ratings();
 
         challengerTypes.forEach(challenger -> challenger.setRating(myRatings));
     }

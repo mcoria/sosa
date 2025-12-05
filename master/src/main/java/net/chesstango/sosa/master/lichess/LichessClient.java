@@ -31,7 +31,7 @@ public interface LichessClient {
 
     void gameAbort(String gameId);
 
-    Many<User> botsOnline();
+    Stream<User> botsOnline();
 
     Optional<UserAuth> findUser(String username);
 

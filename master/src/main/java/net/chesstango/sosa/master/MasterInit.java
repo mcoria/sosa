@@ -1,5 +1,6 @@
 package net.chesstango.sosa.master;
 
+import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessConnected;
 import net.chesstango.sosa.master.lichess.LichessChallengerBot;
@@ -35,9 +36,11 @@ public class MasterInit {
     public void onLichessConnected() {
         log.info("LichessConnected event received");
 
-        sosaState.setMyProfile(lichessClient.getProfile());
+        UserAuth myProfile = lichessClient.getProfile();
 
-        lichessChallengerBot.updateRating();
+        sosaState.setMyProfile(myProfile);
+
+        lichessChallengerBot.updateRating(myProfile);
 
         taskExecutor.submit(lichessMainEventsReader);
     }

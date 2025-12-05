@@ -32,6 +32,7 @@ public class BotQueue {
         String botName = pollBotNameFromQueue();
 
         if (botName == null) {
+            log.info("No bot in queue");
             loadOnlineBots();
             botName = pollBotNameFromQueue();
         }
@@ -47,18 +48,18 @@ public class BotQueue {
             return botName;
         }
 
-        log.info("No onlineBots in queue");
         return null;
     }
 
     private void loadOnlineBots() {
+        log.info("Querying lichess for online bots");
         client.botsOnline()
-                .stream()
                 .forEach(this::addBotToQueue);
+        log.info("Finished querying lichess for online bots");
     }
 
     private void addBotToQueue(User user) {
-        log.info("{} online", user.id());
+        log.info("Bot {} online", user.id());
         String botName = user.id();
         rabbitTemplate.convertAndSend(BOTS_QUEUE, botName);
         onlineBots.put(botName, user);
@@ -68,7 +69,7 @@ public class BotQueue {
         User bot = onlineBots.remove(botName);
 
         if (bot == null) {
-            log.warn("Querying lichess server for bot {}", botName);
+            log.info("Loading bot {} from lichess server", botName);
             bot = client.findUser(botName).orElse(null);
         }
 
