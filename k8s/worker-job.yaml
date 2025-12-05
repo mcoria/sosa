@@ -65,6 +65,11 @@ spec:
                 secretKeyRef:
                   name: sosa-secrets
                   key: rabbit_password
+            - name: BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: sosa-secrets
+                  key: bot_token
           envFrom:
             - configMapRef:
                 name: sosa-worker-config
