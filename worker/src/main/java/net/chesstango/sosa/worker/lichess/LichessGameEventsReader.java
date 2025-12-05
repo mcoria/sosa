@@ -11,11 +11,8 @@ import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.worker.TangoController;
 import net.chesstango.sosa.worker.WorkerApplication;
 import net.chesstango.sosa.worker.WorkerProducer;
-import net.chesstango.sosa.worker.events.LichessConnected;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -24,37 +21,28 @@ import java.util.stream.Stream;
  * @author Mauricio Coria
  */
 @Slf4j
-@Service
-public class LichessGameEventsReader implements Runnable{
+@Component
+public class LichessGameEventsReader implements Runnable {
     private final String gameId;
+    private final Color myColor;
     private final LichessClient lichessClient;
     private final TangoController tangoController;
     private final WorkerProducer workerProducer;
-    private final ThreadPoolTaskExecutor taskExecutor;
 
     private FEN startPosition;
-
-    private Color myColor;
-
+    
     public LichessGameEventsReader(@Value("${gameId}") String gameId,
                                    @Value("${color}") String myColor,
                                    LichessClient lichessClient,
                                    TangoController tangoController,
-                                   WorkerProducer workerProducer,
-                                   ThreadPoolTaskExecutor taskExecutor) {
+                                   WorkerProducer workerProducer) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
         this.lichessClient = lichessClient;
         this.tangoController = tangoController;
         this.workerProducer = workerProducer;
-        this.taskExecutor = taskExecutor;
     }
 
-    @EventListener(LichessConnected.class)
-    public void onLichessConnected() {
-        log.info("LichessConnected event received");
-        taskExecutor.submit(this);
-    }
 
     @Override
     public void run() {

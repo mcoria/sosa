@@ -28,7 +28,8 @@ public class LichessClientBean implements LichessClient {
 
     private LichessClient imp;
 
-    public LichessClientBean(@Value("${app.botToken}") String botToken, ApplicationEventPublisher applicationEventPublisher) {
+    public LichessClientBean(@Value("${app.botToken}") String botToken,
+                             ApplicationEventPublisher applicationEventPublisher) {
         this.botToken = botToken;
         this.applicationEventPublisher = applicationEventPublisher;
     }
