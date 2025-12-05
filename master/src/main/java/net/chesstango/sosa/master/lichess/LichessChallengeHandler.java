@@ -43,9 +43,14 @@ public class LichessChallengeHandler {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
             if (sosaState.thereAreAvailableWorkers()) {
-                if (isMyChallenge(event) || isChallengeAcceptable(event)) {
+                if (isMyChallenge(event)) {
+                    log.info("[{}] Accepting my own challenge", event.id());
+                    sendAcceptChallenge(event);
+                } else if (isChallengeAcceptable(event)) {
+                    log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
                 } else {
+                    log.info("[{}] Challenge not acceptable", event.id());
                     sendDeclineChallenge(event);
                 }
             } else {

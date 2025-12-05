@@ -28,7 +28,7 @@ public class BotQueue {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    synchronized User pickBot() {
+    public synchronized User pickBot() {
         String botName = pollBotNameFromQueue();
 
         if (botName == null) {

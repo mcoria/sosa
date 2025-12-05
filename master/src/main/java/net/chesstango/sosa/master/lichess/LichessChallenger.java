@@ -27,7 +27,6 @@ public class LichessChallenger {
 
     @Async
     public synchronized void challengeRandom() {
-        log.info("Challenging random bot");
         Optional<Challenge> challengeOpt = challengeRandomBot();
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();

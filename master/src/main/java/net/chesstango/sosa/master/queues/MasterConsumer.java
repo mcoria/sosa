@@ -37,21 +37,21 @@ public class MasterConsumer {
 
     @RabbitHandler
     public void handle(WorkerInit workerInit) {
-        log.info("WorkerInit: {}", workerInit);
+        log.info("Received: {}", workerInit);
 
         sosaState.addAvailableWorker(workerInit.getWorkerId());
     }
 
     @RabbitHandler
     public void handle(SendChallenge sendChallenge) {
-        log.info("SendChallenge: {}", sendChallenge);
+        log.info("Received: {}", sendChallenge);
 
         lichessChallenger.challengeRandom();
     }
 
     @RabbitHandler
     public void handle(SendMove sendMove) {
-        log.info("[{}] SendMove {}", sendMove.getGameId(), sendMove);
+        log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
 
         client.gameMove(sendMove.getGameId(), sendMove.getMove());
     }

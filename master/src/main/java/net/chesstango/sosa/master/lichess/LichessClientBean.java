@@ -4,7 +4,6 @@ import chariot.Client;
 import chariot.ClientAuth;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessConnected;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +12,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -59,11 +57,6 @@ public class LichessClientBean implements LichessClient {
     }
 
     @Override
-    public Stream<GameStateEvent> streamGameStateEvent(String gameId) {
-        return imp.streamGameStateEvent(gameId);
-    }
-
-    @Override
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         return imp.challenge(user, challengeBuilderConsumer);
     }
@@ -102,26 +95,6 @@ public class LichessClientBean implements LichessClient {
     public void gameAbort(String gameId) {
         imp.gameAbort(gameId);
     }
-
-    /*
-
-    @Override
-    public Map<StatsPerfType, StatsPerf> getRatings() {
-        return imp.getRatings();
-    }
-
-    @Override
-    public int getRating(StatsPerfType type) {
-        return imp.getRating(type);
-    }
-
-    @Override
-    public boolean isMe(UserInfo theUser) {
-        return imp.isMe(theUser);
-    }
-
-
-     */
 
     @Override
     public Many<User> botsOnline() {

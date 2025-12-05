@@ -28,11 +28,6 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized Stream<GameStateEvent> streamGameStateEvent(String gameId) {
-        return client.bot().connectToGame(gameId).stream();
-    }
-
-    @Override
     public synchronized Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         One<Challenge> optChallenge = client.bot()
                 .challenge(user.id(), challengeBuilderConsumer);

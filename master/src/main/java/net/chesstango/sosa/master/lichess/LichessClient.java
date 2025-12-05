@@ -15,8 +15,6 @@ public interface LichessClient {
 
     Stream<Event> streamEvents();
 
-    Stream<GameStateEvent> streamGameStateEvent(String gameId);
-
     Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
 
     void challengeAccept(String challengeId);
@@ -32,14 +30,6 @@ public interface LichessClient {
     void gameChat(String gameId, String message);
 
     void gameAbort(String gameId);
-
-    /*
-    Map<StatsPerfType, StatsPerf> getRatings();
-
-    int getRating(StatsPerfType type);
-
-    boolean isMe(UserInfo theUser);
-     */
 
     Many<User> botsOnline();
 
