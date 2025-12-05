@@ -80,29 +80,10 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized Map<StatsPerfType, StatsPerf> getRatings() {
+    public UserAuth getProfile() {
         return client.account()
                 .profile()
-                .get()
-                .ratings();
-    }
-
-    @Override
-    public synchronized int getRating(StatsPerfType type) {
-        Map<StatsPerfType, StatsPerf> rating = client.account()
-                .profile()
-                .get()
-                .ratings();
-        StatsPerf stats = rating.get(type);
-        if (stats instanceof StatsPerf.StatsPerfGame statsPerfGame) {
-            return statsPerfGame.rating();
-        }
-        throw new RuntimeException("Rating not found");
-    }
-
-    @Override
-    public synchronized boolean isMe(UserInfo theUser) {
-        return client.account().profile().get().id().equals(theUser.id());
+                .get();
     }
 
     @Override
@@ -121,4 +102,5 @@ public class LichessClientImp implements LichessClient {
     public synchronized Many<GameInfo> meOngoingGames() {
         return client.games().ongoing();
     }
+
 }

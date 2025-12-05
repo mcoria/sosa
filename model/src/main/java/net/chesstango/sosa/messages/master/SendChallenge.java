@@ -1,6 +1,5 @@
 package net.chesstango.sosa.messages.master;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,9 +8,6 @@ import lombok.NoArgsConstructor;
  */
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class GoResult {
-    private String gameId;
-    private String move;
+public class SendChallenge {
 }

@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.SosaState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +22,18 @@ public class LichessChallengerBot {
 
     private final LichessClient client;
 
+    private final SosaState sosaState;
+
     private final BotQueue botQueue;
 
     private final List<Challenger> challengerTypes;
 
     public LichessChallengerBot(LichessClient client,
+                                SosaState sosaState,
                                 BotQueue botQueue,
                                 @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
+        this.sosaState = sosaState;
         this.botQueue = botQueue;
         this.challengerTypes = new ArrayList<>();
 
@@ -43,9 +48,7 @@ public class LichessChallengerBot {
     }
 
     public void updateRating() {
-        log.info("Getting my ratings");
-
-        Map<StatsPerfType, StatsPerf> myRatings = client.getRatings();
+        Map<StatsPerfType, StatsPerf> myRatings = sosaState.getMyProfile().ratings();
 
         challengerTypes.forEach(challenger -> challenger.setRating(myRatings));
     }
@@ -74,7 +77,7 @@ public class LichessChallengerBot {
         } else {
             log.warn("No bots online :S");
         }
-        return challenge == null ? Optional.empty() : Optional.of(challenge);
+        return Optional.ofNullable(challenge);
     }
 
     private abstract static class Challenger {

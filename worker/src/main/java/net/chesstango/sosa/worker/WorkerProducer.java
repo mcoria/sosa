@@ -2,7 +2,7 @@ package net.chesstango.sosa.worker;
 
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.messages.master.GoResult;
+import net.chesstango.sosa.messages.master.SendMove;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class WorkerProducer {
 
     public void send_GoResult(String bestMove) {
         log.info("Sending response: {}", bestMove);
-        GoResult payload = new GoResult(gameId, bestMove);
+        SendMove payload = new SendMove(gameId, bestMove);
         rabbitTemplate.convertAndSend(
                 SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,

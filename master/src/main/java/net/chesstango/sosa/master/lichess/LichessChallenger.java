@@ -38,7 +38,7 @@ public class LichessChallenger {
         Optional<Challenge> challengeOpt = challengeRandomBot();
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
-            log.info("[{}] Challenge sent: {}", challenge.id(), challengeOpt);
+            log.info("[{}] SendChallenge sent: {}", challenge.id(), challengeOpt);
             applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CREATED, challenge.id()));
         } else {
             log.warn("Couldn't sent challenge");

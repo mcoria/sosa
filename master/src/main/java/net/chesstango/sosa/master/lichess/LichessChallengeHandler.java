@@ -7,6 +7,7 @@ import net.chesstango.sosa.master.events.ChallengeEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -43,7 +44,7 @@ public class LichessChallengeHandler {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
             if (sosaState.thereAreAvailableWorkers()) {
-                if (isChallengeAcceptable(event)) {
+                if (isMyChallenge(event) || isChallengeAcceptable(event)) {
                     sendAcceptChallenge(event);
                 } else {
                     sendDeclineChallenge(event);
@@ -89,17 +90,22 @@ public class LichessChallengeHandler {
         applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
-    private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
+    // Siempre acepto mis propios challenges
+    private boolean isMyChallenge(Event.ChallengeEvent event) {
         Optional<ChallengeInfo.Player> challengerPlayer = event.challenge().players().challengerOpt();
-        Optional<ChallengeInfo.Player> challengedPlayer = event.challenge().players().challengedOpt();
 
-        if (challengerPlayer.isEmpty() || challengedPlayer.isEmpty()) {
-            log.warn("[{}] Challenge has no challenger or challenged player", event.id());
+        return Objects.equals(challengerPlayer.get().user().id(), sosaState.getMyProfile().id());
+    }
+
+    private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
+        Optional<ChallengeInfo.Player> challengerPlayer = event
+                .challenge()
+                .players()
+                .challengerOpt();
+
+        if (challengerPlayer.isEmpty()) {
+            log.warn("Challenge has no challenger");
             return false;
-        }
-
-        if (client.isMe(challengerPlayer.get().user())) { // Siempre acepto mis propios challenges
-            return true;
         }
 
         GameType gameType = event.challenge().gameType();
@@ -128,7 +134,7 @@ public class LichessChallengeHandler {
             return false;
         }
 
-        int myRating = client.getRating(statsPerfType);
+        int myRating = sosaState.getRating(statsPerfType);
 
         return "BOT".equals(userTitle) && player.rating() <= myRating + LichessChallengerBot.RATING_THRESHOLD;
     }

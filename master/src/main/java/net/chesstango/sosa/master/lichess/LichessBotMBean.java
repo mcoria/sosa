@@ -8,7 +8,7 @@ public interface LichessBotMBean {
      * Send challenge request
      *
      * @param user The user or bot name
-     * @param type Challenge type
+     * @param type SendChallenge type
      */
     void challengeUser(String user, String type);
 

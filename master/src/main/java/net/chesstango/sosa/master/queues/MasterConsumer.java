@@ -1,14 +1,18 @@
 package net.chesstango.sosa.master.queues;
 
+import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.messages.master.GoResult;
+import net.chesstango.sosa.messages.master.SendChallenge;
+import net.chesstango.sosa.messages.master.SendMove;
 import net.chesstango.sosa.messages.master.WorkerInit;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 
@@ -32,25 +36,22 @@ public class MasterConsumer {
 
     @RabbitHandler
     public void handle(WorkerInit workerInit) {
-        try {
-            log.info("MasterInit received: {}", workerInit);
+        log.info("WorkerInit: {}", workerInit);
 
-            sosaState.addAvailableWorker(workerInit.getWorkerId());
-
-            lichessChallengerBot.challengeRandomBot();
-
-        } catch (RuntimeException e) {
-            log.error("Error handling MasterInit", e);
-        }
+        sosaState.addAvailableWorker(workerInit.getWorkerId());
     }
 
     @RabbitHandler
-    public void handle(GoResult goResult) {
-        try {
-            log.info("[{}] GoResult {}", goResult.getGameId(), goResult);
-            client.gameMove(goResult.getGameId(), goResult.getMove());
-        } catch (RuntimeException e) {
-            log.error("Error handling GoResult", e);
-        }
+    public void handle(SendChallenge sendChallenge) {
+        log.info("SendChallenge: {}", sendChallenge);
+
+        Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
+    }
+
+    @RabbitHandler
+    public void handle(SendMove sendMove) {
+        log.info("[{}] SendMove {}", sendMove.getGameId(), sendMove);
+
+        client.gameMove(sendMove.getGameId(), sendMove.getMove());
     }
 }

@@ -31,7 +31,7 @@ public class ChallengeWatchDogJob extends QuartzJobBean {
         try {
             String challengeId = context.getJobDetail().getJobDataMap().getString("challengeId");
             if (sosaState.isChallengePending(challengeId)) {
-                log.info("[{}] Challenge watchdog triggered for challenge", challengeId);
+                log.info("[{}] SendChallenge watchdog triggered for challenge", challengeId);
                 client.cancelChallenge(challengeId);
             }
         } catch (Exception e) {

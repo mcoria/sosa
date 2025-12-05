@@ -49,6 +49,11 @@ public class LichessClientBean implements LichessClient {
 
 
     @Override
+    public UserAuth getProfile() {
+        return imp.getProfile();
+    }
+
+    @Override
     public Stream<Event> streamEvents() {
         return imp.streamEvents();
     }
@@ -98,6 +103,8 @@ public class LichessClientBean implements LichessClient {
         imp.gameAbort(gameId);
     }
 
+    /*
+
     @Override
     public Map<StatsPerfType, StatsPerf> getRatings() {
         return imp.getRatings();
@@ -112,6 +119,9 @@ public class LichessClientBean implements LichessClient {
     public boolean isMe(UserInfo theUser) {
         return imp.isMe(theUser);
     }
+
+
+     */
 
     @Override
     public Many<User> botsOnline() {
