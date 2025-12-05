@@ -11,14 +11,10 @@ import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.worker.TangoController;
 import net.chesstango.sosa.worker.WorkerApplication;
 import net.chesstango.sosa.worker.WorkerProducer;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.chesstango.sosa.worker.events.LichessConnected;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -29,11 +25,12 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Service
-public class LichessGameEventsReader {
+public class LichessGameEventsReader implements Runnable{
     private final String gameId;
     private final LichessClient lichessClient;
     private final TangoController tangoController;
     private final WorkerProducer workerProducer;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
     private FEN startPosition;
 
@@ -43,15 +40,23 @@ public class LichessGameEventsReader {
                                    @Value("${color}") String myColor,
                                    LichessClient lichessClient,
                                    TangoController tangoController,
-                                   WorkerProducer workerProducer) {
+                                   WorkerProducer workerProducer,
+                                   ThreadPoolTaskExecutor taskExecutor) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
         this.lichessClient = lichessClient;
         this.tangoController = tangoController;
         this.workerProducer = workerProducer;
+        this.taskExecutor = taskExecutor;
     }
 
-    @Async
+    @EventListener(LichessConnected.class)
+    public void onLichessConnected() {
+        log.info("LichessConnected event received");
+        taskExecutor.submit(this);
+    }
+
+    @Override
     public void run() {
         log.info("[{}] Entering Game event loop...", gameId);
         try (Stream<GameStateEvent> gameEvents = lichessClient.streamGameStateEvent(gameId)) {
