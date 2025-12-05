@@ -38,6 +38,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
 
     @Override
     public void onApplicationEvent(SosaEvent event) {
+        /*
         if (event instanceof ChallengeEvent challengeEvent) {
             if (Objects.requireNonNull(challengeEvent.getType()) == ChallengeEvent.Type.CHALLENGE_ACCEPTED) {
                 scheduleChallengeWatchDog(challengeEvent.getChallengeId());
@@ -47,6 +48,7 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
                 scheduleGameWatchDog(gameStartEvent.getGameId());
             }
         }
+         */
     }
 
     private void scheduleChallengeWatchDog(String challengeId) {

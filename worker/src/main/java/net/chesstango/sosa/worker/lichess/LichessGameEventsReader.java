@@ -9,6 +9,7 @@ import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.worker.TangoController;
+import net.chesstango.sosa.worker.WorkerProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class LichessGameEventsReader {
     private final String gameId;
     private final LichessClient lichessClient;
     private final TangoController tangoController;
+    private final WorkerProducer workerProducer;
 
     private FEN startPosition;
 
@@ -33,11 +35,12 @@ public class LichessGameEventsReader {
     public LichessGameEventsReader(@Value("${gameId}") String gameId,
                                    @Value("${color}") String myColor,
                                    LichessClient lichessClient,
-                                   TangoController tangoController) {
+                                   TangoController tangoController, WorkerProducer workerProducer) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
         this.lichessClient = lichessClient;
         this.tangoController = tangoController;
+        this.workerProducer = workerProducer;
     }
 
     @Async
@@ -120,7 +123,9 @@ public class LichessGameEventsReader {
             long wInc = state.winc().toMillis();
             long bInc = state.binc().toMillis();
 
-            //workerProducer.send_GoFast(gameId, (int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
+            String move = tangoController.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
+
+            workerProducer.send_GoResult(move);
         }
     }
 

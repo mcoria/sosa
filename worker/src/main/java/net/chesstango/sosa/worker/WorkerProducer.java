@@ -17,8 +17,8 @@ import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 @Component
 public class WorkerProducer {
     private final RabbitTemplate rabbitTemplate;
-    private final String gameId;
 
+    private final String gameId;
 
     public WorkerProducer(RabbitTemplate rabbitTemplate,
                           @Value("${app.workerId}") String workerId,

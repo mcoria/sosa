@@ -27,6 +27,7 @@ public class ChallengeWatchDogJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
+        /*
         try {
             String challengeId = context.getJobDetail().getJobDataMap().getString("challengeId");
             if (sosaState.isChallengePending(challengeId)) {
@@ -36,5 +37,6 @@ public class ChallengeWatchDogJob extends QuartzJobBean {
         } catch (Exception e) {
             log.error("Error executing ChallengeWatchDogJob", e);
         }
+         */
     }
 }

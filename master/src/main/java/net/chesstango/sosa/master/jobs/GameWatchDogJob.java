@@ -24,6 +24,7 @@ public class GameWatchDogJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
+        /*
         try {
             String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
             log.info("[{}] Game watchdog triggered", gameId);
@@ -43,5 +44,7 @@ public class GameWatchDogJob extends QuartzJobBean {
         } catch (Exception e) {
             log.error("Error executing GameWatchDogJob", e);
         }
+
+         */
     }
 }
