@@ -2,7 +2,7 @@ package net.chesstango.sosa.master.lichess;// Java
 
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import net.chesstango.sosa.master.MasterApplication;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Stream;
@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  */
 @Service
 @Slf4j
-public class LichessMainEventsReader {
+public class LichessMainEventsReader implements Runnable {
     private final LichessClient lichessClient;
 
     private final LichessChallengeHandler lichessChallengeHandler;
@@ -28,7 +28,8 @@ public class LichessMainEventsReader {
         this.lichessGameHandler = lichessGameHandler;
     }
 
-    @Async
+
+    @Override
     public void run() {
         try (Stream<Event> events = lichessClient.streamEvents()) {
             log.info("Reading Lichess Stream Events");
@@ -45,5 +46,6 @@ public class LichessMainEventsReader {
         } catch (RuntimeException e) {
             log.error("main event loop failed", e);
         }
+        MasterApplication.countDownLatch.countDown();
     }
 }

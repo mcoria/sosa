@@ -33,14 +33,14 @@ public class MasterConsumer {
     @RabbitHandler
     public void handle(WorkerInit workerInit) {
         try {
-            log.info("WorkerInit received: {}", workerInit);
+            log.info("MasterInit received: {}", workerInit);
 
             sosaState.addAvailableWorker(workerInit.getWorkerId());
 
             lichessChallengerBot.challengeRandomBot();
 
         } catch (RuntimeException e) {
-            log.error("Error handling WorkerInit", e);
+            log.error("Error handling MasterInit", e);
         }
     }
 

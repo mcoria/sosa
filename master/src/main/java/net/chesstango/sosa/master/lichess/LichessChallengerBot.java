@@ -4,7 +4,6 @@ import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,7 +42,6 @@ public class LichessChallengerBot {
         });
     }
 
-    @Async
     public void updateRating() {
         log.info("Getting my ratings");
 
