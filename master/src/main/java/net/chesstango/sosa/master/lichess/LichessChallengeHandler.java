@@ -3,7 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.ChallengeEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -61,12 +60,10 @@ public class LichessChallengeHandler {
 
     public void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CANCELLED, event.id()));
     }
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
     public void stopAcceptingChallenges() {
@@ -81,13 +78,11 @@ public class LichessChallengeHandler {
     private void sendAcceptChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Accepting challenge", event.id());
         client.challengeAccept(event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_ACCEPTED, event.id()));
     }
 
     private void sendDeclineChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Declining challenge", event.id());
         client.challengeDecline(event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
     // Siempre acepto mis propios challenges

@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.queues;
 import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendChallenge;
@@ -25,13 +26,13 @@ import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 public class MasterConsumer {
     private final LichessClient client;
     private final SosaState sosaState;
-    private final LichessChallengerBot lichessChallengerBot;
+    private final LichessChallenger lichessChallenger;
 
     public MasterConsumer(LichessClient client, SosaState sosaState,
-                          LichessChallengerBot lichessChallengerBot) {
+                          LichessChallenger lichessChallenger) {
         this.client = client;
         this.sosaState = sosaState;
-        this.lichessChallengerBot = lichessChallengerBot;
+        this.lichessChallenger = lichessChallenger;
     }
 
     @RabbitHandler
@@ -45,7 +46,7 @@ public class MasterConsumer {
     public void handle(SendChallenge sendChallenge) {
         log.info("SendChallenge: {}", sendChallenge);
 
-        Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
+        lichessChallenger.challengeRandom();
     }
 
     @RabbitHandler

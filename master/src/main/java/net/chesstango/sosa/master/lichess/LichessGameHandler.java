@@ -4,7 +4,6 @@ import chariot.model.Enums;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.GameFinishEvent;
 import net.chesstango.sosa.master.queues.MasterProducer;
 import org.springframework.stereotype.Component;
 
@@ -56,7 +55,7 @@ public class LichessGameHandler {
     public void handleGameFinish(Event.GameStopEvent gameStopEvent) {
         log.info("[{}] GameStopEvent", gameStopEvent.id());
 
-        GameFinishEvent gameFinishEvent = new GameFinishEvent(this, gameStopEvent);
+        //GameFinishEvent gameFinishEvent = new GameFinishEvent(this, gameStopEvent);
 
         //applicationEventPublisher.publishEvent(gameFinishEvent);
     }

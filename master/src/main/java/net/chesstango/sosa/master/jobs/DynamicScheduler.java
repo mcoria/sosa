@@ -2,8 +2,6 @@ package net.chesstango.sosa.master.jobs;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.ChallengeEvent;
-import net.chesstango.sosa.master.events.GameStartEvent;
 import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Value;

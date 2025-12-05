@@ -5,7 +5,7 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  * @author Mauricio Coria
  */
 @Slf4j
-@Service
+@Component
 public class LichessChallengerBot {
     public static final int RATING_THRESHOLD = 150;
 
@@ -54,30 +54,32 @@ public class LichessChallengerBot {
     }
 
     public Optional<Challenge> challengeRandomBot() {
-        Challenge challenge = null;
+        log.info("Challenging random bot");
 
-        User aBot = botQueue.pickBot();
+        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
 
-        if (aBot != null) {
             List<Challenger> challengerTypesShuffled = new ArrayList<>(challengerTypes);
 
             Collections.shuffle(challengerTypesShuffled);
 
-            Optional<Challenger> challengerOpt = challengerTypesShuffled
+            final User theBot = bot;
+
+            Optional<Challenge> challengeOpt = challengerTypesShuffled
                     .stream()
-                    .filter(aChallenger -> aChallenger.filer(aBot))
+                    .filter(aChallenger -> aChallenger.filter(theBot))
+                    .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
                     .findFirst();
 
-            if (challengerOpt.isPresent()) {
-                Challenger challenger = challengerOpt.get();
-                challenge = client.challenge(aBot, challenger::consumeChallengeBuilder);
+            if (challengeOpt.isPresent()) {
+                return challengeOpt;
             } else {
-                log.info("Rating: bot {} filtered out ", aBot.id());
+                log.info("Bot {} filtered out ", bot.id());
             }
-        } else {
-            log.warn("No bots online :S");
         }
-        return Optional.ofNullable(challenge);
+
+        log.warn("No online bots");
+
+        return Optional.empty();
     }
 
     private abstract static class Challenger {
@@ -95,7 +97,7 @@ public class LichessChallengerBot {
             myRating = getRating(myRatings);
         }
 
-        boolean filer(User bot) {
+        boolean filter(User bot) {
             int botRating = getRating(bot.ratings());
             return botRating >= myRating - RATING_THRESHOLD && botRating <= myRating + RATING_THRESHOLD;
         }

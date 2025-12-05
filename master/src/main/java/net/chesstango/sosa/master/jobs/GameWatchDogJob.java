@@ -1,6 +1,5 @@
 package net.chesstango.sosa.master.jobs;
 
-import chariot.model.Enums;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import org.quartz.JobExecutionContext;

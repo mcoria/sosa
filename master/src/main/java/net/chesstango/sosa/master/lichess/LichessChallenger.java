@@ -3,7 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.ChallengeEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -18,18 +17,12 @@ import java.util.Optional;
 public class LichessChallenger {
     private final LichessChallengerBot lichessChallengerBot;
     private final LichessChallengerUser lichessChallengerUser;
-    private final SosaState sosaState;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     public LichessChallenger(LichessChallengerBot lichessChallengerBot,
-                             LichessClient client,
-                             SosaState sosaState,
-                             ApplicationEventPublisher applicationEventPublisher) {
+                             LichessClient client) {
         this.lichessChallengerBot = lichessChallengerBot;
         this.lichessChallengerUser = new LichessChallengerUser(client);
-        this.sosaState = sosaState;
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Async
@@ -38,10 +31,9 @@ public class LichessChallenger {
         Optional<Challenge> challengeOpt = challengeRandomBot();
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
-            log.info("[{}] SendChallenge sent: {}", challenge.id(), challengeOpt);
-            applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CREATED, challenge.id()));
+            log.info("[{}] Challenge sent: {}", challenge.id(), challenge);
         } else {
-            log.warn("Couldn't sent challenge");
+            log.warn("Couldn't challenge random bot");
         }
     }
 

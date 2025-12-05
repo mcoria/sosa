@@ -10,8 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class SendMove {
-    private String gameId;
-    private String move;
+    private final String gameId;
+    private final String move;
 }

@@ -32,7 +32,7 @@ public class RegisterWorker implements Tasklet {
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        log.info("Registering worker");
+        log.info("[{}] Registering worker", workerId);
         WorkerInit payload = new WorkerInit(workerId);
         rabbitTemplate.convertAndSend(
                 SOSA_EXCHANGE,
