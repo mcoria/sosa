@@ -9,8 +9,15 @@ import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.worker.TangoController;
+import net.chesstango.sosa.worker.WorkerApplication;
 import net.chesstango.sosa.worker.WorkerProducer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +42,8 @@ public class LichessGameEventsReader {
     public LichessGameEventsReader(@Value("${gameId}") String gameId,
                                    @Value("${color}") String myColor,
                                    LichessClient lichessClient,
-                                   TangoController tangoController, WorkerProducer workerProducer) {
+                                   TangoController tangoController,
+                                   WorkerProducer workerProducer) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
         this.lichessClient = lichessClient;
@@ -57,11 +65,10 @@ public class LichessGameEventsReader {
                 }
             });
             log.info("[{}] Game event loop finished", gameId);
-            System.exit(0);
         } catch (RuntimeException e) {
             log.error("[{}] Game event loop failed", gameId, e);
-            System.exit(-1);
         }
+        WorkerApplication.countDownLatch.countDown();
     }
 
     private void accept(GameStateEvent.Full gameFullEvent) {
