@@ -1,6 +1,8 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.master.queues;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.GoResult;
 import net.chesstango.sosa.messages.master.WorkerInit;
@@ -16,20 +18,26 @@ import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 @Slf4j
 @Component
 @RabbitListener(queues = MASTER_QUEUE)
-public class GameConsumer {
+public class MasterConsumer {
     private final LichessClient client;
     private final SosaState sosaState;
+    private final LichessChallengerBot lichessChallengerBot;
 
-
-    public GameConsumer(LichessClient client, SosaState sosaState) {
+    public MasterConsumer(LichessClient client, SosaState sosaState,
+                          LichessChallengerBot lichessChallengerBot) {
         this.client = client;
         this.sosaState = sosaState;
+        this.lichessChallengerBot = lichessChallengerBot;
     }
 
     @RabbitHandler
     public void handle(WorkerInit workerInit) {
         try {
-            log.info("WorkerInit received");
+            log.info("WorkerInit received: {}", workerInit);
+
+            sosaState.addAvailableWorker(workerInit.getWorkerId());
+
+            lichessChallengerBot.challengeRandomBot();
 
         } catch (RuntimeException e) {
             log.error("Error handling WorkerInit", e);

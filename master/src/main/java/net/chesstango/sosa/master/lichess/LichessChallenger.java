@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.events.ChallengeEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,24 +22,26 @@ public class LichessChallenger {
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public LichessChallenger(LichessChallengerBot lichessChallengerBot, LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
+    public LichessChallenger(LichessChallengerBot lichessChallengerBot,
+                             LichessClient client,
+                             SosaState sosaState,
+                             ApplicationEventPublisher applicationEventPublisher) {
         this.lichessChallengerBot = lichessChallengerBot;
         this.lichessChallengerUser = new LichessChallengerUser(client);
         this.sosaState = sosaState;
         this.applicationEventPublisher = applicationEventPublisher;
     }
 
+    @Async
     public synchronized void challengeRandom() {
-        if (!sosaState.isBusy()) {
-            log.info("Challenging random bot");
-            Optional<Challenge> challengeOpt = challengeRandomBot();
-            if (challengeOpt.isPresent()) {
-                Challenge challenge = challengeOpt.get();
-                log.info("[{}] Challenge sent: {}", challenge.id(), challengeOpt);
-                applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CREATED, challenge.id()));
-            } else {
-                log.warn("Couldn't sent challenge");
-            }
+        log.info("Challenging random bot");
+        Optional<Challenge> challengeOpt = challengeRandomBot();
+        if (challengeOpt.isPresent()) {
+            Challenge challenge = challengeOpt.get();
+            log.info("[{}] Challenge sent: {}", challenge.id(), challengeOpt);
+            applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CREATED, challenge.id()));
+        } else {
+            log.warn("Couldn't sent challenge");
         }
     }
 

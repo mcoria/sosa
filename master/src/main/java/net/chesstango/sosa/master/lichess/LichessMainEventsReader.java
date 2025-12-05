@@ -1,11 +1,7 @@
-package net.chesstango.sosa.master;// Java
+package net.chesstango.sosa.master.lichess;// Java
 
-import chariot.Client;
-import chariot.ClientAuth;
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,37 +12,24 @@ import java.util.stream.Stream;
  */
 @Service
 @Slf4j
-public class BotStreamLoop {
-
-    private final String botToken;
-
-    private final LichessClientBean lichessClientBean;
+public class LichessMainEventsReader {
+    private final LichessClient lichessClient;
 
     private final LichessChallengeHandler lichessChallengeHandler;
 
     private final LichessGameHandler lichessGameHandler;
 
 
-    public BotStreamLoop(@Value("${app.botToken}") String botToken,
-                         LichessClientBean lichessClientBean,
-                         LichessChallengeHandler lichessChallengeHandler,
-                         LichessGameHandler lichessGameHandler) {
-        this.botToken = botToken;
-        this.lichessClientBean = lichessClientBean;
+    public LichessMainEventsReader(LichessClient lichessClient,
+                                   LichessChallengeHandler lichessChallengeHandler,
+                                   LichessGameHandler lichessGameHandler) {
+        this.lichessClient = lichessClient;
         this.lichessChallengeHandler = lichessChallengeHandler;
         this.lichessGameHandler = lichessGameHandler;
     }
 
     @Async
-    public void doWorkAsync() {
-        log.info("Connecting to Lichess");
-
-        ClientAuth clientAuth = Client.auth(botToken);
-
-        LichessClient lichessClient = new LichessClientImp(clientAuth);
-
-        lichessClientBean.setImp(lichessClient);
-
+    public void run() {
         try (Stream<Event> events = lichessClient.streamEvents()) {
             log.info("Reading Lichess Stream Events");
             events.forEach(event -> {

@@ -43,18 +43,13 @@ public class LichessChallengeHandler {
         log.info("[{}] ChallengeCreatedEvent", event.id());
         if (acceptChallenges) {
             if (sosaState.thereAreAvailableWorkers()) {
-                if (!sosaState.thereIsChallengeInProgress(Optional.of(event.id()))) {
-                    if (isChallengeAcceptable(event)) {
-                        sendAcceptChallenge(event);
-                    } else {
-                        sendDeclineChallenge(event);
-                    }
+                if (isChallengeAcceptable(event)) {
+                    sendAcceptChallenge(event);
                 } else {
-                    log.info("[{}] There are in progress challenges", event.id());
                     sendDeclineChallenge(event);
                 }
             } else {
-                log.info("[{}] There are in progress games", event.id());
+                log.info("[{}] There is no available worker to accept this challenge", event.id());
                 sendDeclineChallenge(event);
             }
         } else {
@@ -70,13 +65,6 @@ public class LichessChallengeHandler {
 
     public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-
-
-        // Aca deberiamos agregar el bot a Redis para no intentar nuevamente si ya sabemos la respuesta
-//        if ("declineNoBot".equals(event.reason().key())) {
-//
-//        }
-
         applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 

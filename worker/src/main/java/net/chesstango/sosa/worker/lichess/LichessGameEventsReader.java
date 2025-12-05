@@ -1,4 +1,4 @@
-package net.chesstango.sosa.worker;
+package net.chesstango.sosa.worker.lichess;
 
 
 import chariot.model.*;
@@ -8,7 +8,7 @@ import net.chesstango.board.Game;
 import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.gardel.fen.FENParser;
-import net.chesstango.sosa.worker.lichess.LichessClient;
+import net.chesstango.sosa.worker.TangoController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,29 +21,29 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Service
-public class LichessGame {
+public class LichessGameEventsReader {
     private final String gameId;
-    private final LichessClient client;
+    private final LichessClient lichessClient;
     private final TangoController tangoController;
 
     private FEN startPosition;
 
     private Color myColor;
 
-    public LichessGame(@Value("${gameId}") String gameId,
-                       @Value("${color}") String myColor,
-                       LichessClient client,
-                       TangoController tangoController) {
+    public LichessGameEventsReader(@Value("${gameId}") String gameId,
+                                   @Value("${color}") String myColor,
+                                   LichessClient lichessClient,
+                                   TangoController tangoController) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
-        this.client = client;
+        this.lichessClient = lichessClient;
         this.tangoController = tangoController;
     }
 
     @Async
     public void run() {
         log.info("[{}] Entering Game event loop...", gameId);
-        try (Stream<GameStateEvent> gameEvents = client.streamGameStateEvent(gameId)) {
+        try (Stream<GameStateEvent> gameEvents = lichessClient.streamGameStateEvent(gameId)) {
             gameEvents.forEach(gameEvent -> {
                 switch (gameEvent.type()) {
                     case gameFull -> accept((GameStateEvent.Full) gameEvent);
@@ -126,6 +126,6 @@ public class LichessGame {
 
     private void sendChatMessage(String message) {
         log.info("[{}] Chat: [{}] >> {}", gameId, "chesstango", message);
-        //client.gameChat(gameId, message);
+        //lichessClient.gameChat(gameId, message);
     }
 }

@@ -50,6 +50,8 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         }
     }
 
+    /*
+
     public synchronized boolean isBusy() {
         return thereIsChallengeInProgress(Optional.empty());
     }
@@ -60,6 +62,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         onGoingChallengesSet.addAll(acceptedChallenges);
 
         onGoingChallengesSet.removeAll(declinedChallenges);
+
         onGoingChallengesSet.removeAll(canceledChallenges);
 
         // Remove excluded challenge if present
@@ -67,9 +70,7 @@ public class SosaState implements ApplicationListener<SosaEvent> {
 
         return !onGoingChallengesSet.isEmpty();
     }
-    public synchronized boolean thereAreAvailableWorkers() {
-        return !availableWorkers.isEmpty();
-    }
+     */
 
     public synchronized boolean isChallengePending(String challengeId) {
         Set<String> onGoingChallengesSet = new HashSet<>(createdChallenges);
@@ -77,9 +78,14 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         onGoingChallengesSet.addAll(acceptedChallenges);
 
         onGoingChallengesSet.removeAll(declinedChallenges);
+
         onGoingChallengesSet.removeAll(canceledChallenges);
 
         return onGoingChallengesSet.contains(challengeId);
+    }
+
+    public synchronized boolean thereAreAvailableWorkers() {
+        return !availableWorkers.isEmpty();
     }
 
     public void addAvailableWorker(String workerId) {
@@ -91,10 +97,9 @@ public class SosaState implements ApplicationListener<SosaEvent> {
         }
     }
 
-    public String getNextWorker(String gameId) {
+    public String takeAvailableWorker() {
         try {
             String workerId = availableWorkers.take();
-            log.info("[{}] Worker {} assigned to game", gameId, workerId);
             return workerId;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

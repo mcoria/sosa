@@ -3,10 +3,8 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessConnected;
-import net.chesstango.sosa.master.events.SosaEvent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,7 +15,7 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Service
-public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
+public class LichessChallengerBot {
     public static final int RATING_THRESHOLD = 150;
 
     private static final Random rand = new Random();
@@ -45,14 +43,8 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
         });
     }
 
-    @Override
-    public void onApplicationEvent(SosaEvent event) {
-        if (Objects.requireNonNull(event) instanceof LichessConnected) {
-            updateRating();
-        }
-    }
-
-    private void updateRating() {
+    @Async
+    public void updateRating() {
         log.info("Getting my ratings");
 
         Map<StatsPerfType, StatsPerf> myRatings = client.getRatings();

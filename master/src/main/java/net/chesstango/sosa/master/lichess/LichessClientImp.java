@@ -37,7 +37,7 @@ public class LichessClientImp implements LichessClient {
         One<Challenge> optChallenge = client.bot()
                 .challenge(user.id(), challengeBuilderConsumer);
 
-        if(optChallenge.isPresent()){
+        if (optChallenge.isPresent()) {
             return optChallenge.get();
         } else {
             throw new RuntimeException("Error sending challenge to " + user.id());
