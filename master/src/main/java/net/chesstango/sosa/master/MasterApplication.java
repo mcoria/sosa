@@ -1,9 +1,11 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.LichessExceptionDetected;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.event.EventListener;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -24,5 +26,11 @@ public class MasterApplication {
         log.info("Exiting application");
 
         SpringApplication.exit(context, () -> 0);
+    }
+
+    @EventListener(LichessExceptionDetected.class)
+    public void onLichessExceptionDetected() {
+        log.error("LichessExceptionDetected event received");
+        countDownLatch.countDown();
     }
 }

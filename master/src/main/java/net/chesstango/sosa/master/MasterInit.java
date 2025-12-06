@@ -22,7 +22,8 @@ public class MasterInit {
     private final LichessMainEventsReader lichessMainEventsReader;
     private final ThreadPoolTaskExecutor taskExecutor;
 
-    public MasterInit(SosaState sosaState, LichessClient lichessClient, LichessChallengerBot lichessChallengerBot,
+    public MasterInit(SosaState sosaState, LichessClient lichessClient,
+                      LichessChallengerBot lichessChallengerBot,
                       LichessMainEventsReader lichessMainEventsReader,
                       ThreadPoolTaskExecutor taskExecutor) {
         this.sosaState = sosaState;

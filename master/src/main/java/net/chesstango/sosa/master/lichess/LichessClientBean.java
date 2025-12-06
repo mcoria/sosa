@@ -6,6 +6,7 @@ import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessConnected;
+import net.chesstango.sosa.master.events.LichessExceptionDetected;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +27,7 @@ public class LichessClientBean implements LichessClient {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     private volatile LichessClient imp;
+    private volatile UserAuth myProfile;
 
     public LichessClientBean(@Value("${app.botToken}") String botToken,
                              ApplicationEventPublisher applicationEventPublisher) {
@@ -38,17 +40,19 @@ public class LichessClientBean implements LichessClient {
     public void onApplicationReady() {
         log.info("Connecting to Lichess...");
 
-        ClientAuth clientAuth = Client.auth(botToken);
+        try {
+            ClientAuth clientAuth = Client.auth(botToken);
 
-        imp = new LichessClientImp(clientAuth);
+            this.imp = new LichessClientImp(clientAuth);
 
-        applicationEventPublisher.publishEvent(new LichessConnected(this));
-    }
+            this.myProfile = imp.getProfile();
 
+            applicationEventPublisher.publishEvent(new LichessConnected(this));
 
-    @Override
-    public UserAuth getProfile() {
-        return imp.getProfile();
+        } catch (LichessException e) {
+            log.error("Error connecting to Lichess", e);
+            applicationEventPublisher.publishEvent(new LichessExceptionDetected(this));
+        }
     }
 
     @Override
@@ -56,9 +60,20 @@ public class LichessClientBean implements LichessClient {
         return imp.streamEvents();
     }
 
+
+    @Override
+    public UserAuth getProfile() {
+        return myProfile;
+    }
+
     @Override
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
-        return imp.challenge(user, challengeBuilderConsumer);
+        try {
+            return imp.challenge(user, challengeBuilderConsumer);
+        } catch (LichessException e) {
+            applicationEventPublisher.publishEvent(new LichessExceptionDetected(this));
+            throw e;
+        }
     }
 
     @Override
@@ -107,7 +122,7 @@ public class LichessClientBean implements LichessClient {
     }
 
     @Override
-    public Many<GameInfo> meOngoingGames() {
+    public Stream<GameInfo> meOngoingGames() {
         return imp.meOngoingGames();
     }
 }

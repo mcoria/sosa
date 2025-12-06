@@ -26,18 +26,14 @@ public class LichessChallenger {
     }
 
     @Async
-    public synchronized void challengeRandom() {
-        Optional<Challenge> challengeOpt = challengeRandomBot();
+    public synchronized void challengeRandomBot() {
+        Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
             log.info("[{}] Challenge sent: {}", challenge.id(), challenge);
         } else {
             log.warn("Couldn't challenge random bot");
         }
-    }
-
-    private Optional<Challenge> challengeRandomBot() {
-        return lichessChallengerBot.challengeRandomBot();
     }
 
 

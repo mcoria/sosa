@@ -15,6 +15,10 @@ public interface LichessClient {
 
     Stream<Event> streamEvents();
 
+    Stream<User> botsOnline();
+
+    Stream<GameInfo> meOngoingGames();
+
     Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
 
     void challengeAccept(String challengeId);
@@ -31,10 +35,5 @@ public interface LichessClient {
 
     void gameAbort(String gameId);
 
-    Stream<User> botsOnline();
-
     Optional<UserAuth> findUser(String username);
-
-    Many<GameInfo> meOngoingGames();
-
 }

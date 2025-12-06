@@ -29,56 +29,64 @@ public class LichessClientImp implements LichessClient {
 
     @Override
     public synchronized Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
-        One<Challenge> optChallenge = client.bot()
+        One<Challenge> challengeOne = client.bot()
                 .challenge(user.id(), challengeBuilderConsumer);
 
-        if (optChallenge.isPresent()) {
-            return optChallenge.get();
+        if (challengeOne.isPresent()) {
+            return challengeOne.get();
         } else {
-            throw new RuntimeException("Error sending challenge to " + user.id());
+            throw new LichessException("Error sending challenge to " + user.id());
         }
     }
 
     @Override
     public synchronized void challengeAccept(String challengeId) {
-        client.bot().acceptChallenge(challengeId);
+        One<Void> result = client.bot().acceptChallenge(challengeId);
+        if( result instanceof Fail<Void>){
+            throw new LichessException("Error accepting challenge " + challengeId);
+        }
     }
 
     @Override
     public synchronized void challengeDecline(String challengeId) {
-        client.bot().declineChallenge(challengeId);
+        One<Void> result = client.bot().declineChallenge(challengeId);
     }
 
     @Override
     public synchronized void cancelChallenge(String challengeId) {
-        client.bot().cancelChallenge(challengeId);
+        One<Void> result = client.bot().cancelChallenge(challengeId);
     }
 
     @Override
     public synchronized void gameMove(String gameId, String moveUci) {
-        client.bot().move(gameId, moveUci);
+        One<Void> result = client.bot().move(gameId, moveUci);
     }
 
     @Override
     public synchronized void gameResign(String gameId) {
-        client.bot().resign(gameId);
+        One<Void> result = client.bot().resign(gameId);
     }
 
     @Override
     public synchronized void gameChat(String gameId, String message) {
-        client.bot().chat(gameId, message);
+        One<Void> result = client.bot().chat(gameId, message);
     }
 
     @Override
     public synchronized void gameAbort(String gameId) {
-        client.bot().abort(gameId);
+        One<Void> result = client.bot().abort(gameId);
     }
 
     @Override
-    public UserAuth getProfile() {
-        return client.account()
-                .profile()
-                .get();
+    public synchronized UserAuth getProfile() {
+        One<UserAuth> userAuthOne =  client.account()
+                .profile();
+
+        if (userAuthOne.isPresent()) {
+            return userAuthOne.get();
+        } else {
+            throw new LichessException("Error getting profile");
+        }
     }
 
     @Override
@@ -88,14 +96,25 @@ public class LichessClientImp implements LichessClient {
 
     @Override
     public synchronized Optional<UserAuth> findUser(String username) {
-        Many<UserAuth> users = client.users().byIds(List.of(username));
-        return users.stream().findFirst();
+        Many<UserAuth> userAuthMany = client.users().byIds(List.of(username));
+
+        if(userAuthMany instanceof Fail){
+            throw new LichessException("Error searching user " + username);
+        }
+
+        return userAuthMany.stream().findFirst();
     }
 
 
     @Override
-    public synchronized Many<GameInfo> meOngoingGames() {
-        return client.games().ongoing();
+    public synchronized Stream<GameInfo> meOngoingGames() {
+        Many<GameInfo> gameInfoMany = client.games().ongoing();
+
+        if(gameInfoMany instanceof Fail){
+            throw new LichessException("Error getting ongoing games");
+        }
+
+        return client.games().ongoing().stream();
     }
 
 }

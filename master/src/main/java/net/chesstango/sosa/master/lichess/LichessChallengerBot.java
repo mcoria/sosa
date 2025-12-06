@@ -3,7 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.SosaState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -46,21 +45,22 @@ public class LichessChallengerBot {
     public void updateRating(UserAuth myProfile) {
         Map<StatsPerfType, StatsPerf> myRatings = myProfile.ratings();
 
-        challengerTypes.forEach(challenger -> challenger.setRating(myRatings));
+        challengerTypes.forEach(challenger -> {
+            challenger.setMyRating(myRatings);
+            log.info("Rating for {}: {}", challenger.statsPerfType, challenger.myRating);
+        });
     }
 
     public Optional<Challenge> challengeRandomBot() {
         log.info("Challenging random bot");
 
+        Collections.shuffle(challengerTypes, rand);
+
         for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
-
-            List<Challenger> challengerTypesShuffled = new ArrayList<>(challengerTypes);
-
-            Collections.shuffle(challengerTypesShuffled);
 
             final User theBot = bot;
 
-            Optional<Challenge> challengeOpt = challengerTypesShuffled
+            Optional<Challenge> challengeOpt = challengerTypes
                     .stream()
                     .filter(aChallenger -> aChallenger.filter(theBot))
                     .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
@@ -89,7 +89,7 @@ public class LichessChallengerBot {
             this.statsPerfType = statsPerfType;
         }
 
-        void setRating(Map<StatsPerfType, StatsPerf> myRatings) {
+        void setMyRating(Map<StatsPerfType, StatsPerf> myRatings) {
             myRating = getRating(myRatings);
         }
 
@@ -107,8 +107,8 @@ public class LichessChallengerBot {
         }
 
         void consumeChallengeBuilder(ChallengesApiAuthCommon.ChallengeBuilder challengeBuilder) {
-            Consumer<ChallengesApiAuthCommon.ChallengeBuilder> element = builders.get(rand.nextInt(builders.size()));
-            element.accept(challengeBuilder);
+            Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer = builders.get(rand.nextInt(builders.size()));
+            challengeBuilderConsumer.accept(challengeBuilder);
         }
     }
 

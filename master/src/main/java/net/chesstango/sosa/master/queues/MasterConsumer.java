@@ -46,7 +46,7 @@ public class MasterConsumer {
     public void handle(SendChallenge sendChallenge) {
         log.info("Received: {}", sendChallenge);
 
-        lichessChallenger.challengeRandom();
+        lichessChallenger.challengeRandomBot();
     }
 
     @RabbitHandler
