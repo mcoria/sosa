@@ -2,11 +2,13 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.User;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.SosaState;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static net.chesstango.sosa.master.configs.RabbitConfig.BOTS_QUEUE;
 
@@ -14,7 +16,7 @@ import static net.chesstango.sosa.master.configs.RabbitConfig.BOTS_QUEUE;
  * @author Mauricio Coria
  */
 @Slf4j
-@Service
+@Component
 public class BotQueue {
 
     private final LichessClient client;
@@ -23,7 +25,7 @@ public class BotQueue {
 
     private final Map<String, User> onlineBots = new HashMap<>();
 
-    public BotQueue(LichessClient client, RabbitTemplate rabbitTemplate) {
+    public BotQueue(LichessClient client, SosaState sosaState, RabbitTemplate rabbitTemplate) {
         this.client = client;
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -32,10 +34,13 @@ public class BotQueue {
         String botName = pollBotNameFromQueue();
 
         if (botName == null) {
-            log.info("No bot in queue");
+            log.info("Bot queue empty, loading online bots from lichess server");
             loadOnlineBots();
             botName = pollBotNameFromQueue();
         }
+
+        // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+        //if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
 
         return botName != null ? loadBot(botName) : null;
     }
@@ -71,6 +76,10 @@ public class BotQueue {
         if (bot == null) {
             log.info("Loading bot {} from lichess server", botName);
             bot = client.findUser(botName).orElse(null);
+        }
+
+        if(bot != null) {
+            log.warn("Bot: {}", bot);
         }
 
         return bot;

@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.SosaState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +22,19 @@ public class LichessChallengerBot {
 
     private final LichessClient client;
 
+    private final SosaState sosaState;
+
     private final BotQueue botQueue;
 
     private final List<Challenger> challengerTypes;
 
     public LichessChallengerBot(LichessClient client,
+                                SosaState sosaState,
                                 BotQueue botQueue,
                                 @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
+        this.sosaState = sosaState;
         this.challengerTypes = new ArrayList<>();
 
         challengeTypes.forEach(challengeType -> {
@@ -56,24 +61,28 @@ public class LichessChallengerBot {
 
         Collections.shuffle(challengerTypes, rand);
 
+        int counter = 0;
         for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
-
             final User theBot = bot;
+            // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+            if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
+                Optional<Challenge> challengeOpt = challengerTypes
+                        .stream()
+                        .filter(aChallenger -> aChallenger.filter(theBot))
+                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                        .findFirst();
 
-            Optional<Challenge> challengeOpt = challengerTypes
-                    .stream()
-                    .filter(aChallenger -> aChallenger.filter(theBot))
-                    .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                    .findFirst();
+                if (challengeOpt.isPresent()) {
+                    return challengeOpt;
+                }
+            }
 
-            if (challengeOpt.isPresent()) {
-                return challengeOpt;
-            } else {
-                log.info("Bot {} filtered out ", bot.id());
+            if (counter++ > 10) {
+                break;
             }
         }
 
-        log.warn("No online bots");
+        log.warn("No challenge sent to any bot");
 
         return Optional.empty();
     }
