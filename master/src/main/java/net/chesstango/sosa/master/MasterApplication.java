@@ -30,7 +30,7 @@ public class MasterApplication {
 
     @EventListener(LichessExceptionDetected.class)
     public void onLichessExceptionDetected() {
-        log.error("LichessExceptionDetected event received");
+        log.error("LichessExceptionDetected received");
         countDownLatch.countDown();
     }
 }

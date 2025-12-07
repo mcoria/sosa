@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 /**
  * @author Mauricio Coria
  */
-@PersistJobDataAfterExecution
-@Component
-@Slf4j
+//@PersistJobDataAfterExecution
+//@Component
+//@Slf4j
 public class GameWatchDogJob extends QuartzJobBean {
 
     private final LichessClient client;

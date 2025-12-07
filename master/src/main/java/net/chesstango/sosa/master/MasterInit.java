@@ -6,6 +6,7 @@ import net.chesstango.sosa.master.events.LichessConnected;
 import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.master.lichess.LichessMainEventsReader;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -33,9 +34,9 @@ public class MasterInit {
         this.taskExecutor = taskExecutor;
     }
 
-    @EventListener(LichessConnected.class)
-    public void onLichessConnected() {
-        log.info("LichessConnected event received");
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReadyEvent() {
+        log.info("ApplicationReadyEvent received");
 
         UserAuth myProfile = lichessClient.getProfile();
 
@@ -44,5 +45,6 @@ public class MasterInit {
         lichessChallengerBot.updateRating(myProfile);
 
         taskExecutor.submit(lichessMainEventsReader);
+
     }
 }

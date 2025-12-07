@@ -14,7 +14,7 @@ import java.util.Objects;
  * @author Mauricio Coria
  */
 @Slf4j
-@Component
+//@Component
 public class DynamicScheduler implements ApplicationListener<SosaEvent> {
     private final Scheduler scheduler;
 
