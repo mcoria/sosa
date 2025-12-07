@@ -1,10 +1,8 @@
 package net.chesstango.sosa.master.queues;
 
-import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.lichess.LichessChallenger;
-import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendChallenge;
 import net.chesstango.sosa.messages.master.SendMove;
@@ -12,8 +10,6 @@ import net.chesstango.sosa.messages.master.WorkerInit;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
 
 import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 
