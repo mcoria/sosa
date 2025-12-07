@@ -19,6 +19,10 @@ spec:
         - name: sosa-master
           image: coriamauricio/sosa-master:latest
           imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 90
           env:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
