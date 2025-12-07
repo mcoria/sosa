@@ -19,7 +19,7 @@ public interface LichessClient {
 
     Stream<GameInfo> meOngoingGames();
 
-    Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
+    Optional<Challenge> challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
 
     void challengeAccept(String challengeId);
 

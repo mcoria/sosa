@@ -35,11 +35,15 @@ public class LichessMainEventsReader implements Runnable {
             log.info("Reading Lichess Stream Events");
             events.forEach(event -> {
                 log.info("event received: {}", event);
-                switch (event.type()) {
-                    case challenge, challengeCanceled, challengeDeclined ->
-                            lichessChallengeHandler.handleChallengeEvent(event);
-                    case gameStart -> lichessGameHandler.handleGameStart((Event.GameStartEvent) event);
-                    case gameFinish -> lichessGameHandler.handleGameFinish((Event.GameStopEvent) event);
+                try {
+                    switch (event.type()) {
+                        case challenge, challengeCanceled, challengeDeclined ->
+                                lichessChallengeHandler.handleChallengeEvent(event);
+                        case gameStart -> lichessGameHandler.handleGameStart((Event.GameStartEvent) event);
+                        case gameFinish -> lichessGameHandler.handleGameFinish((Event.GameStopEvent) event);
+                    }
+                } catch (RuntimeException e) {
+                    log.warn("Event processing failed", e);
                 }
             });
             log.info("main event loop finished");

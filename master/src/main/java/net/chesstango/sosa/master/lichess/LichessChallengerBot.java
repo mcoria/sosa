@@ -70,6 +70,8 @@ public class LichessChallengerBot {
                         .stream()
                         .filter(aChallenger -> aChallenger.filter(theBot))
                         .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
                         .findFirst();
 
                 if (challengeOpt.isPresent()) {

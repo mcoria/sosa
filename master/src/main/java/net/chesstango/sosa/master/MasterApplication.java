@@ -1,7 +1,7 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessApiCallFailed;
+import net.chesstango.sosa.master.events.LichessApiTooManyRequests;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,9 +28,9 @@ public class MasterApplication {
         SpringApplication.exit(context, () -> 0);
     }
 
-    @EventListener
-    public void onLichessExceptionDetected(LichessApiCallFailed lichessApiCallFailed) {
-        log.error("API call failed: {}", lichessApiCallFailed.getFailMessage());
+    @EventListener(LichessApiTooManyRequests.class)
+    public void onLichessExceptionDetected() {
+        log.error("Lichess API: too many requests. Ext application;");
         countDownLatch.countDown();
     }
 }

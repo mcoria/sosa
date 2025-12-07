@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static net.chesstango.sosa.master.configs.RabbitConfig.BOTS_QUEUE;
 
@@ -76,10 +75,6 @@ public class BotQueue {
         if (bot == null) {
             log.info("Loading bot {} from lichess server", botName);
             bot = client.findUser(botName).orElse(null);
-        }
-
-        if(bot != null) {
-            log.warn("Bot: {}", bot);
         }
 
         return bot;

@@ -2,8 +2,6 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.SosaState;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +18,9 @@ public class LichessChallenger {
 
 
     public LichessChallenger(LichessChallengerBot lichessChallengerBot,
-                             LichessClient client) {
+                             LichessChallengerUser lichessChallengerUser) {
         this.lichessChallengerBot = lichessChallengerBot;
-        this.lichessChallengerUser = new LichessChallengerUser(client);
+        this.lichessChallengerUser = lichessChallengerUser;
     }
 
     @Async
@@ -37,7 +35,7 @@ public class LichessChallenger {
     }
 
 
-    private Optional<Challenge> challengeUser(String username, ChallengeType challengeType) {
+    private synchronized Optional<Challenge> challengeUser(String username, ChallengeType challengeType) {
         return lichessChallengerUser.challengeUser(username, challengeType);
     }
 }
