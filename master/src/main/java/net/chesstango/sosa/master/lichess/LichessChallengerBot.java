@@ -84,8 +84,6 @@ public class LichessChallengerBot {
             }
         }
 
-        log.warn("No challenge sent to any bot");
-
         return Optional.empty();
     }
 

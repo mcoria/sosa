@@ -30,7 +30,7 @@ public class LichessChallenger {
             Challenge challenge = challengeOpt.get();
             log.info("[{}] Challenge sent: {}", challenge.id(), challenge);
         } else {
-            log.warn("Couldn't challenge random bot");
+            log.warn("No challenge sent to any bot");
         }
     }
 

@@ -3,7 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -18,15 +17,13 @@ import java.util.function.Predicate;
 public class LichessChallengeHandler {
     private final LichessClient client;
 
-    private final ApplicationEventPublisher applicationEventPublisher;
-
     private final SosaState sosaState;
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
+    public LichessChallengeHandler(LichessClient client,
+                                   SosaState sosaState) {
         this.client = client;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.sosaState = sosaState;
         this.acceptChallenges = true;
     }
@@ -39,14 +36,15 @@ public class LichessChallengeHandler {
         }
     }
 
-    public void challengeCreated(Event.ChallengeCreatedEvent event) {
+    void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
+        if (isMyChallenge(event)) {
+            log.info("[{}] My challenge, ignoring", event.id());
+            return;
+        }
         if (acceptChallenges) {
             if (sosaState.thereAreAvailableWorkers()) {
-                if (isMyChallenge(event)) {
-                    log.info("[{}] Accepting my own challenge", event.id());
-                    sendAcceptChallenge(event);
-                } else if (isChallengeAcceptable(event)) {
+                if (isChallengeAcceptable(event)) {
                     log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
                 } else {
@@ -63,15 +61,15 @@ public class LichessChallengeHandler {
         }
     }
 
-    public void challengeCanceled(Event.ChallengeCanceledEvent event) {
+    void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
     }
 
-    public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
+    void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
     }
 
-    public void stopAcceptingChallenges() {
+    void stopAcceptingChallenges() {
         this.acceptChallenges = false;
     }
 
@@ -92,9 +90,13 @@ public class LichessChallengeHandler {
 
     // Siempre acepto mis propios challenges
     private boolean isMyChallenge(Event.ChallengeEvent event) {
-        Optional<ChallengeInfo.Player> challengerPlayer = event.challenge().players().challengerOpt();
+        ChallengeInfo.Players players = event.challenge().players();
 
-        return Objects.equals(challengerPlayer.get().user().id(), sosaState.getMyProfile().id());
+        return switch (players){
+            case ChallengeInfo.FromTo fromTo -> fromTo.challenger().user().id().equals(sosaState.getMyProfile().id());
+            case ChallengeInfo.From from -> from.challenger().user().id().equals(sosaState.getMyProfile().id());
+            default -> false;
+        };
     }
 
     private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
