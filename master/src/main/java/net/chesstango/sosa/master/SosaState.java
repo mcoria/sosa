@@ -36,6 +36,10 @@ public class SosaState {
         }
     }
 
+    public synchronized boolean isAvailableWorker(String workerId) {
+        return availableWorkers.contains(workerId);
+    }
+
     public synchronized Optional<String> pollAvailableWorker() {
         String workerId = availableWorkers.poll();
         return Optional.ofNullable(workerId);
@@ -50,5 +54,4 @@ public class SosaState {
         }
         throw new RuntimeException("Rating not found");
     }
-
 }

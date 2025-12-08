@@ -42,13 +42,23 @@ public class MasterConsumer {
     public void handle(SendChallenge sendChallenge) {
         log.info("Received: {}", sendChallenge);
 
-        lichessChallenger.challengeRandomBot();
+        if (sosaState.isAvailableWorker(sendChallenge.getWorkerId())) {
+            lichessChallenger.challengeRandomBot();
+        } else {
+            log.warn("Worker {} not registered", sendChallenge.getWorkerId());
+        }
     }
 
     @RabbitHandler
     public void handle(SendMove sendMove) {
         log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
 
-        client.gameMove(sendMove.getGameId(), sendMove.getMove());
+        try {
+
+            client.gameMove(sendMove.getGameId(), sendMove.getMove());
+
+        } catch (RuntimeException e) {
+            log.error("[{}] Error sending move", sendMove.getGameId(), e);
+        }
     }
 }
