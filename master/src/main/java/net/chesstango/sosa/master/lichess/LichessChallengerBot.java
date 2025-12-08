@@ -47,8 +47,8 @@ public class LichessChallengerBot {
         });
     }
 
-    public void updateRating(UserAuth myProfile) {
-        Map<StatsPerfType, StatsPerf> myRatings = myProfile.ratings();
+    public void updateRatings() {
+        Map<StatsPerfType, StatsPerf> myRatings = sosaState.getMyProfile().ratings();
 
         challengerTypes.forEach(challenger -> {
             challenger.setMyRating(myRatings);
@@ -58,6 +58,8 @@ public class LichessChallengerBot {
 
     public Optional<Challenge> challengeRandomBot() {
         log.info("Challenging random bot");
+
+        List<Challenger> challengerTypes = new ArrayList<>(this.challengerTypes);
 
         Collections.shuffle(challengerTypes, rand);
 
@@ -80,6 +82,7 @@ public class LichessChallengerBot {
             }
 
             if (counter++ > 10) {
+                log.debug("Braking loop after 10 attempts");
                 break;
             }
         }
