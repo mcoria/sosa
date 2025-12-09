@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-import static net.chesstango.sosa.master.configs.RabbitConfig.BOTS_QUEUE;
+import static net.chesstango.sosa.master.configs.RabbitConfig.MASTER_BOTS_QUEUE;
 
 /**
  * @author Mauricio Coria
@@ -45,7 +45,7 @@ public class BotQueue {
     }
 
     private String pollBotNameFromQueue() {
-        String botName = (String) rabbitTemplate.receiveAndConvert(BOTS_QUEUE);
+        String botName = (String) rabbitTemplate.receiveAndConvert(MASTER_BOTS_QUEUE);
 
         if (botName != null) {
             log.info("Picked bot {}", botName);
@@ -65,7 +65,7 @@ public class BotQueue {
     private void addBotToQueue(User user) {
         log.info("Bot {} online", user.id());
         String botName = user.id();
-        rabbitTemplate.convertAndSend(BOTS_QUEUE, botName);
+        rabbitTemplate.convertAndSend(MASTER_BOTS_QUEUE, botName);
         onlineBots.put(botName, user);
     }
 

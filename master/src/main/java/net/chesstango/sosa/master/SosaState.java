@@ -36,14 +36,10 @@ public class SosaState {
         }
     }
 
-    public synchronized boolean isAvailableWorker(String workerId) {
-        return availableWorkers.contains(workerId);
+    public synchronized boolean thereIsAvailableWorker() {
+        return !availableWorkers.isEmpty();
     }
 
-    public synchronized Optional<String> pollAvailableWorker() {
-        String workerId = availableWorkers.poll();
-        return Optional.ofNullable(workerId);
-    }
 
     public synchronized int getRating(StatsPerfType type) {
         Map<StatsPerfType, StatsPerf> rating = myProfile

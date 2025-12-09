@@ -7,8 +7,6 @@ import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.queues.MasterProducer;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
-
 /**
  * @author Mauricio Coria
  */
@@ -33,18 +31,13 @@ public class LichessGameHandler {
     public void handleGameStart(Event.GameStartEvent gameStartEvent) {
         log.info("[{}] GameStartEvent", gameStartEvent.id());
 
-        //GameStartEvent gameEvent = new GameStartEvent(this, gameStartEvent);
-
-        Optional<String> workerIdOpt = sosaState.pollAvailableWorker();
-
-        if (workerIdOpt.isPresent()) {
-            String workerId = workerIdOpt.get();
+        if (sosaState.thereIsAvailableWorker()) {
 
             String color = Enums.Color.white == gameStartEvent.game().color() ? "white" : "black";
 
-            log.info("[{}] Worker {} assigned for game, playing as  {}", gameStartEvent.id(), workerId, color);
+            log.info("[{}] Playing game as {}", gameStartEvent.id(), color);
 
-            masterProducer.sendGameStart(gameStartEvent.id(), workerId, color);
+            masterProducer.sendGameStart(gameStartEvent.id(), color);
         } else {
             log.warn("[{}] No available workers, aborting game", gameStartEvent.id());
 

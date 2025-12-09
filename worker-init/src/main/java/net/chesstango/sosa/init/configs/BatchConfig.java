@@ -1,7 +1,6 @@
 package net.chesstango.sosa.init.configs;
 
 import net.chesstango.sosa.init.steps.WaitGameStart;
-import net.chesstango.sosa.init.steps.RegisterWorker;
 import net.chesstango.sosa.init.steps.WriteGamePropertyFile;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -23,13 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class BatchConfig {
 
     @Bean
-    public Step registerWorkerStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, RegisterWorker registerWorker) {
-        return new StepBuilder("RegisterWorker", jobRepository)
-                .tasklet(registerWorker, transactionManager)
-                .build();
-    }
-
-    @Bean
     public Step waitGameStartStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, WaitGameStart waitGameStart) {
         return new StepBuilder("WaitGameStart", jobRepository)
                 .tasklet(waitGameStart, transactionManager)
@@ -44,10 +36,9 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job workerInitJob(JobRepository jobRepository, Step registerWorkerStep, Step waitGameStartStep, Step writeGamePropertyFileStep) {
+    public Job workerInitJob(JobRepository jobRepository, Step waitGameStartStep, Step writeGamePropertyFileStep) {
         return new JobBuilder("WorkerInit", jobRepository)
-                .start(registerWorkerStep)
-                .next(waitGameStartStep)
+                .start(waitGameStartStep)
                 .next(writeGamePropertyFileStep)
                 .build();
     }

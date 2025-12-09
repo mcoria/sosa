@@ -6,7 +6,6 @@ import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendChallenge;
 import net.chesstango.sosa.messages.master.SendMove;
-import net.chesstango.sosa.messages.master.WorkerInit;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -31,21 +30,17 @@ public class MasterConsumer {
         this.lichessChallenger = lichessChallenger;
     }
 
-    @RabbitHandler
-    public void handle(WorkerInit workerInit) {
-        log.info("Received: {}", workerInit);
-
-        sosaState.addAvailableWorker(workerInit.getWorkerId());
-    }
 
     @RabbitHandler
     public void handle(SendChallenge sendChallenge) {
         log.info("Received: {}", sendChallenge);
 
-        if (sosaState.isAvailableWorker(sendChallenge.getWorkerId())) {
+        sosaState.addAvailableWorker(sendChallenge.getWorkerId());
+
+        try {
             lichessChallenger.challengeRandomBot();
-        } else {
-            log.warn("Worker {} not registered", sendChallenge.getWorkerId());
+        } catch (RuntimeException e) {
+            log.error("Error challenging random bot", e);
         }
     }
 
@@ -54,9 +49,7 @@ public class MasterConsumer {
         log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
 
         try {
-
             client.gameMove(sendMove.getGameId(), sendMove.getMove());
-
         } catch (RuntimeException e) {
             log.error("[{}] Error sending move", sendMove.getGameId(), e);
         }

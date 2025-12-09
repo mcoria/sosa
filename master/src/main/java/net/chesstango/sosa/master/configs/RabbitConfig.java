@@ -16,32 +16,32 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
 
-    public static final String BOTS_QUEUE = "bots";
-    public static final String BOTS_ROUTING_KEY = "bots_rk";
+    public static final String MASTER_BOTS_QUEUE = "sosa-master-bots";
+    public static final String MASTER_BOTS_ROUTING_KEY = "sosa_master_bots_rk";
 
     @Bean
     public DirectExchange chessTangoExchange() {
-        return new DirectExchange(Constants.SOSA_EXCHANGE, false, false);
+        return new DirectExchange(Constants.SOSA_EXCHANGE, false, true);
     }
 
     @Bean
-    public Queue workerRespondsQueue() {
-        return new Queue(Constants.MASTER_QUEUE, false);
+    public Queue masterQueue() {
+        return new Queue(Constants.MASTER_QUEUE, false, true, true);
     }
 
     @Bean
-    public Binding workerRespondsBinding(Queue workerRespondsQueue, DirectExchange chessTangoExchange) {
-        return BindingBuilder.bind(workerRespondsQueue).to(chessTangoExchange).with(Constants.MASTER_ROUTING_KEY);
+    public Binding workerRespondsBinding(Queue masterQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(masterQueue).to(chessTangoExchange).with(Constants.MASTER_ROUTING_KEY);
     }
 
     @Bean
-    public Queue botsQueue() {
-        return new Queue(BOTS_QUEUE, false);
+    public Queue masterBotsQueue() {
+        return new Queue(MASTER_BOTS_QUEUE, false);
     }
 
     @Bean
-    public Binding botsBinding(Queue botsQueue, DirectExchange chessTangoExchange) {
-        return BindingBuilder.bind(botsQueue).to(chessTangoExchange).with(BOTS_ROUTING_KEY);
+    public Binding botsBinding(Queue masterBotsQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(masterBotsQueue).to(chessTangoExchange).with(MASTER_BOTS_ROUTING_KEY);
     }
 
     @Bean

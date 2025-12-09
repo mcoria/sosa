@@ -6,6 +6,8 @@ import net.chesstango.sosa.messages.worker.GameStart;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import static net.chesstango.sosa.messages.Constants.WORKER_GAMES_ROUTING_KEY;
+
 /**
  * @author Mauricio Coria
  */
@@ -19,11 +21,11 @@ public class MasterProducer {
     }
 
     // Este mensaje va destinado a worker-init
-    public void sendGameStart(String gameId, String workerId, String color) {
-        GameStart gameStart = new GameStart(gameId, workerId, color);
+    public void sendGameStart(String gameId, String color) {
+        GameStart gameStart = new GameStart(gameId, color);
         rabbitTemplate.convertAndSend(
                 Constants.SOSA_EXCHANGE,
-                workerId, // TO BE HARDCODED
+                WORKER_GAMES_ROUTING_KEY,
                 gameStart
         );
     }

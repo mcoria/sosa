@@ -1,5 +1,6 @@
 package net.chesstango.sosa.init.configs;
 
+import net.chesstango.sosa.messages.Constants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
+import static net.chesstango.sosa.messages.Constants.*;
 
 /**
  * @author Mauricio Coria
@@ -23,17 +24,17 @@ public class RabbitConfig {
 
     @Bean
     public DirectExchange chessTangoExchange() {
-        return new DirectExchange(SOSA_EXCHANGE, false, false);
+        return new DirectExchange(SOSA_EXCHANGE, false, true);
     }
 
     @Bean
-    public Queue workerQueue(@Value("${app.workerId}") String identity) {
-        return new Queue(identity, false);
+    public Queue workerGamesQueue() {
+        return new Queue(WORKER_GAMES_QUEUE, false, false, true);
     }
 
     @Bean
-    public Binding workerQueueBinding(Queue workerQueue, DirectExchange chessTangoExchange, @Value("${app.workerId}") String identity) {
-        return BindingBuilder.bind(workerQueue).to(chessTangoExchange).with(identity);
+    public Binding workerQueueBinding(Queue workerGamesQueue, DirectExchange chessTangoExchange) {
+        return BindingBuilder.bind(workerGamesQueue).to(chessTangoExchange).with(WORKER_GAMES_ROUTING_KEY);
     }
 
     @Bean
