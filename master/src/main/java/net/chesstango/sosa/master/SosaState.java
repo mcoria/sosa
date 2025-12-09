@@ -8,10 +8,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.Set;
 
 /**
  * @author Mauricio Coria
@@ -19,27 +18,31 @@ import java.util.Queue;
 @Slf4j
 @Component
 public class SosaState {
-    private final Queue<String> availableWorkers = new LinkedList<>();
+    private final Set<String> availableWorkers = new HashSet<>();
 
     @Setter
     @Getter
     private UserAuth myProfile;
 
-    public synchronized boolean thereAreAvailableWorkers() {
-        return !availableWorkers.isEmpty();
+    public synchronized void addAvailableWorker(String workerId) {
+        if (!availableWorkers.contains(workerId)) {
+            log.info("New worker available: {}", workerId);
+            availableWorkers.add(workerId);
+            log.info("Total worker available: {}", availableWorkers.size());
+        }
     }
 
-    public synchronized void addAvailableWorker(String workerId) {
-        log.info("Worker available: {}", workerId);
-        if (!availableWorkers.contains(workerId)) {
-            availableWorkers.add(workerId);
+    public synchronized void removeAvailableWorker(String workerId) {
+        if (availableWorkers.contains(workerId)) {
+            log.info("Removing worker: {}", workerId);
+            availableWorkers.remove(workerId);
+            log.info("Total worker available: {}", availableWorkers.size());
         }
     }
 
     public synchronized boolean thereIsAvailableWorker() {
         return !availableWorkers.isEmpty();
     }
-
 
     public synchronized int getRating(StatsPerfType type) {
         Map<StatsPerfType, StatsPerf> rating = myProfile
@@ -50,4 +53,5 @@ public class SosaState {
         }
         throw new RuntimeException("Rating not found");
     }
+
 }

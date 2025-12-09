@@ -6,6 +6,7 @@ import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendChallenge;
 import net.chesstango.sosa.messages.master.SendMove;
+import net.chesstango.sosa.messages.master.WorkerBusy;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,13 @@ public class MasterConsumer {
         } catch (RuntimeException e) {
             log.error("Error challenging random bot", e);
         }
+    }
+
+    @RabbitHandler
+    public void handle(WorkerBusy workerBusy) {
+        log.info("Received: {}", workerBusy);
+
+        sosaState.removeAvailableWorker(workerBusy.getWorkerId());
     }
 
     @RabbitHandler

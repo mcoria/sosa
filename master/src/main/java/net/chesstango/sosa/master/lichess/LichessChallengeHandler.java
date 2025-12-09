@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -43,7 +42,7 @@ public class LichessChallengeHandler {
             return;
         }
         if (acceptChallenges) {
-            if (sosaState.thereAreAvailableWorkers()) {
+            if (sosaState.thereIsAvailableWorker()) {
                 if (isChallengeAcceptable(event)) {
                     log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);

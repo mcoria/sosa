@@ -21,7 +21,6 @@ public class WorkerProducer {
     private final String gameId;
 
     public WorkerProducer(RabbitTemplate rabbitTemplate,
-                          @Value("${app.workerId}") String workerId,
                           @Value("${gameId}") String gameId) {
         this.rabbitTemplate = rabbitTemplate;
         this.gameId = gameId;
