@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.queues;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.events.LichessConnected;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
@@ -30,8 +31,9 @@ public class MasterConsumer {
     private final LichessChallenger lichessChallenger;
     private final SosaState sosaState;
 
-    private final AtomicBoolean sendChallengesAllowed;
+    private final AtomicBoolean lichessConnected;
     private final AtomicBoolean sendRequestsAllowed;
+    private final AtomicBoolean sendChallengesAllowed;
 
     public MasterConsumer(LichessClient client,
                           LichessChallenger lichessChallenger,
@@ -41,6 +43,7 @@ public class MasterConsumer {
         this.lichessChallenger = lichessChallenger;
         this.sendChallengesAllowed = new AtomicBoolean(true);
         this.sendRequestsAllowed = new AtomicBoolean(true);
+        this.lichessConnected = new AtomicBoolean(false);
     }
 
 
@@ -51,7 +54,7 @@ public class MasterConsumer {
         sosaState.addAvailableWorker(sendChallenge.getWorkerId());
 
         try {
-            if(sendChallengesAllowed.get() && sendRequestsAllowed.get()) {
+            if (canSendRequests() && sendChallengesAllowed.get()) {
                 lichessChallenger.challengeRandomBot();
             } else {
                 log.warn("Too many games were played. Ignoring SendChallenge command.");
@@ -73,7 +76,7 @@ public class MasterConsumer {
         log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
 
         try {
-            if (sendRequestsAllowed.get()) {
+            if (canSendRequests()) {
                 client.gameMove(sendMove.getGameId(), sendMove.getMove());
             } else {
                 log.warn("[{}] Too many requests were sent. Ignoring SendMove command {}.", sendMove.getGameId(), sendMove.getMove());
@@ -81,6 +84,12 @@ public class MasterConsumer {
         } catch (RuntimeException e) {
             log.error("[{}] Error sending move", sendMove.getGameId(), e);
         }
+    }
+
+    @EventListener(LichessConnected.class)
+    public void onLichessConnected() {
+        log.warn("Lichess API: connected.");
+        lichessConnected.set(true);
     }
 
     @EventListener(LichessTooManyRequestsSent.class)
@@ -97,7 +106,7 @@ public class MasterConsumer {
 
     @EventListener
     public void onLichessTooManyGames(LichessTooManyExpired lichessTooManyExpired) {
-        switch (lichessTooManyExpired.getExpirationType()){
+        switch (lichessTooManyExpired.getExpirationType()) {
             case GAMES:
                 log.info("Sending challenges again.");
                 sendChallengesAllowed.set(true);
@@ -107,5 +116,17 @@ public class MasterConsumer {
                 sendRequestsAllowed.set(true);
                 break;
         }
+    }
+
+    boolean canSendRequests() {
+        if (!lichessConnected.get()) {
+            log.warn("Lichess API: not connected yes. Can't send requests.");
+        }
+
+        if (!sendRequestsAllowed.get()) {
+            log.warn("Lichess API: too many requests. Can't send requests.");
+        }
+
+        return lichessConnected.get() && sendRequestsAllowed.get();
     }
 }
