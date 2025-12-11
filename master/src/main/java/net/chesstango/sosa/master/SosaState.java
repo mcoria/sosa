@@ -6,6 +6,8 @@ import chariot.model.UserAuth;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.LichessTooManyRequests;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -25,18 +27,14 @@ public class SosaState {
     private UserAuth myProfile;
 
     public synchronized void addAvailableWorker(String workerId) {
-        if (!availableWorkers.contains(workerId)) {
-            log.info("New worker available: {}", workerId);
-            availableWorkers.add(workerId);
-            log.info("Total worker available: {}", availableWorkers.size());
+        if (availableWorkers.add(workerId)) {
+            log.info("New worker available: {}. Total workers: {} ", workerId, availableWorkers.size());
         }
     }
 
     public synchronized void removeAvailableWorker(String workerId) {
-        if (availableWorkers.contains(workerId)) {
-            log.info("Removing worker: {}", workerId);
-            availableWorkers.remove(workerId);
-            log.info("Total worker available: {}", availableWorkers.size());
+        if (availableWorkers.remove(workerId)) {
+            log.info("Removing worker: {}. Total worker available: {}",workerId,  availableWorkers.size());
         }
     }
 
@@ -53,5 +51,6 @@ public class SosaState {
         }
         throw new RuntimeException("Rating not found");
     }
+
 
 }

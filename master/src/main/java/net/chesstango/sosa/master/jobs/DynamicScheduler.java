@@ -2,7 +2,6 @@ package net.chesstango.sosa.master.jobs;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.SosaEvent;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
@@ -15,7 +14,7 @@ import java.util.Objects;
  */
 @Slf4j
 //@Component
-public class DynamicScheduler implements ApplicationListener<SosaEvent> {
+public class DynamicScheduler {
     private final Scheduler scheduler;
 
     @Value("${app.gameWatchDog}")
@@ -34,9 +33,9 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
         this.scheduler = scheduler;
     }
 
+    /*
     @Override
     public void onApplicationEvent(SosaEvent event) {
-        /*
         if (event instanceof ChallengeEvent challengeEvent) {
             if (Objects.requireNonNull(challengeEvent.getType()) == ChallengeEvent.Type.CHALLENGE_ACCEPTED) {
                 scheduleChallengeWatchDog(challengeEvent.getChallengeId());
@@ -46,8 +45,8 @@ public class DynamicScheduler implements ApplicationListener<SosaEvent> {
                 scheduleGameWatchDog(gameStartEvent.getGameId());
             }
         }
-         */
     }
+    */
 
     private void scheduleChallengeWatchDog(String challengeId) {
         try {

@@ -5,8 +5,8 @@ import org.springframework.context.ApplicationEvent;
 /**
  * @author Mauricio Coria
  */
-public abstract class SosaEvent extends ApplicationEvent {
-    public SosaEvent(Object source) {
+public class LichessTooManyRequests extends ApplicationEvent {
+    public LichessTooManyRequests(Object source) {
         super(source);
     }
 }

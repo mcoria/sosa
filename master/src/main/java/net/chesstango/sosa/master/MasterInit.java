@@ -44,6 +44,5 @@ public class MasterInit {
         lichessChallengerBot.updateRatings();
 
         taskExecutor.submit(lichessMainEventsReader);
-
     }
 }

@@ -2,17 +2,24 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.ClientAuth;
 import chariot.api.AccountApiAuth;
-import chariot.model.Err;
-import chariot.model.One;
-import net.chesstango.sosa.master.events.LichessApiTooManyRequests;
+import chariot.api.BotApiAuth;
+import chariot.api.ChallengesApiAuthCommon;
+import chariot.model.*;
+import net.chesstango.sosa.master.events.LichessTooManyGames;
+import net.chesstango.sosa.master.events.LichessTooManyRequests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -31,11 +38,11 @@ public class LichessClientImpTest {
 
     @BeforeEach
     void before() {
-        lichessClientImp = new LichessClientImp(client, applicationEventPublisher);
+        lichessClientImp = new LichessClientImp(client, new LichessErrorParser(), applicationEventPublisher);
     }
 
     /**
-     * NO DEBE lanzar evento LichessApiTooManyRequests
+     * NO DEBE lanzar evento LichessTooManyRequests por que el codigo es 1
      */
     @Test
     void apiCallFailedTest() {
@@ -46,11 +53,11 @@ public class LichessClientImpTest {
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
-        verify(applicationEventPublisher, never()).publishEvent(any(LichessApiTooManyRequests.class));
+        verify(applicationEventPublisher, never()).publishEvent(any(LichessTooManyRequests.class));
     }
 
     /**
-     * Debe lanzar un evento para terminar
+     * DEBE lanzar evento LichessTooManyRequests por que el codigo es 429
      */
     @Test
     void apiCallFailedTooManyRequestsTest() {
@@ -61,6 +68,31 @@ public class LichessClientImpTest {
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
-        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessApiTooManyRequests.class));
+        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyRequests.class));
+    }
+
+    /**
+     * DEBE lanzar evento LichessTooManyRequests por que el codigo es 429
+     */
+    @Test
+    void apiCallFailedLichessTooManyGamesTest() {
+        BotApiAuth botApiAuth = mock(BotApiAuth.class);
+
+        when(client.bot()).thenReturn(botApiAuth);
+        when(botApiAuth.challenge(anyString(), any())).thenReturn(One.fail(429, Err.from("{\"error\":\"You played 100 games against other bots today, please wait before challenging another bot.\",\"ratelimit\":{\"key\":\"bot.vsBot.day\",\"seconds\":27594}}")));
+
+        // Parameters
+        User user = mock(UserProfileData.class);
+        when(user.id()).thenReturn("myId");
+        Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer = mock(Consumer.class);
+
+        // Method invocation
+        Optional<Challenge> challengeOpt = lichessClientImp.challenge(user, challengeBuilderConsumer);
+
+
+        // Assertions
+        assertTrue(challengeOpt.isEmpty());
+
+        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyGames.class));
     }
 }
