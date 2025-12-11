@@ -4,8 +4,8 @@ import chariot.ClientAuth;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessTooManyGames;
-import net.chesstango.sosa.master.events.LichessTooManyRequests;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.errors.RetryIn;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class LichessClientImp implements LichessClient {
 
         if (userAuthOne instanceof Fail<UserAuth> fail) {
             if (fail.status() == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException("Error getting profile");
         }
@@ -70,9 +70,9 @@ public class LichessClientImp implements LichessClient {
             if (status == TOO_MANY_REQUESTS) {
                 Object erroPayload = lichessErrorParser.parse(info.message());
                 if (erroPayload instanceof RetryIn retryIn) {
-                    applicationEventPublisher.publishEvent(new LichessTooManyGames(this, retryIn));
+                    applicationEventPublisher.publishEvent(new LichessTooManyGamesPlayed(this, retryIn));
                 } else {
-                    applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                    applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
                 }
             }
 
@@ -88,7 +88,7 @@ public class LichessClientImp implements LichessClient {
         One<Void> result = client.bot().acceptChallenge(challengeId);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Accepting challenge %s failed: %s", challengeId, info.message()));
         }
@@ -100,7 +100,7 @@ public class LichessClientImp implements LichessClient {
                 .declineChallenge(challengeId);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Declining challenge %s failed: %s", challengeId, info.message()));
         }
@@ -112,7 +112,7 @@ public class LichessClientImp implements LichessClient {
                 .cancelChallenge(challengeId);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Cancelling challenge %s failed: %s", challengeId, info.message()));
         }
@@ -124,7 +124,7 @@ public class LichessClientImp implements LichessClient {
                 .move(gameId, moveUci);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Moving %s in game %s failed: %s", moveUci, gameId, info.message()));
         }
@@ -136,7 +136,7 @@ public class LichessClientImp implements LichessClient {
                 .resign(gameId);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Resigning game %s failed: %s", gameId, info.message()));
         }
@@ -148,7 +148,7 @@ public class LichessClientImp implements LichessClient {
                 .chat(gameId, message);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Resigning game %s failed: %s", gameId, info.message()));
         }
@@ -160,7 +160,7 @@ public class LichessClientImp implements LichessClient {
                 .abort(gameId);
         if (result instanceof Fail<Void>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Aborting game %s failed: %s", gameId, info.message()));
         }
@@ -177,7 +177,7 @@ public class LichessClientImp implements LichessClient {
 
         if (userAuthMany instanceof Fail<UserAuth>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Finding user %s failed: %s", username, info.message()));
         }
@@ -192,7 +192,7 @@ public class LichessClientImp implements LichessClient {
 
         if (gameInfoMany instanceof Fail<GameInfo>(int status, Err info)) {
             if (status == TOO_MANY_REQUESTS) {
-                applicationEventPublisher.publishEvent(new LichessTooManyRequests(this));
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException(String.format("Getting ongoing failed: %s", info.message()));
         }

@@ -2,8 +2,9 @@ package net.chesstango.sosa.master.queues;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.LichessTooManyGames;
-import net.chesstango.sosa.master.events.LichessTooManyRequests;
+import net.chesstango.sosa.master.events.LichessTooManyExpired;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendChallenge;
@@ -50,7 +51,7 @@ public class MasterConsumer {
         sosaState.addAvailableWorker(sendChallenge.getWorkerId());
 
         try {
-            if(sendChallengesAllowed.get()) {
+            if(sendChallengesAllowed.get() && sendRequestsAllowed.get()) {
                 lichessChallenger.challengeRandomBot();
             } else {
                 log.warn("Too many games were played. Ignoring SendChallenge command.");
@@ -82,15 +83,29 @@ public class MasterConsumer {
         }
     }
 
-    @EventListener(LichessTooManyRequests.class)
+    @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessTooManyRequests() {
         log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
         sendRequestsAllowed.set(false);
     }
 
-    @EventListener(LichessTooManyGames.class)
+    @EventListener(LichessTooManyGamesPlayed.class)
     public void onLichessTooManyGames() {
         log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
         sendChallengesAllowed.set(false);
+    }
+
+    @EventListener
+    public void onLichessTooManyGames(LichessTooManyExpired lichessTooManyExpired) {
+        switch (lichessTooManyExpired.getExpirationType()){
+            case GAMES:
+                log.info("Sending challenges again.");
+                sendChallengesAllowed.set(true);
+                break;
+            case REQUESTS:
+                log.warn("Sending requests again.");
+                sendRequestsAllowed.set(true);
+                break;
+        }
     }
 }

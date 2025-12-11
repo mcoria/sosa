@@ -6,8 +6,6 @@ import chariot.model.UserAuth;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessTooManyRequests;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -51,6 +49,5 @@ public class SosaState {
         }
         throw new RuntimeException("Rating not found");
     }
-
 
 }

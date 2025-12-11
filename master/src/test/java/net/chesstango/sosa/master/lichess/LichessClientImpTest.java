@@ -5,12 +5,11 @@ import chariot.api.AccountApiAuth;
 import chariot.api.BotApiAuth;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
-import net.chesstango.sosa.master.events.LichessTooManyGames;
-import net.chesstango.sosa.master.events.LichessTooManyRequests;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,7 +41,7 @@ public class LichessClientImpTest {
     }
 
     /**
-     * NO DEBE lanzar evento LichessTooManyRequests por que el codigo es 1
+     * NO DEBE lanzar evento LichessTooManyRequestsSent por que el codigo es 1
      */
     @Test
     void apiCallFailedTest() {
@@ -53,11 +52,11 @@ public class LichessClientImpTest {
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
-        verify(applicationEventPublisher, never()).publishEvent(any(LichessTooManyRequests.class));
+        verify(applicationEventPublisher, never()).publishEvent(any(LichessTooManyRequestsSent.class));
     }
 
     /**
-     * DEBE lanzar evento LichessTooManyRequests por que el codigo es 429
+     * DEBE lanzar evento LichessTooManyRequestsSent por que el codigo es 429
      */
     @Test
     void apiCallFailedTooManyRequestsTest() {
@@ -68,11 +67,11 @@ public class LichessClientImpTest {
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
-        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyRequests.class));
+        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyRequestsSent.class));
     }
 
     /**
-     * DEBE lanzar evento LichessTooManyRequests por que el codigo es 429
+     * DEBE lanzar evento LichessTooManyRequestsSent por que el codigo es 429
      */
     @Test
     void apiCallFailedLichessTooManyGamesTest() {
@@ -93,6 +92,6 @@ public class LichessClientImpTest {
         // Assertions
         assertTrue(challengeOpt.isEmpty());
 
-        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyGames.class));
+        verify(applicationEventPublisher, times(1)).publishEvent(any(LichessTooManyGamesPlayed.class));
     }
 }

@@ -5,8 +5,8 @@ import org.springframework.context.ApplicationEvent;
 /**
  * @author Mauricio Coria
  */
-public class LichessTooManyRequests extends ApplicationEvent {
-    public LichessTooManyRequests(Object source) {
+public class LichessTooManyRequestsSent extends ApplicationEvent {
+    public LichessTooManyRequestsSent(Object source) {
         super(source);
     }
 }

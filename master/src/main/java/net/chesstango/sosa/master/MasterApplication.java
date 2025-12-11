@@ -1,11 +1,9 @@
 package net.chesstango.sosa.master;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessTooManyRequests;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.EventListener;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -30,7 +28,7 @@ public class MasterApplication {
 
 
     /*
-    @EventListener(LichessTooManyRequests.class)
+    @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessExceptionDetected() {
         log.error("Lichess API: too many requests. Ext application;");
         countDownLatch.countDown();

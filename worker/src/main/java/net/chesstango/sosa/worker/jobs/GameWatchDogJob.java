@@ -1,11 +1,4 @@
-package net.chesstango.sosa.master.jobs;
-
-import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.LichessClient;
-import org.quartz.JobExecutionContext;
-import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.scheduling.quartz.QuartzJobBean;
-import org.springframework.stereotype.Component;
+package net.chesstango.sosa.worker.jobs;
 
 /**
  * @author Mauricio Coria
@@ -13,16 +6,17 @@ import org.springframework.stereotype.Component;
 //@PersistJobDataAfterExecution
 //@Component
 //@Slf4j
-public class GameWatchDogJob extends QuartzJobBean {
+    //extends QuartzJobBean
+public class GameWatchDogJob  {
 
-    private final LichessClient client;
+    //private final LichessClient client;
 
-    public GameWatchDogJob(LichessClient client) {
-        this.client = client;
-    }
+    //public GameWatchDogJob(LichessClient client) {
+        //this.client = client;
+    //}
 
-    @Override
-    protected void executeInternal(JobExecutionContext context) {
+    //@Override
+    //protected void executeInternal(JobExecutionContext context) {
         /*
         try {
             String gameId = context.getJobDetail().getJobDataMap().getString("gameId");
@@ -45,5 +39,5 @@ public class GameWatchDogJob extends QuartzJobBean {
         }
 
          */
-    }
+    //}
 }

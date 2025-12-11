@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 /**
  * @author Mauricio Coria
  */
-@Component
 @Slf4j
+@Component
 public class LichessErrorParser {
 
     public Object parse(String jsonString) {
@@ -30,10 +30,8 @@ public class LichessErrorParser {
                 }
             }
 
-
         } catch (JsonProcessingException e) {
             log.warn("Error parsing payload: {}", jsonString);
-            return jsonString;
         }
 
         return jsonString;

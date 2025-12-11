@@ -8,10 +8,10 @@ import org.springframework.context.ApplicationEvent;
  * @author Mauricio Coria
  */
 @Getter
-public class LichessTooManyGames extends ApplicationEvent {
+public class LichessTooManyGamesPlayed extends ApplicationEvent {
     private final RetryIn retryIn;
 
-    public LichessTooManyGames(Object source, RetryIn retryIn) {
+    public LichessTooManyGamesPlayed(Object source, RetryIn retryIn) {
         super(source);
         this.retryIn = retryIn;
     }
