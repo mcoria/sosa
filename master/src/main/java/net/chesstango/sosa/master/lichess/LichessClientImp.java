@@ -67,6 +67,7 @@ public class LichessClientImp implements LichessClient {
         }
 
         if (challengeOne instanceof Fail<Challenge>(int status, Err info)) {
+            log.warn("Challenging {} failed: {}", user.id(), info.toString());
             if (status == TOO_MANY_REQUESTS) {
                 Object erroPayload = lichessErrorParser.parse(info.message());
                 if (erroPayload instanceof RetryIn retryIn) {
@@ -75,8 +76,6 @@ public class LichessClientImp implements LichessClient {
                     applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
                 }
             }
-
-            log.warn("Challenging {} failed: {}", user.id(), info.message());
             return Optional.empty();
         }
 

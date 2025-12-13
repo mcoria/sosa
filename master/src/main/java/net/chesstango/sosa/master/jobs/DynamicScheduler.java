@@ -38,7 +38,7 @@ public class DynamicScheduler {
 
     @EventListener
     public void onLichessTooManyGamesPlayed(LichessTooManyGamesPlayed lichessTooManyGamesPlayed) {
-        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
+        log.info("Scheduling Expired Timer Event for CHALLENGES");
         try {
             RetryIn retryIn = lichessTooManyGamesPlayed.getRetryIn();
             JobDetail job = JobBuilder.newJob(PublishExpiredTimerEvent.class)
@@ -50,6 +50,9 @@ public class DynamicScheduler {
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity("PublishTooManyExpiredTimerEventTrigger_Game")
                     .startAt(DateBuilder.futureDate((int) retryIn.getSeconds(), DateBuilder.IntervalUnit.SECOND))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withRepeatCount(0) // Explicitly set repeat count to 0 (runs once)
+                            .withIntervalInSeconds(0))
                     .build();
 
             scheduler.scheduleJob(job, trigger);
@@ -61,17 +64,20 @@ public class DynamicScheduler {
 
     @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessTooManyRequestsSent() {
-        log.error("Lichess API: too many requests. Stop sending requests to lichess for a while.");
+        log.info("Scheduling Expired Timer Event for lichess REQUESTS");
         try {
             JobDetail job = JobBuilder.newJob(PublishExpiredTimerEvent.class)
                     .withIdentity("PublishTooManyExpiredTimerEvent_Requests")
-                    .usingJobData("expirationType", "GAMES")
+                    .usingJobData("expirationType", "REQUESTS")
                     .storeDurably()
                     .build();
 
             Trigger trigger = TriggerBuilder.newTrigger()
                     .withIdentity("PublishTooManyExpiredTimerEventTrigger_Requests")
                     .startAt(DateBuilder.futureDate(90, DateBuilder.IntervalUnit.SECOND))
+                    .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                            .withRepeatCount(0) // Explicitly set repeat count to 0 (runs once)
+                            .withIntervalInSeconds(0))
                     .build();
 
             scheduler.scheduleJob(job, trigger);

@@ -23,7 +23,6 @@ public class LichessChallenger {
         this.lichessChallengerUser = lichessChallengerUser;
     }
 
-    @Async
     public synchronized void challengeRandomBot() {
         Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
         if (challengeOpt.isPresent()) {

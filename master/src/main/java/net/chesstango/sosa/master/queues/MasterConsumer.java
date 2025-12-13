@@ -57,7 +57,7 @@ public class MasterConsumer {
             if (canSendRequests() && sendChallengesAllowed.get()) {
                 lichessChallenger.challengeRandomBot();
             } else {
-                log.warn("Too many games were played. Ignoring SendChallenge command.");
+                log.warn("Can not challenge at this time. Ignoring SendChallenge command.");
             }
         } catch (RuntimeException e) {
             log.error("Error challenging random bot", e);
@@ -79,7 +79,7 @@ public class MasterConsumer {
             if (canSendRequests()) {
                 client.gameMove(sendMove.getGameId(), sendMove.getMove());
             } else {
-                log.warn("[{}] Too many requests were sent. Ignoring SendMove command {}.", sendMove.getGameId(), sendMove.getMove());
+                log.warn("[{}] Can not send move at this time. Ignoring SendMove command {}.", sendMove.getGameId(), sendMove.getMove());
             }
         } catch (RuntimeException e) {
             log.error("[{}] Error sending move", sendMove.getGameId(), e);
@@ -88,7 +88,7 @@ public class MasterConsumer {
 
     @EventListener(LichessConnected.class)
     public void onLichessConnected() {
-        log.warn("Lichess API: connected.");
+        log.info("Lichess API: connected.");
         lichessConnected.set(true);
     }
 
@@ -105,7 +105,7 @@ public class MasterConsumer {
     }
 
     @EventListener
-    public void onLichessTooManyGames(LichessTooManyExpired lichessTooManyExpired) {
+    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
         switch (lichessTooManyExpired.getExpirationType()) {
             case GAMES:
                 log.info("Sending challenges again.");

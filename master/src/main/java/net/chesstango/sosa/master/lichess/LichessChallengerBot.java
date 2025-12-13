@@ -4,10 +4,15 @@ import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.events.LichessTooManyExpired;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -28,6 +33,9 @@ public class LichessChallengerBot {
 
     private final List<Challenger> challengerTypes;
 
+    private final AtomicBoolean sendRequestsAllowed;
+    private final AtomicBoolean sendChallengesAllowed;
+
     public LichessChallengerBot(LichessClient client,
                                 SosaState sosaState,
                                 BotQueue botQueue,
@@ -35,6 +43,8 @@ public class LichessChallengerBot {
         this.client = client;
         this.botQueue = botQueue;
         this.sosaState = sosaState;
+        this.sendChallengesAllowed = new AtomicBoolean(true);
+        this.sendRequestsAllowed = new AtomicBoolean(true);
         this.challengerTypes = new ArrayList<>();
 
         challengeTypes.forEach(challengeType -> {
@@ -68,8 +78,10 @@ public class LichessChallengerBot {
             final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
             if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
+                log.info("Challenging bot {}", theBot.id());
                 Optional<Challenge> challengeOpt = challengerTypes
                         .stream()
+                        .filter(aChallenger -> sendRequestsAllowed.get() && sendChallengesAllowed.get())
                         .filter(aChallenger -> aChallenger.filter(theBot))
                         .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
                         .filter(Optional::isPresent)
@@ -85,9 +97,40 @@ public class LichessChallengerBot {
                 log.debug("Braking loop after 10 attempts");
                 break;
             }
+
+            if (!sendRequestsAllowed.get() || !sendChallengesAllowed.get()) {
+                log.debug("Not sending requests or challenges. Breaking loop.");
+                break;
+            }
         }
 
         return Optional.empty();
+    }
+
+    @org.springframework.context.event.EventListener(LichessTooManyRequestsSent.class)
+    public void onLichessTooManyRequests() {
+        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
+        sendRequestsAllowed.set(false);
+    }
+
+    @org.springframework.context.event.EventListener(LichessTooManyGamesPlayed.class)
+    public void onLichessTooManyGames() {
+        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
+        sendChallengesAllowed.set(false);
+    }
+
+    @EventListener
+    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
+        switch (lichessTooManyExpired.getExpirationType()) {
+            case GAMES:
+                log.info("Sending challenges again.");
+                sendChallengesAllowed.set(true);
+                break;
+            case REQUESTS:
+                log.warn("Sending requests again.");
+                sendRequestsAllowed.set(true);
+                break;
+        }
     }
 
     private abstract static class Challenger {
