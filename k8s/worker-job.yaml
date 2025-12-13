@@ -3,8 +3,9 @@ kind: Job
 metadata:
   name: sosa-worker
 spec:
-  completions: 100
-  parallelism: 1
+  completions: 15000
+  parallelism: 2
+  ttlSecondsAfterFinished: 600
   template:
     metadata:
       name: sosa-worker
