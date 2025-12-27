@@ -3,7 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -12,11 +11,15 @@ import java.util.stream.Stream;
  * @author Mauricio Coria
  */
 public interface LichessClient {
+    UserAuth getProfile();
+
     Stream<Event> streamEvents();
 
-    Stream<GameStateEvent> streamGameStateEvent(String gameId);
+    Stream<User> botsOnline();
 
-    Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
+    Stream<GameInfo> meOngoingGames();
+
+    Optional<Challenge> challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
 
     void challengeAccept(String challengeId);
 
@@ -32,15 +35,5 @@ public interface LichessClient {
 
     void gameAbort(String gameId);
 
-    Map<StatsPerfType, StatsPerf> getRatings();
-
-    int getRating(StatsPerfType type);
-
-    boolean isMe(UserInfo theUser);
-
-    Many<User> botsOnline();
-
     Optional<UserAuth> findUser(String username);
-
-    Many<GameInfo> meOngoingGames();
 }

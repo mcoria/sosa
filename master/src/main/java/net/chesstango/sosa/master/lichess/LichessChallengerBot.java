@@ -3,36 +3,48 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessConnected;
-import net.chesstango.sosa.master.events.SosaEvent;
+import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.events.LichessTooManyExpired;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Service;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
  * @author Mauricio Coria
  */
 @Slf4j
-@Service
-public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
+@Component
+public class LichessChallengerBot {
     public static final int RATING_THRESHOLD = 150;
 
     private static final Random rand = new Random();
 
     private final LichessClient client;
 
+    private final SosaState sosaState;
+
     private final BotQueue botQueue;
 
     private final List<Challenger> challengerTypes;
 
+    private final AtomicBoolean sendRequestsAllowed;
+    private final AtomicBoolean sendChallengesAllowed;
+
     public LichessChallengerBot(LichessClient client,
+                                SosaState sosaState,
                                 BotQueue botQueue,
                                 @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
+        this.sosaState = sosaState;
+        this.sendChallengesAllowed = new AtomicBoolean(true);
+        this.sendRequestsAllowed = new AtomicBoolean(true);
         this.challengerTypes = new ArrayList<>();
 
         challengeTypes.forEach(challengeType -> {
@@ -45,46 +57,80 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
         });
     }
 
-    @Override
-    public void onApplicationEvent(SosaEvent event) {
-        if (Objects.requireNonNull(event) instanceof LichessConnected) {
-            updateRating();
-        }
-    }
+    public void updateRatings() {
+        Map<StatsPerfType, StatsPerf> myRatings = sosaState.getMyProfile().ratings();
 
-    private void updateRating() {
-        log.info("Getting my ratings");
-
-        Map<StatsPerfType, StatsPerf> myRatings = client.getRatings();
-
-        challengerTypes.forEach(challenger -> challenger.setRating(myRatings));
+        challengerTypes.forEach(challenger -> {
+            challenger.setMyRating(myRatings);
+            log.info("Rating for {}: {}", challenger.statsPerfType, challenger.myRating);
+        });
     }
 
     public Optional<Challenge> challengeRandomBot() {
-        Challenge challenge = null;
+        log.info("Challenging random bot");
 
-        User aBot = botQueue.pickBot();
+        List<Challenger> challengerTypes = new ArrayList<>(this.challengerTypes);
 
-        if (aBot != null) {
-            List<Challenger> challengerTypesShuffled = new ArrayList<>(challengerTypes);
+        Collections.shuffle(challengerTypes, rand);
 
-            Collections.shuffle(challengerTypesShuffled);
+        int counter = 0;
+        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
+            final User theBot = bot;
+            // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+            if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
+                log.info("Challenging bot {}", theBot.id());
+                Optional<Challenge> challengeOpt = challengerTypes
+                        .stream()
+                        .filter(aChallenger -> sendRequestsAllowed.get() && sendChallengesAllowed.get())
+                        .filter(aChallenger -> aChallenger.filter(theBot))
+                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .findFirst();
 
-            Optional<Challenger> challengerOpt = challengerTypesShuffled
-                    .stream()
-                    .filter(aChallenger -> aChallenger.filer(aBot))
-                    .findFirst();
-
-            if (challengerOpt.isPresent()) {
-                Challenger challenger = challengerOpt.get();
-                challenge = client.challenge(aBot, challenger::consumeChallengeBuilder);
-            } else {
-                log.info("Rating: bot {} filtered out ", aBot.id());
+                if (challengeOpt.isPresent()) {
+                    return challengeOpt;
+                }
             }
-        } else {
-            log.warn("No bots online :S");
+
+            if (counter++ > 10) {
+                log.debug("Braking loop after 10 attempts");
+                break;
+            }
+
+            if (!sendRequestsAllowed.get() || !sendChallengesAllowed.get()) {
+                log.debug("Not sending requests or challenges. Breaking loop.");
+                break;
+            }
         }
-        return challenge == null ? Optional.empty() : Optional.of(challenge);
+
+        return Optional.empty();
+    }
+
+    @org.springframework.context.event.EventListener(LichessTooManyRequestsSent.class)
+    public void onLichessTooManyRequests() {
+        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
+        sendRequestsAllowed.set(false);
+    }
+
+    @org.springframework.context.event.EventListener(LichessTooManyGamesPlayed.class)
+    public void onLichessTooManyGames() {
+        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
+        sendChallengesAllowed.set(false);
+    }
+
+    @EventListener
+    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
+        switch (lichessTooManyExpired.getExpirationType()) {
+            case GAMES:
+                log.info("Sending challenges again.");
+                sendChallengesAllowed.set(true);
+                break;
+            case REQUESTS:
+                log.warn("Sending requests again.");
+                sendRequestsAllowed.set(true);
+                break;
+        }
     }
 
     private abstract static class Challenger {
@@ -98,11 +144,11 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
             this.statsPerfType = statsPerfType;
         }
 
-        void setRating(Map<StatsPerfType, StatsPerf> myRatings) {
+        void setMyRating(Map<StatsPerfType, StatsPerf> myRatings) {
             myRating = getRating(myRatings);
         }
 
-        boolean filer(User bot) {
+        boolean filter(User bot) {
             int botRating = getRating(bot.ratings());
             return botRating >= myRating - RATING_THRESHOLD && botRating <= myRating + RATING_THRESHOLD;
         }
@@ -116,8 +162,8 @@ public class LichessChallengerBot implements ApplicationListener<SosaEvent> {
         }
 
         void consumeChallengeBuilder(ChallengesApiAuthCommon.ChallengeBuilder challengeBuilder) {
-            Consumer<ChallengesApiAuthCommon.ChallengeBuilder> element = builders.get(rand.nextInt(builders.size()));
-            element.accept(challengeBuilder);
+            Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer = builders.get(rand.nextInt(builders.size()));
+            challengeBuilderConsumer.accept(challengeBuilder);
         }
     }
 

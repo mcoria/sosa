@@ -3,8 +3,6 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.ChallengeEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,15 +16,13 @@ import java.util.function.Predicate;
 public class LichessChallengeHandler {
     private final LichessClient client;
 
-    private final ApplicationEventPublisher applicationEventPublisher;
-
     private final SosaState sosaState;
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client, SosaState sosaState, ApplicationEventPublisher applicationEventPublisher) {
+    public LichessChallengeHandler(LichessClient client,
+                                   SosaState sosaState) {
         this.client = client;
-        this.applicationEventPublisher = applicationEventPublisher;
         this.sosaState = sosaState;
         this.acceptChallenges = true;
     }
@@ -39,22 +35,23 @@ public class LichessChallengeHandler {
         }
     }
 
-    public void challengeCreated(Event.ChallengeCreatedEvent event) {
+    void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
+        if (isMyChallenge(event)) {
+            log.info("[{}] My challenge, ignoring", event.id());
+            return;
+        }
         if (acceptChallenges) {
-            if (sosaState.thereAreAvailableWorkers()) {
-                if (!sosaState.thereIsChallengeInProgress(Optional.of(event.id()))) {
-                    if (isChallengeAcceptable(event)) {
-                        sendAcceptChallenge(event);
-                    } else {
-                        sendDeclineChallenge(event);
-                    }
+            if (sosaState.thereIsAvailableWorker()) {
+                if (isChallengeAcceptable(event)) {
+                    log.info("[{}] Challenge acceptable", event.id());
+                    sendAcceptChallenge(event);
                 } else {
-                    log.info("[{}] There are in progress challenges", event.id());
+                    log.info("[{}] Challenge not acceptable", event.id());
                     sendDeclineChallenge(event);
                 }
             } else {
-                log.info("[{}] There are in progress games", event.id());
+                log.info("[{}] There is no available worker to accept this challenge", event.id());
                 sendDeclineChallenge(event);
             }
         } else {
@@ -63,24 +60,15 @@ public class LichessChallengeHandler {
         }
     }
 
-    public void challengeCanceled(Event.ChallengeCanceledEvent event) {
+    void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_CANCELLED, event.id()));
     }
 
-    public void challengeDeclined(Event.ChallengeDeclinedEvent event) {
+    void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
-
-
-        // Aca deberiamos agregar el bot a Redis para no intentar nuevamente si ya sabemos la respuesta
-//        if ("declineNoBot".equals(event.reason().key())) {
-//
-//        }
-
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
     }
 
-    public void stopAcceptingChallenges() {
+    void stopAcceptingChallenges() {
         this.acceptChallenges = false;
     }
 
@@ -92,26 +80,33 @@ public class LichessChallengeHandler {
     private void sendAcceptChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Accepting challenge", event.id());
         client.challengeAccept(event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_ACCEPTED, event.id()));
     }
 
     private void sendDeclineChallenge(Event.ChallengeEvent event) {
         log.info("[{}] Declining challenge", event.id());
         client.challengeDecline(event.id());
-        applicationEventPublisher.publishEvent(new ChallengeEvent(this, ChallengeEvent.Type.CHALLENGE_DECLINED, event.id()));
+    }
+
+    // Siempre acepto mis propios challenges
+    private boolean isMyChallenge(Event.ChallengeEvent event) {
+        ChallengeInfo.Players players = event.challenge().players();
+
+        return switch (players){
+            case ChallengeInfo.FromTo fromTo -> fromTo.challenger().user().id().equals(sosaState.getMyProfile().id());
+            case ChallengeInfo.From from -> from.challenger().user().id().equals(sosaState.getMyProfile().id());
+            default -> false;
+        };
     }
 
     private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
-        Optional<ChallengeInfo.Player> challengerPlayer = event.challenge().players().challengerOpt();
-        Optional<ChallengeInfo.Player> challengedPlayer = event.challenge().players().challengedOpt();
+        Optional<ChallengeInfo.Player> challengerPlayer = event
+                .challenge()
+                .players()
+                .challengerOpt();
 
-        if (challengerPlayer.isEmpty() || challengedPlayer.isEmpty()) {
-            log.warn("[{}] Challenge has no challenger or challenged player", event.id());
+        if (challengerPlayer.isEmpty()) {
+            log.warn("Challenge has no challenger");
             return false;
-        }
-
-        if (client.isMe(challengerPlayer.get().user())) { // Siempre acepto mis propios challenges
-            return true;
         }
 
         GameType gameType = event.challenge().gameType();
@@ -140,7 +135,7 @@ public class LichessChallengeHandler {
             return false;
         }
 
-        int myRating = client.getRating(statsPerfType);
+        int myRating = sosaState.getRating(statsPerfType);
 
         return "BOT".equals(userTitle) && player.rating() <= myRating + LichessChallengerBot.RATING_THRESHOLD;
     }

@@ -14,33 +14,15 @@ import java.util.concurrent.CountDownLatch;
 @Slf4j
 public class WorkerApplication {
 
-    private static int exitCode = 0;
-
-    private static final CountDownLatch countDownLatch = new CountDownLatch(1);
+    public static CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public static void main(String[] args) throws InterruptedException {
-
         ConfigurableApplicationContext context = SpringApplication.run(WorkerApplication.class, args);
-
-        WorkerProducer workerProducer = context.getBean(WorkerProducer.class);
-
-        workerProducer.send_WorkerStarted();
-
-        log.info("Playing");
 
         countDownLatch.await();
 
-        SpringApplication.exit(context, () -> exitCode);
-    }
+        log.info("Exiting application");
 
-    public static void finishFail() {
-        exitCode = -1;
-        countDownLatch.countDown();
+        SpringApplication.exit(context, () -> 0);
     }
-
-    public static void finishSuccess() {
-        exitCode = 0;
-        countDownLatch.countDown();
-    }
-
 }

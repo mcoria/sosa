@@ -54,17 +54,18 @@ public class WriteGamePropertyFile implements Tasklet, StepExecutionListener {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         if (gameStart != null) {
-            writePropertyFile(gameStart.getGameId());
+            writePropertyFile(gameStart.getGameId(), gameStart.getColor());
         }
         return RepeatStatus.FINISHED;
     }
 
-    void writePropertyFile(String gameId) {
+    void writePropertyFile(String gameId, String color) {
         try {
             File propertyFile = directory.resolve("game.properties").toFile();
 
             Properties props = new Properties();
             props.setProperty("gameId", gameId);
+            props.setProperty("color", color);
             props.store(new FileOutputStream(propertyFile), null);
 
             log.info("Property file created successfully with gameId: {}", gameId);

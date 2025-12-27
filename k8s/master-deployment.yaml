@@ -15,10 +15,15 @@ spec:
       labels:
         app: sosa-master
     spec:
+      terminationGracePeriodSeconds: 60
       containers:
         - name: sosa-master
           image: coriamauricio/sosa-master:latest
           imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 60
           env:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"

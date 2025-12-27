@@ -12,7 +12,7 @@ package net.chesstango.sosa.messages;
  *   fen   <--- StartPosition ----
  *
  *         <--- GoFast       ----
- *         ---- GoFastResult --->   gameId, move: Para notificar el resultado de la jugada
+ *         ---- SendMove --->   gameId, move: Para notificar el resultado de la jugada
  *          .
  *          .
  *          .
@@ -22,6 +22,10 @@ package net.chesstango.sosa.messages;
  */
 public class Constants {
     public static final String SOSA_EXCHANGE = "sosa.exchange";
+
     public static final String MASTER_QUEUE = "sosa-master";
     public static final String MASTER_ROUTING_KEY = "sosa_master_rk";
+
+    public static final String WORKER_GAMES_QUEUE = "sosa-worker-games";
+    public static final String WORKER_GAMES_ROUTING_KEY = "sosa_worker_games_rk";
 }

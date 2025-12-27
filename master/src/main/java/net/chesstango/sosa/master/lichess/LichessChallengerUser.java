@@ -5,6 +5,7 @@ import chariot.model.Challenge;
 import chariot.model.Enums;
 import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -13,6 +14,7 @@ import java.util.function.Consumer;
  * @author Mauricio Coria
  */
 @Slf4j
+@Component
 public class LichessChallengerUser {
     private final LichessClient client;
 
@@ -41,7 +43,7 @@ public class LichessChallengerUser {
         Optional<UserAuth> user = client.findUser(username);
 
         if (user.isPresent()) {
-            return Optional.of(client.challenge(user.get(), challengeBuilderConsumer));
+            return client.challenge(user.get(), challengeBuilderConsumer);
         }
 
         log.info("User '{}' not found", username);

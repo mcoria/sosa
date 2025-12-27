@@ -2,7 +2,6 @@ package net.chesstango.sosa.messages.worker;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 
 /**
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class GameStart {
-    private String gameId;
+    private final String gameId;
+    private final String color;
 }

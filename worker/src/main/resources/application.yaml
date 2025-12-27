@@ -1,4 +1,5 @@
 app:
+  botToken: ${BOT_TOKEN}
   polyglot_book: ${POLYGLOT_BOOK}
   syzygy_directory: ${SYZYGY_DIRECTORY}
   workerId: ${WORKER_ID:sosa-worker}

@@ -24,20 +24,20 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     private final String gameId;
 
+    private final String polyglot_book;
+
+    private final String syzygy_directory;
+
     private Tango tango;
 
     private Session session;
 
-    @Setter
-    @Value("${app.polyglot_book}")
-    private String polyglot_book;
-
-    @Setter
-    @Value("${app.syzygy_directory}")
-    private String syzygy_directory;
-
-    public TangoController(@Value("${gameId}") String gameId) {
+    public TangoController(@Value("${gameId}") String gameId,
+                           @Value("${app.polyglot_book}") String polyglotBook,
+                           @Value("${app.syzygy_directory}")String syzygyDirectory) {
         this.gameId = gameId;
+        this.polyglot_book = polyglotBook;
+        this.syzygy_directory = syzygyDirectory;
     }
 
     @PostConstruct
@@ -52,7 +52,7 @@ public class TangoController implements AutoCloseable, SearchListener {
             config.setPolyglotFile(polyglot_book);
         }
 
-        if( syzygy_directory != null ){
+        if (syzygy_directory != null) {
             log.info("Setting syzygy directory to {}", syzygy_directory);
             config.setSyzygyDirectory(syzygy_directory);
         }
@@ -60,13 +60,14 @@ public class TangoController implements AutoCloseable, SearchListener {
         tango = Tango.open(config);
     }
 
+
     @Override
     public void close() {
         log.info("Closing Tango");
         try {
             tango.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.warn("Exception closing tango", e);
         }
     }
 
