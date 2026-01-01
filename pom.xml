@@ -11,7 +11,7 @@
 
     <groupId>net.chesstango</groupId>
     <artifactId>sosa</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
     <name>sosa</name>
     <description>SOSA</description>
@@ -50,7 +50,7 @@
         <gardel.version>1.0.15</gardel.version>
 
         <!-- Chesstango -->
-        <chesstango.version>1.2.0-SNAPSHOT</chesstango.version>
+        <chesstango.version>1.2.0</chesstango.version>
     </properties>
 
     <dependencyManagement>

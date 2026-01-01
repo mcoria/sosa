@@ -19,7 +19,7 @@ spec:
             claimName: chesstango-book-pvc
       initContainers:
         - name: sosa-worker-init
-          image: coriamauricio/sosa-worker-init:latest
+          image: coriamauricio/sosa-worker-init:1.2.0
           imagePullPolicy: IfNotPresent
           env:
             - name: WORKER_INIT_DIRECTORY
@@ -45,7 +45,7 @@ spec:
               mountPath: /init-ipc-dir
       containers:
         - name: sosa-worker
-          image: coriamauricio/sosa-worker:latest
+          image: coriamauricio/sosa-worker:1.2.0
           imagePullPolicy: IfNotPresent
           env:
             - name: WORKER_INIT_DIRECTORY
