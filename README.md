@@ -14,10 +14,9 @@ The system coordinates multiple concurrent chesstango engines across a scalable 
 ## Key Technologies
 
 - Kubernetes
-- Java, Spring Boot
+- Java, Spring Boot, Spring Batch
 - RabbitMQ for messaging
-- chariot (Lichess API client)
-- chesstango (board/engine) and gardel (chess notation/encoding)
+- chesstango (chess engine)
 
 
 ## Architecture Overview
