@@ -45,6 +45,7 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
         JobParameters jobParameters = new JobParametersBuilder()
                 .toJobParameters();
         try {
+            log.info("Starting job");
             JobExecution execution = jobOperator.start(workerInitJob, jobParameters);
             if (ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
                 log.info("Job completed successfully");
@@ -52,6 +53,7 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
                 log.error("Job failed with exit status {}", execution.getExitStatus());
                 exitCode = 1;
             }
+            log.info("Job finished");
         } catch (Exception e) {
             log.error("Exception running job", e);
             exitCode = 2;

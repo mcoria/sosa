@@ -23,3 +23,7 @@ spring:
         prefetch: 1
       direct:
         prefetch: 1
+
+  batch:
+    job:
+      enabled: false
