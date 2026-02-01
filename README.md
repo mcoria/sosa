@@ -1,6 +1,8 @@
 # SOSA — Scalable Orchestrator for Self‑Play and Analysis (Chess)
 
-SOSA is a lichess microservice client built on top of chesstango and kubernetes. It orchestrates multiple chess games across a distributed set of workers. It uses Kubernetes and RabbitMQ to coordinate work between a master process and workers. The project is built with Spring Boot 3, Java 21, and Maven.
+SOSA is a distributed chesstango engine orchestrator that integrates with Lichess via the chariot API client.
+It leverages Kubernetes for container orchestration and RabbitMQ for asynchronous messaging between components. 
+The system coordinates multiple concurrent chesstango engines across a scalable cluster of workers.
 
 ## Modules
 
@@ -11,7 +13,7 @@ SOSA is a lichess microservice client built on top of chesstango and kubernetes.
 
 ## Key Technologies
 
-- Java 21, Spring Boot 3
+- Java 25, Spring Boot 4
 - Kubernetes manifests under k8s for deployment
 - RabbitMQ for messaging
 - chariot (Lichess API client)
