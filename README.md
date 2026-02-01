@@ -13,8 +13,8 @@ The system coordinates multiple concurrent chesstango engines across a scalable 
 
 ## Key Technologies
 
-- Java 25, Spring Boot 4
-- Kubernetes manifests under k8s for deployment
+- Kubernetes
+- Java, Spring Boot
 - RabbitMQ for messaging
 - chariot (Lichess API client)
 - chesstango (board/engine) and gardel (chess notation/encoding)
@@ -31,7 +31,7 @@ The system coordinates multiple concurrent chesstango engines across a scalable 
 
 ## Prerequisites
 
-- JDK 21+
+- JDK 25+
 - Maven 3.9+
 - RabbitMQ instance accessible to master and workers
 - (Optional) Lichess account and API token if using Lichess integration
