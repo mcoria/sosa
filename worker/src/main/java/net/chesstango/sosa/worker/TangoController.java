@@ -54,7 +54,7 @@ public class TangoController implements AutoCloseable, SearchListener {
 
         if (syzygy_directory != null) {
             log.info("Setting syzygy directory to {}", syzygy_directory);
-            config.setSyzygyDirectory(syzygy_directory);
+            config.setSyzygyPath(syzygy_directory);
         }
 
         tango = Tango.open(config);

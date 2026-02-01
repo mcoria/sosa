@@ -48,7 +48,7 @@ public class LichessClientImpTest {
         AccountApiAuth accountApiAuth = mock(AccountApiAuth.class);
 
         when(client.account()).thenReturn(accountApiAuth);
-        when(accountApiAuth.profile()).thenReturn(One.fail(1, Err.from("Error message")));
+        when(accountApiAuth.profile()).thenReturn(One.fail(1, "Error message"));
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
@@ -63,7 +63,7 @@ public class LichessClientImpTest {
         AccountApiAuth accountApiAuth = mock(AccountApiAuth.class);
 
         when(client.account()).thenReturn(accountApiAuth);
-        when(accountApiAuth.profile()).thenReturn(One.fail(429, Err.from("Too Many Requests")));
+        when(accountApiAuth.profile()).thenReturn(One.fail(429, "Too Many Requests"));
 
         assertThrows(RuntimeException.class, () -> lichessClientImp.getProfile());
 
@@ -78,7 +78,7 @@ public class LichessClientImpTest {
         BotApiAuth botApiAuth = mock(BotApiAuth.class);
 
         when(client.bot()).thenReturn(botApiAuth);
-        when(botApiAuth.challenge(anyString(), any())).thenReturn(One.fail(429, Err.from("{\"error\":\"You played 100 games against other bots today, please wait before challenging another bot.\",\"ratelimit\":{\"key\":\"bot.vsBot.day\",\"seconds\":27594}}")));
+        when(botApiAuth.challenge(anyString(), any())).thenReturn(One.fail(429, "{\"error\":\"You played 100 games against other bots today, please wait before challenging another bot.\",\"ratelimit\":{\"key\":\"bot.vsBot.day\",\"seconds\":27594}}"));
 
         // Parameters
         User user = mock(UserProfileData.class);

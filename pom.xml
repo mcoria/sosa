@@ -11,7 +11,7 @@
 
     <groupId>net.chesstango</groupId>
     <artifactId>sosa</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>sosa</name>
     <description>SOSA</description>
@@ -39,18 +39,21 @@
         <url/>
     </scm>
     <properties>
-        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <maven.compiler.release>25</maven.compiler.release>
 
         <commons-collections.version>4.5.0</commons-collections.version>
 
         <!-- Lichess communication protocol -->
-        <chariot.version>0.1.21</chariot.version>
+        <chariot.version>0.2.3</chariot.version>
 
         <!-- Decoding/encoding to different chess representations: FEN, EPD, PGN, SAN, LAN -->
         <gardel.version>1.0.15</gardel.version>
 
         <!-- Chesstango -->
-        <chesstango.version>1.2.0</chesstango.version>
+        <chesstango.version>1.3.0-SNAPSHOT</chesstango.version>
     </properties>
 
     <dependencyManagement>
