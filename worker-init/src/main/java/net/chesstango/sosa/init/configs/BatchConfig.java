@@ -3,46 +3,40 @@ package net.chesstango.sosa.init.configs;
 import net.chesstango.sosa.init.steps.SendWorkerBusy;
 import net.chesstango.sosa.init.steps.WaitGameStart;
 import net.chesstango.sosa.init.steps.WriteGamePropertyFile;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.ResourcelessJobRepository;
+import org.springframework.batch.core.step.Step;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
+@EnableBatchProcessing // This annotation sets up the default beans, but we override the repository
 public class BatchConfig {
 
     @Bean
-    public Step waitGameStartStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+    public Step waitGameStartStep(JobRepository jobRepository,
                                   WaitGameStart waitGameStart) {
         return new StepBuilder("WaitGameStart", jobRepository)
-                .tasklet(waitGameStart, transactionManager)
+                .tasklet(waitGameStart)
                 .build();
     }
 
     @Bean
-    public Step sendWorkerBusyStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+    public Step sendWorkerBusyStep(JobRepository jobRepository,
                                    SendWorkerBusy sendWorkerBusy) {
         return new StepBuilder("SendWorkerBusy", jobRepository)
-                .tasklet(sendWorkerBusy, transactionManager)
+                .tasklet(sendWorkerBusy)
                 .build();
     }
 
     @Bean
-    public Step writeGamePropertyFileStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+    public Step writeGamePropertyFileStep(JobRepository jobRepository,
                                           WriteGamePropertyFile writeGamePropertyFile) {
         return new StepBuilder("WriteGamePropertyFile", jobRepository)
-                .tasklet(writeGamePropertyFile, transactionManager)
+                .tasklet(writeGamePropertyFile)
                 .build();
     }
 
@@ -58,21 +52,5 @@ public class BatchConfig {
                 .build();
     }
 
-    @Bean
-    public JobLauncher jobLauncher(JobRepository jobRepository) throws Exception {
-        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.afterPropertiesSet();
-        return jobLauncher;
-    }
 
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new ResourcelessTransactionManager();
-    }
-
-    @Bean
-    public JobRepository jobRepository() {
-        return new ResourcelessJobRepository();
-    }
 }

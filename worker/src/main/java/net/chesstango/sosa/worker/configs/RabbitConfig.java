@@ -7,6 +7,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,9 +20,9 @@ public class RabbitConfig {
 
     @Bean
     public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory,
-                                         Jackson2JsonMessageConverter converter) {
+                                         JacksonJsonMessageConverter messageConverter) {
         RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(converter);
+        template.setMessageConverter(messageConverter);
         template.setMandatory(true); // for returns when routing fails
         return template;
     }
@@ -32,7 +33,8 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public JacksonJsonMessageConverter messageConverter() {
+        // Can be constructed with an internal ObjectMapper instance or a custom one
+        return new JacksonJsonMessageConverter();
     }
 }
