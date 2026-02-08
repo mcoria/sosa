@@ -1,7 +1,6 @@
 package net.chesstango.sosa.worker;
 
 import jakarta.annotation.PostConstruct;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.board.moves.Move;
 import net.chesstango.board.representations.move.SimpleMoveEncoder;
@@ -24,20 +23,20 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     private final String gameId;
 
-    private final String polyglot_book;
+    private final String polyglot_file;
 
-    private final String syzygy_directory;
+    private final String syzygy_path;
 
     private Tango tango;
 
     private Session session;
 
     public TangoController(@Value("${gameId}") String gameId,
-                           @Value("${app.polyglot_book}") String polyglotBook,
-                           @Value("${app.syzygy_directory}")String syzygyDirectory) {
+                           @Value("${app.polyglot_file}") String polyglotBook,
+                           @Value("${app.syzygy_path}")String syzygyDirectory) {
         this.gameId = gameId;
-        this.polyglot_book = polyglotBook;
-        this.syzygy_directory = syzygyDirectory;
+        this.polyglot_file = polyglotBook;
+        this.syzygy_path = syzygyDirectory;
     }
 
     @PostConstruct
@@ -47,14 +46,14 @@ public class TangoController implements AutoCloseable, SearchListener {
         Config config = new Config();
         config.setSyncSearch(true);
 
-        if (polyglot_book != null) {
-            log.info("Setting polyglot book to {}", polyglot_book);
-            config.setPolyglotFile(polyglot_book);
+        if (polyglot_file != null) {
+            log.info("Setting polyglot book to {}", polyglot_file);
+            config.setPolyglotFile(polyglot_file);
         }
 
-        if (syzygy_directory != null) {
-            log.info("Setting syzygy directory to {}", syzygy_directory);
-            config.setSyzygyPath(syzygy_directory);
+        if (syzygy_path != null) {
+            log.info("Setting syzygy directory to {}", syzygy_path);
+            config.setSyzygyPath(syzygy_path);
         }
 
         tango = Tango.open(config);

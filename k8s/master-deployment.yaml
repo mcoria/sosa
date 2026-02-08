@@ -18,7 +18,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: sosa-master
-          image: coriamauricio/sosa-master:1.2.0
+          image: coriamauricio/sosa-master:1.3.0
           imagePullPolicy: IfNotPresent
           lifecycle:
             preStop:

@@ -1,7 +1,7 @@
 app:
   botToken: ${BOT_TOKEN}
-  polyglot_book: ${POLYGLOT_BOOK}
-  syzygy_directory: ${SYZYGY_DIRECTORY}
+  polyglot_file: ${POLYGLOT_FILE}
+  syzygy_path: ${SYZYGY_PATH}
   workerId: ${WORKER_ID:sosa-worker}
 
 spring:

@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: sosa-worker-config
 data:
-  POLYGLOT_BOOK: "/books/openings/polyglot-collection/komodo.bin"
-  SYZYGY_DIRECTORY: "/books/syzygy/3-4-5"
+  POLYGLOT_FILE: "/books/polyglot/komodo.bin"
+  SYZYGY_PATH: "/syzygy/3-4-5;/syzygy/6-WDL;/syzygy/6-DTZ"
+
 
