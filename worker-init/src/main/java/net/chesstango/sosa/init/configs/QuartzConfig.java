@@ -32,7 +32,7 @@ public class QuartzConfig {
                 .startAt(DateBuilder.futureDate(10, DateBuilder.IntervalUnit.SECOND))
                 .withSchedule(simpleSchedule()
                         .withIntervalInSeconds(45) // Repeat every second
-                        .repeatForever()) // Repeat indefinitely
+                        .repeatForever())          // Repeat indefinitely
                 .build();
     }
 }
