@@ -47,7 +47,7 @@
         <commons-collections.version>4.5.0</commons-collections.version>
 
         <!-- Lichess communication protocol -->
-        <chariot.version>0.2.3</chariot.version>
+        <chariot.version>0.2.9</chariot.version>
 
         <!-- Decoding/encoding to different chess representations: FEN, EPD, PGN, SAN, LAN -->
         <gardel.version>1.0.15</gardel.version>
