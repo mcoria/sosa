@@ -7,7 +7,6 @@ import net.chesstango.board.Color;
 import net.chesstango.board.Game;
 import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
-import net.chesstango.gardel.fen.FENParser;
 import net.chesstango.sosa.worker.TangoController;
 import net.chesstango.sosa.worker.WorkerApplication;
 import net.chesstango.sosa.worker.WorkerProducer;
@@ -73,7 +72,7 @@ public class LichessGameEventsReader implements Runnable {
         Variant gameVariant = gameType.variant();
 
         if (Variant.Basic.standard.equals(gameType.variant())) {
-            this.startPosition = FEN.of(FENParser.INITIAL_FEN);
+            this.startPosition = FEN.START_POSITION;
         } else if (gameVariant instanceof Variant.FromPosition fromPositionVariant) {
             Opt<String> someFen = fromPositionVariant.fen();
             this.startPosition = FEN.of(someFen.get());
