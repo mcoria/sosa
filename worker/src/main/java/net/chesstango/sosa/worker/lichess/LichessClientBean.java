@@ -2,6 +2,7 @@ package net.chesstango.sosa.worker.lichess;
 
 import chariot.Client;
 import chariot.ClientAuth;
+import chariot.model.Game;
 import chariot.model.GameStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.worker.events.LichessConnected;
@@ -44,5 +45,15 @@ public class LichessClientBean implements LichessClient {
     @Override
     public Stream<GameStateEvent> streamGameStateEvent(String gameId) {
         return imp.streamGameStateEvent(gameId);
+    }
+
+    @Override
+    public Game game(String gameId) {
+        return imp.game(gameId);
+    }
+
+    @Override
+    public void gameAbort(String gameId) {
+        imp.gameAbort(gameId);
     }
 }

@@ -3,7 +3,6 @@ package net.chesstango.sosa.init.jobs;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.messages.master.SendChallenge;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +29,7 @@ public class ChallengeJob extends QuartzJobBean {
 
 
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternal(JobExecutionContext context) {
         log.info("[{}] Triggering challenge", workerId);
         SendChallenge payload = new SendChallenge(workerId);
         rabbitTemplate.convertAndSend(
