@@ -22,7 +22,7 @@ spec:
             claimName: chesstango-syzygy-pvc
       initContainers:
         - name: sosa-worker-init
-          image: coriamauricio/sosa-worker-init:1.5.1-SNAPSHOT
+          image: coriamauricio/sosa-worker-init:1.6.0
           imagePullPolicy: Always
           env:
             - name: WORKER_INIT_DIRECTORY
@@ -48,7 +48,7 @@ spec:
               mountPath: /init-ipc-dir
       containers:
         - name: sosa-worker
-          image: coriamauricio/sosa-worker:1.5.1-SNAPSHOT
+          image: coriamauricio/sosa-worker:1.6.0
           imagePullPolicy: Always
           env:
             - name: WORKER_INIT_DIRECTORY
