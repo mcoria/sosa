@@ -69,39 +69,39 @@ public class LichessChallengerBot {
     public Optional<Challenge> challengeRandomBot() {
         log.info("Challenging random bot");
 
-        List<Challenger> challengerTypes = new ArrayList<>(this.challengerTypes);
+        if (sendRequestsAllowed.get() && sendChallengesAllowed.get()) {
 
-        Collections.shuffle(challengerTypes, rand);
+            List<Challenger> challengerTypesNow = new ArrayList<>(this.challengerTypes);
 
-        int counter = 0;
-        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
-            final User theBot = bot;
-            // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
-            if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
-                log.info("Challenging bot {}", theBot.id());
-                Optional<Challenge> challengeOpt = challengerTypes
-                        .stream()
-                        .filter(aChallenger -> sendRequestsAllowed.get() && sendChallengesAllowed.get())
-                        .filter(aChallenger -> aChallenger.filter(theBot))
-                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .findFirst();
+            Collections.shuffle(challengerTypesNow, rand);
 
-                if (challengeOpt.isPresent()) {
-                    return challengeOpt;
+            int counter = 0;
+            for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
+                final User theBot = bot;
+                // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+                if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
+                    log.info("Challenging bot {}", theBot.id());
+                    Optional<Challenge> challengeOpt = challengerTypesNow
+                            .stream()
+                            .filter(aChallenger -> aChallenger.filter(theBot))
+                            .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                            .filter(Optional::isPresent)
+                            .map(Optional::get)
+                            .findFirst();
+
+                    if (challengeOpt.isPresent()) {
+                        return challengeOpt;
+                    }
+                }
+
+                if (counter++ > 10) {
+                    log.debug("Braking loop after 10 attempts");
+                    break;
                 }
             }
-
-            if (counter++ > 10) {
-                log.debug("Braking loop after 10 attempts");
-                break;
-            }
-
-            if (!sendRequestsAllowed.get() || !sendChallengesAllowed.get()) {
-                log.debug("Not sending requests or challenges. Breaking loop.");
-                break;
-            }
+        } else {
+            log.info("Skipping challenge - requests allowed: {}, challenges allowed: {}",
+                    sendRequestsAllowed.get(), sendChallengesAllowed.get());
         }
 
         return Optional.empty();

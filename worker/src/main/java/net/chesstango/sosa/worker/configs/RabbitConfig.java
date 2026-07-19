@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.DefaultClassMapper;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +34,14 @@ public class RabbitConfig {
 
     @Bean
     public JacksonJsonMessageConverter messageConverter() {
-        // Can be constructed with an internal ObjectMapper instance or a custom one
-        return new JacksonJsonMessageConverter();
+        JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+
+        DefaultClassMapper classMapper = new DefaultClassMapper();
+
+        classMapper.setTrustedPackages("*");
+
+        converter.setClassMapper(classMapper);
+
+        return converter;
     }
 }
