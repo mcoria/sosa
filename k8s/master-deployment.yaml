@@ -19,7 +19,7 @@ spec:
       containers:
         - name: sosa-master
           image: coriamauricio/sosa-master:1.7.0-SNAPSHOT
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           lifecycle:
             preStop:
               sleep:
