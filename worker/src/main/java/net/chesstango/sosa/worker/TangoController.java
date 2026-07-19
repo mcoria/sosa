@@ -9,6 +9,7 @@ import net.chesstango.gardel.fen.FEN;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -33,7 +34,7 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     public TangoController(@Value("${gameId}") String gameId,
                            @Value("${app.polyglot_file}") String polyglotBook,
-                           @Value("${app.syzygy_path}")String syzygyDirectory) {
+                           @Value("${app.syzygy_path}") String syzygyDirectory) {
         this.gameId = gameId;
         this.polyglot_file = polyglotBook;
         this.syzygy_path = syzygyDirectory;
@@ -43,17 +44,17 @@ public class TangoController implements AutoCloseable, SearchListener {
     public void init() {
         log.info("Initializing Tango");
 
-        Config config = new Config();
-        config.setSyncSearch(true);
+        Config config = Config.create()
+                .setAsyncSearch(false);
 
         if (polyglot_file != null) {
             log.info("Setting polyglot book to {}", polyglot_file);
-            config.setPolyglotFile(polyglot_file);
+            config.setPolyglotFile(Path.of(polyglot_file));
         }
 
         if (syzygy_path != null) {
             log.info("Setting syzygy directory to {}", syzygy_path);
-            config.setSyzygyPath(syzygy_path);
+            config.setSyzygyPath(Path.of(syzygy_path));
         }
 
         tango = Tango.open(config);
@@ -72,8 +73,7 @@ public class TangoController implements AutoCloseable, SearchListener {
 
     public void setStartPosition(FEN fen) {
         log.info("[{}] Setting startPosition {}", gameId, fen);
-        session = tango.newSession();
-        session.setFen(fen);
+        session = tango.newSession(fen);
         session.setSearchListener(this);
     }
 

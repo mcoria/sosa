@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>net.chesstango</groupId>
     <artifactId>sosa</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>sosa-parent</name>
     <description>SOSA</description>
@@ -47,13 +47,13 @@
         <commons-collections.version>4.5.0</commons-collections.version>
 
         <!-- Lichess communication protocol -->
-        <chariot.version>0.2.9</chariot.version>
+        <chariot.version>0.2.10</chariot.version>
 
         <!-- Decoding/encoding to different chess representations: FEN, EPD, PGN, SAN, LAN -->
-        <gardel.version>1.1.1</gardel.version>
+        <gardel.version>1.3.0</gardel.version>
 
         <!-- Chesstango -->
-        <chesstango.version>1.6.0</chesstango.version>
+        <chesstango.version>1.7.0-SNAPSHOT</chesstango.version>
     </properties>
 
     <dependencyManagement>
