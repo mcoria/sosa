@@ -9,10 +9,15 @@ import net.chesstango.gardel.fen.FEN;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * @author Mauricio Coria
@@ -54,7 +59,14 @@ public class TangoController implements AutoCloseable, SearchListener {
 
         if (syzygy_path != null) {
             log.info("Setting syzygy directory to {}", syzygy_path);
-            config.setSyzygyPath(Path.of(syzygy_path));
+
+            Set<Path> syzygyDirs = Arrays
+                    .stream(syzygy_path.split(File.pathSeparator))
+                    .filter(dir -> !dir.isEmpty())
+                    .map(Paths::get)
+                    .collect(Collectors.toSet());
+
+            config.setSyzygyDirs(syzygyDirs);
         }
 
         tango = Tango.open(config);
