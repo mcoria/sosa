@@ -95,7 +95,7 @@ public class TangoController implements AutoCloseable, SearchListener {
             session.setMoves(moves);
 
             log.info("[{}] Going fast: wTime {} bTime {} wInc {} bInc {} moves {}", gameId, wTime, bTime, wInc, bInc, moves);
-            Future<SearchResponse> searchResponseFuture = session.goFast(wTime, bTime, wInc, bInc);
+            Future<SearchResponse> searchResponseFuture = session.goFast(wTime, wInc, bTime, bInc);
 
             SearchResponse searchResponse = searchResponseFuture.get();
 
