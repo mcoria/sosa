@@ -20,3 +20,7 @@ spring:
     # Recommended for publishers:
     publisher-confirm-type: correlated
     publisher-returns: true
+
+  batch:
+    job:
+      enabled: false

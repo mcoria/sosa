@@ -60,7 +60,6 @@ public class LichessGameEventsReader implements Runnable {
         } catch (RuntimeException e) {
             log.error("[{}] Game event loop failed", gameId, e);
         }
-        WorkerApplication.countDownLatch.countDown();
     }
 
     private void accept(GameStateEvent.Full gameFullEvent) {
