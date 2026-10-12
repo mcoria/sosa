@@ -14,6 +14,7 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 public class QuartzConfig {
 
+    /*
     @Bean
     public JobDetail gameAbortJobDetails() {
         return JobBuilder.newJob(GameAbortJob.class)
@@ -33,4 +34,6 @@ public class QuartzConfig {
                 .withSchedule(simpleSchedule().withRepeatCount(0))  // No repeat
                 .build();
     }
+
+     */
 }
