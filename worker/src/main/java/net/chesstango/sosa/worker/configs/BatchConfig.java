@@ -1,7 +1,8 @@
 package net.chesstango.sosa.worker.configs;
 
 import net.chesstango.sosa.worker.steps.ConnectToLichess;
-import net.chesstango.sosa.worker.steps.PlayGame;
+import net.chesstango.sosa.worker.steps.OpenTango;
+import net.chesstango.sosa.worker.steps.ReadGameEvents;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -24,21 +25,31 @@ public class BatchConfig {
     }
 
     @Bean
-    public Step playGameStep(JobRepository jobRepository,
-                             PlayGame playGame) {
-        return new StepBuilder("PlayGame", jobRepository)
-                .tasklet(playGame)
+    public Step openTangoStep(JobRepository jobRepository,
+                              OpenTango openTango) {
+        return new StepBuilder("OpenTango", jobRepository)
+                .tasklet(openTango)
                 .build();
     }
 
 
     @Bean
+    public Step readGameEventsStep(JobRepository jobRepository,
+                             ReadGameEvents readGameEvents) {
+        return new StepBuilder("ReadGameEvents", jobRepository)
+                .tasklet(readGameEvents)
+                .build();
+    }
+
+    @Bean
     public Job workerJob(JobRepository jobRepository,
                          Step connectToLichessStep,
-                         Step playGameStep) {
+                         Step openTangoStep,
+                         Step readGameEventsStep) {
         return new JobBuilder("Worker", jobRepository)
                 .start(connectToLichessStep)
-                .next(playGameStep)
+                .next(openTangoStep)
+                .next(readGameEventsStep)
                 .build();
     }
 

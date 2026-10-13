@@ -1,7 +1,7 @@
 package net.chesstango.sosa.worker.steps;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.worker.lichess.LichessGameEventsReader;
+import net.chesstango.sosa.worker.TangoController;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.listener.StepExecutionListener;
@@ -17,17 +17,17 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
-public class PlayGame implements Tasklet, StepExecutionListener {
+public class OpenTango implements Tasklet, StepExecutionListener {
+    private final TangoController tangoController;
 
-    private final LichessGameEventsReader lichessGameEventsReader;
-
-    public PlayGame(LichessGameEventsReader lichessGameEventsReader) {
-        this.lichessGameEventsReader = lichessGameEventsReader;
+    public OpenTango(TangoController tangoController) {
+        this.tangoController = tangoController;
     }
+
 
     @Override
     public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        lichessGameEventsReader.run();
+        tangoController.open();
         return RepeatStatus.FINISHED;
     }
 

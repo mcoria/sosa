@@ -1,6 +1,5 @@
 package net.chesstango.sosa.worker;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.board.moves.Move;
 import net.chesstango.board.representations.move.SimpleMoveEncoder;
@@ -45,8 +44,7 @@ public class TangoController implements AutoCloseable, SearchListener {
         this.syzygy_path = syzygyDirectory;
     }
 
-    @PostConstruct
-    public void init() {
+    public void open() {
         log.info("Initializing Tango");
 
         Config config = Config.create()

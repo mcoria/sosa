@@ -34,6 +34,7 @@ public class LichessChallengerBot {
     private final List<Challenger> challengerTypes;
 
     private final AtomicBoolean sendRequestsAllowed;
+
     private final AtomicBoolean sendChallengesAllowed;
 
     public LichessChallengerBot(LichessClient client,
@@ -107,13 +108,13 @@ public class LichessChallengerBot {
         return Optional.empty();
     }
 
-    @org.springframework.context.event.EventListener(LichessTooManyRequestsSent.class)
+    @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessTooManyRequests() {
         log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
         sendRequestsAllowed.set(false);
     }
 
-    @org.springframework.context.event.EventListener(LichessTooManyGamesPlayed.class)
+    @EventListener(LichessTooManyGamesPlayed.class)
     public void onLichessTooManyGames() {
         log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
         sendChallengesAllowed.set(false);
