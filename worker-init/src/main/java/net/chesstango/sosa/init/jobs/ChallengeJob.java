@@ -1,7 +1,7 @@
 package net.chesstango.sosa.init.jobs;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.messages.master.SendChallenge;
+import net.chesstango.sosa.messages.master.WorkerReady;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -31,7 +31,7 @@ public class ChallengeJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) {
         log.info("[{}] Triggering challenge", workerId);
-        SendChallenge payload = new SendChallenge(workerId);
+        WorkerReady payload = new WorkerReady(workerId);
         rabbitTemplate.convertAndSend(
                 SOSA_EXCHANGE,
                 MASTER_ROUTING_KEY,

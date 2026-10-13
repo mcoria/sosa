@@ -8,6 +8,6 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
-public class SendChallenge {
+public class WorkerReady {
     private final String workerId;
 }

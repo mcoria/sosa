@@ -8,7 +8,7 @@ import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.messages.master.SendChallenge;
+import net.chesstango.sosa.messages.master.WorkerReady;
 import net.chesstango.sosa.messages.master.SendMove;
 import net.chesstango.sosa.messages.master.WorkerBusy;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -48,10 +48,10 @@ public class MasterConsumer {
 
 
     @RabbitHandler
-    public void handle(SendChallenge sendChallenge) {
-        log.info("Received: {}", sendChallenge);
+    public void handle(WorkerReady workerReady) {
+        log.info("Received: {}", workerReady);
 
-        sosaState.addAvailableWorker(sendChallenge.getWorkerId());
+        sosaState.addAvailableWorker(workerReady.getWorkerId());
 
         try {
             if (canSendRequests() && sendChallengesAllowed.get()) {
