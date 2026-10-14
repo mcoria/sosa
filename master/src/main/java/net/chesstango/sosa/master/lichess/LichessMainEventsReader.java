@@ -2,8 +2,6 @@ package net.chesstango.sosa.master.lichess;// Java
 
 import chariot.model.Event;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessMainLoopFinished;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Stream;
@@ -17,17 +15,14 @@ public class LichessMainEventsReader implements Runnable {
     private final LichessClient lichessClient;
     private final LichessChallengeHandler lichessChallengeHandler;
     private final LichessGameHandler lichessGameHandler;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     public LichessMainEventsReader(LichessClient lichessClient,
                                    LichessChallengeHandler lichessChallengeHandler,
-                                   LichessGameHandler lichessGameHandler,
-                                   ApplicationEventPublisher applicationEventPublisher) {
+                                   LichessGameHandler lichessGameHandler) {
         this.lichessClient = lichessClient;
         this.lichessChallengeHandler = lichessChallengeHandler;
         this.lichessGameHandler = lichessGameHandler;
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 
@@ -52,6 +47,5 @@ public class LichessMainEventsReader implements Runnable {
         } catch (RuntimeException e) {
             log.error("main event loop failed", e);
         }
-        applicationEventPublisher.publishEvent(new LichessMainLoopFinished(this));
     }
 }

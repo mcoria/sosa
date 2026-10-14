@@ -2,15 +2,14 @@ package net.chesstango.sosa.master.queues;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.LichessConnected;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.LichessChallenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.messages.master.WorkerReady;
 import net.chesstango.sosa.messages.master.SendMove;
 import net.chesstango.sosa.messages.master.WorkerBusy;
+import net.chesstango.sosa.messages.master.WorkerReady;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.context.event.EventListener;
@@ -31,7 +30,6 @@ public class MasterConsumer {
     private final LichessChallenger lichessChallenger;
     private final SosaState sosaState;
 
-    private final AtomicBoolean lichessConnected;
     private final AtomicBoolean sendRequestsAllowed;
     private final AtomicBoolean sendChallengesAllowed;
 
@@ -43,7 +41,6 @@ public class MasterConsumer {
         this.lichessChallenger = lichessChallenger;
         this.sendChallengesAllowed = new AtomicBoolean(true);
         this.sendRequestsAllowed = new AtomicBoolean(true);
-        this.lichessConnected = new AtomicBoolean(false);
     }
 
 
@@ -86,12 +83,6 @@ public class MasterConsumer {
         }
     }
 
-    @EventListener(LichessConnected.class)
-    public void onLichessConnected() {
-        log.info("Lichess API: connected.");
-        lichessConnected.set(true);
-    }
-
     @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessTooManyRequests() {
         log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
@@ -119,14 +110,10 @@ public class MasterConsumer {
     }
 
     boolean canSendRequests() {
-        if (!lichessConnected.get()) {
-            log.warn("Lichess API: not connected yes. Can't send requests.");
-        }
-
         if (!sendRequestsAllowed.get()) {
             log.warn("Lichess API: too many requests. Can't send requests.");
         }
 
-        return lichessConnected.get() && sendRequestsAllowed.get();
+        return sendRequestsAllowed.get();
     }
 }
