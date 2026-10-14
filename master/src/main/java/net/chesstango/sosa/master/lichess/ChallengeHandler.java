@@ -4,7 +4,6 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -136,9 +135,9 @@ public class ChallengeHandler {
             return false;
         }
 
-        int myRating = sosaState.getRating(statsPerfType);
+        int myRating = sosaState.getMyRating(statsPerfType);
 
-        return "BOT".equals(userTitle) && player.rating() <= myRating + LichessChallengerBot.RATING_THRESHOLD;
+        return "BOT".equals(userTitle) && player.rating() <= myRating + ChallengerBot.RATING_THRESHOLD;
     }
 
     private static boolean isVariantAcceptable(Variant variant) {

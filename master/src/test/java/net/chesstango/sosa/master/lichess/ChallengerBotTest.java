@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
  * @author Mauricio Coria
  */
 @ExtendWith(MockitoExtension.class)
-public class LichessChallengerBotTest {
+public class ChallengerBotTest {
     @Mock
     LichessClient client;
 
@@ -31,11 +31,11 @@ public class LichessChallengerBotTest {
     @Mock
     SosaState sosaState;
 
-    LichessChallengerBot lichessChallengerBot;
+    ChallengerBot challengerBot;
 
     @BeforeEach
     void before() {
-        lichessChallengerBot = new LichessChallengerBot(client, sosaState, botQueue, List.of("bullet"));
+        challengerBot = new ChallengerBot(client, sosaState, botQueue, List.of("bullet"));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class LichessChallengerBotTest {
         when(botQueue.pickBot()).thenReturn(user);
         when(user.id()).thenReturn("myId");
 
-        Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
+        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot();
 
         assertTrue(challengeOpt.isEmpty());
 

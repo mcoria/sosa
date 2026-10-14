@@ -2,7 +2,6 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Challenge;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,19 +11,19 @@ import java.util.Optional;
  */
 @Slf4j
 @Service
-public class LichessChallenger {
-    private final LichessChallengerBot lichessChallengerBot;
-    private final LichessChallengerUser lichessChallengerUser;
+public class Challenger {
+    private final ChallengerBot challengerBot;
+    private final ChallengerUser challengerUser;
 
 
-    public LichessChallenger(LichessChallengerBot lichessChallengerBot,
-                             LichessChallengerUser lichessChallengerUser) {
-        this.lichessChallengerBot = lichessChallengerBot;
-        this.lichessChallengerUser = lichessChallengerUser;
+    public Challenger(ChallengerBot challengerBot,
+                      ChallengerUser challengerUser) {
+        this.challengerBot = challengerBot;
+        this.challengerUser = challengerUser;
     }
 
     public synchronized void challengeRandomBot() {
-        Optional<Challenge> challengeOpt = lichessChallengerBot.challengeRandomBot();
+        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot();
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
             log.info("[{}] Challenge sent: {}", challenge.id(), challenge);
@@ -35,6 +34,6 @@ public class LichessChallenger {
 
 
     private synchronized Optional<Challenge> challengeUser(String username, ChallengeType challengeType) {
-        return lichessChallengerUser.challengeUser(username, challengeType);
+        return challengerUser.challengeUser(username, challengeType);
     }
 }

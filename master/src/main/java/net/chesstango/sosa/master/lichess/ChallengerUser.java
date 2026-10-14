@@ -15,10 +15,10 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Component
-public class LichessChallengerUser {
+public class ChallengerUser {
     private final LichessClient client;
 
-    public LichessChallengerUser(LichessClient client) {
+    public ChallengerUser(LichessClient client) {
         this.client = client;
     }
 
@@ -47,6 +47,7 @@ public class LichessChallengerUser {
         }
 
         log.info("User '{}' not found", username);
+
         return Optional.empty();
     }
 }

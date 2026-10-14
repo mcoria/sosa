@@ -20,8 +20,8 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @Component
-public class LichessChallengerBot {
-    public static final int RATING_THRESHOLD = 150;
+public class ChallengerBot {
+    public static final int RATING_THRESHOLD = 300;
 
     private static final Random rand = new Random();
 
@@ -37,10 +37,10 @@ public class LichessChallengerBot {
 
     private final AtomicBoolean sendChallengesAllowed;
 
-    public LichessChallengerBot(LichessClient client,
-                                SosaState sosaState,
-                                BotQueue botQueue,
-                                @Value("${app.challengeTypes}") List<String> challengeTypes) {
+    public ChallengerBot(LichessClient client,
+                         SosaState sosaState,
+                         BotQueue botQueue,
+                         @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
         this.sosaState = sosaState;
@@ -59,10 +59,8 @@ public class LichessChallengerBot {
     }
 
     public void updateRatings() {
-        Map<StatsPerfType, StatsPerf> myRatings = sosaState.getMyProfile().ratings();
-
         challengerTypes.forEach(challenger -> {
-            challenger.setMyRating(myRatings);
+            challenger.setMyRating(sosaState);
             log.info("Rating for {}: {}", challenger.statsPerfType, challenger.myRating);
         });
     }
@@ -145,8 +143,8 @@ public class LichessChallengerBot {
             this.statsPerfType = statsPerfType;
         }
 
-        void setMyRating(Map<StatsPerfType, StatsPerf> myRatings) {
-            myRating = getRating(myRatings);
+        void setMyRating(SosaState sosaState) {
+            myRating = sosaState.getMyRating(statsPerfType);
         }
 
         boolean filter(User bot) {

@@ -40,7 +40,7 @@ public class SosaState {
         return !availableWorkers.isEmpty();
     }
 
-    public synchronized int getRating(StatsPerfType type) {
+    public synchronized int getMyRating(StatsPerfType type) {
         Map<StatsPerfType, StatsPerf> rating = myProfile
                 .ratings();
         StatsPerf stats = rating.get(type);

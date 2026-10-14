@@ -5,7 +5,7 @@ import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
-import net.chesstango.sosa.master.lichess.LichessChallenger;
+import net.chesstango.sosa.master.lichess.Challenger;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import net.chesstango.sosa.messages.master.SendMove;
 import net.chesstango.sosa.messages.master.WorkerBusy;
@@ -27,18 +27,18 @@ import static net.chesstango.sosa.messages.Constants.MASTER_QUEUE;
 @RabbitListener(queues = MASTER_QUEUE)
 public class MasterConsumer {
     private final LichessClient client;
-    private final LichessChallenger lichessChallenger;
+    private final Challenger challenger;
     private final SosaState sosaState;
 
     private final AtomicBoolean sendRequestsAllowed;
     private final AtomicBoolean sendChallengesAllowed;
 
     public MasterConsumer(LichessClient client,
-                          LichessChallenger lichessChallenger,
+                          Challenger challenger,
                           SosaState sosaState) {
         this.client = client;
         this.sosaState = sosaState;
-        this.lichessChallenger = lichessChallenger;
+        this.challenger = challenger;
         this.sendChallengesAllowed = new AtomicBoolean(true);
         this.sendRequestsAllowed = new AtomicBoolean(true);
     }
@@ -52,7 +52,7 @@ public class MasterConsumer {
 
         try {
             if (canSendRequests() && sendChallengesAllowed.get()) {
-                lichessChallenger.challengeRandomBot();
+                challenger.challengeRandomBot();
             } else {
                 log.warn("Can not challenge at this time. Ignoring SendChallenge command.");
             }
