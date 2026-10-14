@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,4 +64,17 @@ public class SosaState {
         throw new RuntimeException("Rating not found");
     }
 
+    public synchronized void expireWorker() {
+        log.info("Expiring workers");
+
+        Instant now = Instant.now();
+        availableWorkers.removeIf(worker -> {
+            Duration duration = Duration.between(worker.getLastAvailable(), now);
+            boolean remove = duration.toMinutes() > 5;
+            if (remove) {
+                log.info("Worker expired: {}", worker.getWorkerId());
+            }
+            return remove;
+        });
+    }
 }

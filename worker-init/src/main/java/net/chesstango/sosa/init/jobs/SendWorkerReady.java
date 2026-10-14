@@ -18,11 +18,11 @@ import static net.chesstango.sosa.messages.Constants.SOSA_EXCHANGE;
 @PersistJobDataAfterExecution
 @Component
 @Slf4j
-public class ChallengeJob extends QuartzJobBean {
+public class SendWorkerReady extends QuartzJobBean {
     private final RabbitTemplate rabbitTemplate;
     private final String workerId;
 
-    public ChallengeJob(RabbitTemplate rabbitTemplate, @Value("${app.workerId}") String workerId) {
+    public SendWorkerReady(RabbitTemplate rabbitTemplate, @Value("${app.workerId}") String workerId) {
         this.rabbitTemplate = rabbitTemplate;
         this.workerId = workerId;
     }

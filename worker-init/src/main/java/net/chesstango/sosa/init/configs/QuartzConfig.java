@@ -1,7 +1,7 @@
 package net.chesstango.sosa.init.configs;
 
 
-import net.chesstango.sosa.init.jobs.ChallengeJob;
+import net.chesstango.sosa.init.jobs.SendWorkerReady;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,23 +15,23 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 public class QuartzConfig {
 
     @Bean
-    public JobDetail challengeJobDetails() {
-        return JobBuilder.newJob(ChallengeJob.class)
-                .withIdentity("challengeJob")
-                .withDescription("Challenge Job")
+    public JobDetail sendWorkerReadyJobDetails() {
+        return JobBuilder.newJob(SendWorkerReady.class)
+                .withIdentity("SendWorkerReadyJob")
+                .withDescription("Send Worker Ready Job")
                 .storeDurably()
                 .build();
     }
 
 
     @Bean
-    public Trigger challengeJobTrigger(JobDetail challengeJobDetails) {
+    public Trigger sendWorkerReadyJobTrigger(JobDetail sendWorkerReadyJobDetails) {
         return TriggerBuilder.newTrigger()
-                .forJob(challengeJobDetails)
-                .withIdentity("challengeJobTrigger")
+                .forJob(sendWorkerReadyJobDetails)
+                .withIdentity("SendWorkerReadyJobTrigger")
                 .startAt(DateBuilder.futureDate(10, DateBuilder.IntervalUnit.SECOND))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(45) // Repeat every second
+                        .withIntervalInSeconds(60) // Repeat every second
                         .repeatForever())          // Repeat indefinitely
                 .build();
     }
