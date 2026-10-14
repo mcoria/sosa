@@ -8,8 +8,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,22 +20,33 @@ import java.util.Set;
 @Slf4j
 @Component
 public class SosaState {
-    private final Set<String> availableWorkers = new HashSet<>();
+    private final Set<Worker> availableWorkers = new HashSet<>();
 
     @Setter
     @Getter
     private UserAuth myProfile;
 
     public synchronized void addAvailableWorker(String workerId) {
-        if (availableWorkers.add(workerId)) {
+        Optional<Worker> workerOpt = availableWorkers.stream()
+                .filter(worker -> worker.getWorkerId().equals(workerId))
+                .findFirst();
+
+        Worker worker = workerOpt.orElse(null);
+
+        if (worker == null) {
             log.info("New worker available: {}. Total workers: {} ", workerId, availableWorkers.size());
+
+            worker = new Worker(workerId);
+
+            availableWorkers.add(worker);
         }
+
+        worker.setLastAvailable(Instant.now());
     }
 
     public synchronized void removeAvailableWorker(String workerId) {
-        if (availableWorkers.remove(workerId)) {
-            log.info("Removing worker: {}. Total worker available: {}",workerId,  availableWorkers.size());
-        }
+        availableWorkers.removeIf(worker -> worker.getWorkerId().equals(workerId));
+        log.info("Removed worker: {}. Total worker available: {}", workerId, availableWorkers.size());
     }
 
     public synchronized boolean thereIsAvailableWorker() {
