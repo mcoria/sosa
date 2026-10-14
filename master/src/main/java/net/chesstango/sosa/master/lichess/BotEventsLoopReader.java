@@ -11,18 +11,18 @@ import java.util.stream.Stream;
  */
 @Service
 @Slf4j
-public class LichessMainEventsReader implements Runnable {
+public class BotEventsLoopReader implements Runnable {
     private final LichessClient lichessClient;
-    private final LichessChallengeHandler lichessChallengeHandler;
-    private final LichessGameHandler lichessGameHandler;
+    private final ChallengeHandler challengeHandler;
+    private final GameHandler gameHandler;
 
 
-    public LichessMainEventsReader(LichessClient lichessClient,
-                                   LichessChallengeHandler lichessChallengeHandler,
-                                   LichessGameHandler lichessGameHandler) {
+    public BotEventsLoopReader(LichessClient lichessClient,
+                               ChallengeHandler challengeHandler,
+                               GameHandler gameHandler) {
         this.lichessClient = lichessClient;
-        this.lichessChallengeHandler = lichessChallengeHandler;
-        this.lichessGameHandler = lichessGameHandler;
+        this.challengeHandler = challengeHandler;
+        this.gameHandler = gameHandler;
     }
 
 
@@ -35,9 +35,9 @@ public class LichessMainEventsReader implements Runnable {
                 try {
                     switch (event.type()) {
                         case challenge, challengeCanceled, challengeDeclined ->
-                                lichessChallengeHandler.handleChallengeEvent(event);
-                        case gameStart -> lichessGameHandler.handleGameStart((Event.GameStartEvent) event);
-                        case gameFinish -> lichessGameHandler.handleGameFinish((Event.GameStopEvent) event);
+                                challengeHandler.handleChallengeEvent(event);
+                        case gameStart -> gameHandler.handleGameStart((Event.GameStartEvent) event);
+                        case gameFinish -> gameHandler.handleGameFinish((Event.GameStopEvent) event);
                     }
                 } catch (RuntimeException e) {
                     log.warn("Event processing failed", e);

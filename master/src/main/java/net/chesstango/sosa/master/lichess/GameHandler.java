@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class LichessGameHandler {
+public class GameHandler {
 
     private final LichessClient lichessClient;
 
@@ -20,9 +20,9 @@ public class LichessGameHandler {
 
     private final MasterProducer masterProducer;
 
-    public LichessGameHandler(LichessClient lichessClient,
-                              SosaState sosaState,
-                              MasterProducer masterProducer) {
+    public GameHandler(LichessClient lichessClient,
+                       SosaState sosaState,
+                       MasterProducer masterProducer) {
         this.lichessClient = lichessClient;
         this.sosaState = sosaState;
         this.masterProducer = masterProducer;

@@ -14,9 +14,9 @@ import static org.mockito.Mockito.*;
  * @author Mauricio Coria
  */
 @ExtendWith(MockitoExtension.class)
-public class LichessChallengeHandlerTest {
+public class ChallengeHandlerTest {
 
-    LichessChallengeHandler lichessChallengeHandler;
+    ChallengeHandler challengeHandler;
 
     @Mock
     LichessClient client;
@@ -26,7 +26,7 @@ public class LichessChallengeHandlerTest {
 
     @BeforeEach
     void before() {
-        lichessChallengeHandler = new LichessChallengeHandler(client, sosaState);
+        challengeHandler = new ChallengeHandler(client, sosaState);
     }
 
     /**
@@ -61,7 +61,7 @@ public class LichessChallengeHandlerTest {
         when(userAuth.id()).thenReturn("myId");
 
 
-        lichessChallengeHandler.challengeCreated(challengeCreatedEvent);
+        challengeHandler.challengeCreated(challengeCreatedEvent);
 
         /**
          * No respondemos nada

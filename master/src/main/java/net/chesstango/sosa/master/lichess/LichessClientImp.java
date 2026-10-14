@@ -6,7 +6,6 @@ import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
-import net.chesstango.sosa.master.lichess.errors.RetryIn;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 

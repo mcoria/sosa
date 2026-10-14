@@ -1,6 +1,5 @@
 package net.chesstango.sosa.master.lichess;
 
-import net.chesstango.sosa.master.lichess.errors.RetryIn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

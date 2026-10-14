@@ -1,7 +1,7 @@
 package net.chesstango.sosa.master.events;
 
 import lombok.Getter;
-import net.chesstango.sosa.master.lichess.errors.RetryIn;
+import net.chesstango.sosa.master.lichess.RetryIn;
 import org.springframework.context.ApplicationEvent;
 
 /**

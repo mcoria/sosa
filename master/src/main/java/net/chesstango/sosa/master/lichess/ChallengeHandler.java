@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.lichess;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -12,16 +13,16 @@ import java.util.function.Predicate;
  * @author Mauricio Coria
  */
 @Slf4j
-@Service
-public class LichessChallengeHandler {
+@Component
+public class ChallengeHandler {
     private final LichessClient client;
 
     private final SosaState sosaState;
 
     private boolean acceptChallenges;
 
-    public LichessChallengeHandler(LichessClient client,
-                                   SosaState sosaState) {
+    public ChallengeHandler(LichessClient client,
+                            SosaState sosaState) {
         this.client = client;
         this.sosaState = sosaState;
         this.acceptChallenges = true;

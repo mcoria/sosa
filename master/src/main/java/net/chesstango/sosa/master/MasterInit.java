@@ -4,7 +4,7 @@ import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.lichess.LichessChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.master.lichess.LichessMainEventsReader;
+import net.chesstango.sosa.master.lichess.BotEventsLoopReader;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -19,18 +19,18 @@ public class MasterInit {
     private final SosaState sosaState;
     private final LichessClient lichessClient;
     private final LichessChallengerBot lichessChallengerBot;
-    private final LichessMainEventsReader lichessMainEventsReader;
+    private final BotEventsLoopReader botEventsLoopReader;
     private final ThreadPoolTaskExecutor taskExecutor;
 
     public MasterInit(SosaState sosaState,
                       LichessClient lichessClient,
                       LichessChallengerBot lichessChallengerBot,
-                      LichessMainEventsReader lichessMainEventsReader,
+                      BotEventsLoopReader botEventsLoopReader,
                       ThreadPoolTaskExecutor taskExecutor) {
         this.sosaState = sosaState;
         this.lichessClient = lichessClient;
         this.lichessChallengerBot = lichessChallengerBot;
-        this.lichessMainEventsReader = lichessMainEventsReader;
+        this.botEventsLoopReader = botEventsLoopReader;
         this.taskExecutor = taskExecutor;
     }
 
@@ -44,6 +44,6 @@ public class MasterInit {
 
         lichessChallengerBot.updateRatings();
 
-        taskExecutor.submit(lichessMainEventsReader);
+        taskExecutor.submit(botEventsLoopReader);
     }
 }

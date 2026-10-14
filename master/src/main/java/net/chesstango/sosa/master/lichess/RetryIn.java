@@ -1,4 +1,4 @@
-package net.chesstango.sosa.master.lichess.errors;
+package net.chesstango.sosa.master.lichess;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

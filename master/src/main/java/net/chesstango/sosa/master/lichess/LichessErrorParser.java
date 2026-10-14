@@ -1,7 +1,6 @@
 package net.chesstango.sosa.master.lichess;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.errors.RetryIn;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
