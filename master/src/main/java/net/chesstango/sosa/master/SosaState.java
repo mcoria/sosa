@@ -35,11 +35,12 @@ public class SosaState {
         Worker worker = workerOpt.orElse(null);
 
         if (worker == null) {
-            log.info("New worker available: {}. Total workers: {} ", workerId, availableWorkers.size());
 
             worker = new Worker(workerId);
 
             availableWorkers.add(worker);
+
+            log.info("New worker available: {}. Total workers: {} ", workerId, availableWorkers.size());
         }
 
         worker.setLastAvailable(Instant.now());
