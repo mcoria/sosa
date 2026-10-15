@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master.configs;
 
 import net.chesstango.sosa.master.jobs.ChallengeBotJob;
+import net.chesstango.sosa.master.jobs.ExpireChallengesJob;
 import net.chesstango.sosa.master.jobs.ExpireWorkersJob;
 import net.chesstango.sosa.master.jobs.PublishExpiredTimerEvent;
 import org.quartz.*;
@@ -35,6 +36,29 @@ public class QuartzConfig {
                         .repeatForever())           // Repeat indefinitely
                 .build();
     }
+
+    @Bean
+    public JobDetail expireChallengesJobDetails() {
+        return JobBuilder.newJob(ExpireChallengesJob.class)
+                .withIdentity("ExpireChallengesJob")
+                .withDescription("Send Worker Ready Job")
+                .storeDurably()
+                .build();
+    }
+
+
+    @Bean
+    public Trigger expireChallengesJobTrigger(JobDetail expireChallengesJobDetails) {
+        return TriggerBuilder.newTrigger()
+                .forJob(expireChallengesJobDetails)
+                .withIdentity("ExpireChallengesJobTrigger")
+                .startAt(DateBuilder.futureDate(300, DateBuilder.IntervalUnit.SECOND))
+                .withSchedule(simpleSchedule()
+                        .withIntervalInSeconds(300) // Repeat every 5 minutes
+                        .repeatForever())           // Repeat indefinitely
+                .build();
+    }
+
 
     @Bean
     public JobDetail expireWorkersJobDetails() {

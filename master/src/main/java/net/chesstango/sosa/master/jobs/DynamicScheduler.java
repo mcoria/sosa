@@ -53,7 +53,7 @@ public class DynamicScheduler {
             Trigger trigger = TriggerBuilder.newTrigger()
                     .forJob(publishExpiredTimerEventRequestsJob)
                     .withIdentity("PublishTooManyExpiredTimerEventTrigger_Requests-" + UUID.randomUUID())
-                    .startAt(DateBuilder.futureDate(90, DateBuilder.IntervalUnit.SECOND))
+                    .startAt(DateBuilder.futureDate(5, DateBuilder.IntervalUnit.MINUTE))
                     .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                             .withRepeatCount(0) // Explicitly set repeat count to 0 (runs once)
                             .withIntervalInSeconds(0))

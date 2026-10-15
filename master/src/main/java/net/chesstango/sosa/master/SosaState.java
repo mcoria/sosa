@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -28,6 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Component
 public class SosaState {
     private final Challenger challenger;
+
+    private final ChallengeExpire challengeExpire;
 
     private final Set<Worker> availableWorkers;
 
@@ -41,8 +40,10 @@ public class SosaState {
     @Getter
     private UserAuth myProfile;
 
-    public SosaState(Challenger challenger) {
+    public SosaState(Challenger challenger,
+                     ChallengeExpire challengeExpire) {
         this.challenger = challenger;
+        this.challengeExpire = challengeExpire;
         this.availableWorkers = new HashSet<>();
         this.inProgressChallenges = new HashSet<>();
         this.sendChallengesAllowed = new AtomicBoolean(true);
@@ -113,11 +114,33 @@ public class SosaState {
         });
     }
 
+    public synchronized void expireChallenges() {
+        log.info("Expiring challenges");
+
+        Instant now = Instant.now();
+
+        Iterator<Challenge> iterator = inProgressChallenges.iterator();
+        while (iterator.hasNext()) {
+            Challenge challenge = iterator.next();
+            Duration duration = Duration.between(challenge.getCreated(), now);
+            if (duration.toMinutes() > 3) {
+                log.info("Challenge expired: {}", challenge.getChallengeId());
+                if (challengeExpire.expire(challenge.getChallengeId())) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
     public synchronized void challengeBot() {
         try {
-            if (canSendRequests() && availableWorkers.size() > inProgressChallenges.size()) {
-                Optional<chariot.model.Challenge> liChessChallengeOpt = challenger.challengeRandomBot(myProfile);
-                liChessChallengeOpt.ifPresent(challenge -> addChallenge(challenge.id()));
+            if (canSendRequests()) {
+                if (availableWorkers.size() > inProgressChallenges.size()) {
+                    Optional<chariot.model.Challenge> liChessChallengeOpt = challenger.challengeRandomBot(myProfile);
+                    liChessChallengeOpt.ifPresent(challenge -> addChallenge(challenge.id()));
+                } else {
+                    log.info("No available workers to challenge or too many challenges in progress.");
+                }
             } else {
                 log.warn("Can not challenge at this time.");
             }
@@ -155,5 +178,4 @@ public class SosaState {
     boolean canSendRequests() {
         return sendRequestsAllowed.get() && sendChallengesAllowed.get();
     }
-
 }

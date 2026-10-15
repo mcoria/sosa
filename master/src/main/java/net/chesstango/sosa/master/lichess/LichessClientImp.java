@@ -183,6 +183,21 @@ public class LichessClientImp implements LichessClient {
         return userAuthMany.stream().findFirst();
     }
 
+    @Override
+    public Optional<ChallengeInfo> getChallenge(String challengeId) {
+        One<ChallengeInfo> challengeInfo = client.challenges().show(challengeId);
+
+        if (challengeInfo instanceof Fail<?>(int status, String message)) {
+            if (status == TOO_MANY_REQUESTS) {
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
+            }
+            throw new RuntimeException(String.format("Finding challenge %s failed: %s", challengeId, message));
+        }
+
+
+        return challengeInfo.maybe();
+    }
+
 
     @Override
     public synchronized Stream<GameInfo> meOngoingGames() {
