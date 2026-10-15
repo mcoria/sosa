@@ -3,15 +3,10 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.events.LichessTooManyExpired;
-import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
-import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -30,10 +25,6 @@ public class ChallengerBot {
 
     private final List<Challenger> challengerTypes;
 
-    private final AtomicBoolean sendRequestsAllowed;
-
-    private final AtomicBoolean sendChallengesAllowed;
-
     private UserAuth myProfile;
 
     public ChallengerBot(LichessClient client,
@@ -41,8 +32,6 @@ public class ChallengerBot {
                          @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
-        this.sendChallengesAllowed = new AtomicBoolean(true);
-        this.sendRequestsAllowed = new AtomicBoolean(true);
         this.challengerTypes = new ArrayList<>();
 
         challengeTypes.forEach(challengeType -> {
@@ -66,68 +55,36 @@ public class ChallengerBot {
     public Optional<Challenge> challengeRandomBot() {
         log.info("Challenging random bot");
 
-        if (sendRequestsAllowed.get() && sendChallengesAllowed.get()) {
+        List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
 
-            List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
+        Collections.shuffle(challengerTypesRandom, rand);
 
-            Collections.shuffle(challengerTypesRandom, rand);
+        int counter = 0;
+        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
+            final User theBot = bot;
+            // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+            if (!Objects.equals(theBot.id(), myProfile.id())) {
+                log.info("Challenging bot {}", theBot.id());
+                Optional<Challenge> challengeOpt = challengerTypesRandom
+                        .stream()
+                        .filter(aChallenger -> aChallenger.filter(theBot))
+                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .findFirst();
 
-            int counter = 0;
-            for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
-                final User theBot = bot;
-                // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
-                if (!Objects.equals(theBot.id(), myProfile.id())) {
-                    log.info("Challenging bot {}", theBot.id());
-                    Optional<Challenge> challengeOpt = challengerTypesRandom
-                            .stream()
-                            .filter(aChallenger -> aChallenger.filter(theBot))
-                            .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .findFirst();
-
-                    if (challengeOpt.isPresent()) {
-                        return challengeOpt;
-                    }
-                }
-
-                if (counter++ > 10) {
-                    log.debug("Braking loop after 10 attempts");
-                    break;
+                if (challengeOpt.isPresent()) {
+                    return challengeOpt;
                 }
             }
-        } else {
-            log.info("Skipping challenge - requests allowed: {}, challenges allowed: {}",
-                    sendRequestsAllowed.get(), sendChallengesAllowed.get());
+
+            if (counter++ > 10) {
+                log.debug("Braking loop after 10 attempts");
+                break;
+            }
         }
 
         return Optional.empty();
-    }
-
-    @EventListener(LichessTooManyRequestsSent.class)
-    public void onLichessTooManyRequests() {
-        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
-        sendRequestsAllowed.set(false);
-    }
-
-    @EventListener(LichessTooManyGamesPlayed.class)
-    public void onLichessTooManyGames() {
-        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
-        sendChallengesAllowed.set(false);
-    }
-
-    @EventListener
-    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
-        switch (lichessTooManyExpired.getExpirationType()) {
-            case GAMES:
-                log.info("Sending challenges again.");
-                sendChallengesAllowed.set(true);
-                break;
-            case REQUESTS:
-                log.warn("Sending requests again.");
-                sendRequestsAllowed.set(true);
-                break;
-        }
     }
 
     abstract class Challenger {
