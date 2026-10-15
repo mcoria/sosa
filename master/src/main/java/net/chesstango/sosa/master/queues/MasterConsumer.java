@@ -52,6 +52,7 @@ public class MasterConsumer {
 
         try {
             if (canSendRequests() && sendChallengesAllowed.get()) {
+
                 challenger.challengeRandomBot();
             } else {
                 log.warn("Can not challenge at this time. Ignoring SendChallenge command.");

@@ -24,7 +24,7 @@ public class BotQueue {
 
     private final Map<String, User> onlineBots = new HashMap<>();
 
-    public BotQueue(LichessClient client, SosaState sosaState, RabbitTemplate rabbitTemplate) {
+    public BotQueue(LichessClient client, RabbitTemplate rabbitTemplate) {
         this.client = client;
         this.rabbitTemplate = rabbitTemplate;
     }

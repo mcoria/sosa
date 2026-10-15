@@ -70,9 +70,9 @@ public class ChallengerBot {
 
         if (sendRequestsAllowed.get() && sendChallengesAllowed.get()) {
 
-            List<Challenger> challengerTypesNow = new ArrayList<>(this.challengerTypes);
+            List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
 
-            Collections.shuffle(challengerTypesNow, rand);
+            Collections.shuffle(challengerTypesRandom, rand);
 
             int counter = 0;
             for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
@@ -80,7 +80,7 @@ public class ChallengerBot {
                 // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
                 if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
                     log.info("Challenging bot {}", theBot.id());
-                    Optional<Challenge> challengeOpt = challengerTypesNow
+                    Optional<Challenge> challengeOpt = challengerTypesRandom
                             .stream()
                             .filter(aChallenger -> aChallenger.filter(theBot))
                             .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
