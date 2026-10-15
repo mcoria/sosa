@@ -9,8 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @Slf4j
-public class MasterApplication {
+public class MasterMain {
     public static void main(String[] args) {
-        SpringApplication.run(MasterApplication.class, args);
+        SpringApplication.run(MasterMain.class, args);
     }
 }

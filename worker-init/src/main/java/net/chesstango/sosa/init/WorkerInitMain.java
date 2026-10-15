@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 @Slf4j
-public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerator {
+public class WorkerInitMain implements CommandLineRunner, ExitCodeGenerator {
 
     private final JobOperator jobOperator;
 
@@ -35,7 +35,7 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
 
     private int exitCode = 0;
 
-    public WorkerInitApplication(JobOperator jobOperator, Job workerInitJob) {
+    public WorkerInitMain(JobOperator jobOperator, Job workerInitJob) {
         this.jobOperator = jobOperator;
         this.workerInitJob = workerInitJob;
     }
@@ -66,6 +66,6 @@ public class WorkerInitApplication implements CommandLineRunner, ExitCodeGenerat
     }
 
     public static void main(String[] args) {
-        System.exit(SpringApplication.exit(SpringApplication.run(WorkerInitApplication.class, args)));
+        System.exit(SpringApplication.exit(SpringApplication.run(WorkerInitMain.class, args)));
     }
 }

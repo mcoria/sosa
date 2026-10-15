@@ -8,7 +8,6 @@ import net.chesstango.board.Game;
 import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.sosa.worker.TangoController;
-import net.chesstango.sosa.worker.WorkerApplication;
 import net.chesstango.sosa.worker.WorkerProducer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
