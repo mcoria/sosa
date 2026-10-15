@@ -70,7 +70,7 @@ public class ChallengerBot {
             }
 
             if (counter++ > 10) {
-                log.debug("Braking loop after 10 attempts");
+                log.info("Braking loop after 10 attempts");
                 break;
             }
         }

@@ -30,6 +30,7 @@ public class SosaState {
     private final Challenger challenger;
 
     private final Set<Worker> availableWorkers;
+    private final Set<Challenge> inProgressChallenges;
 
     private final AtomicBoolean sendRequestsAllowed;
 
@@ -42,6 +43,7 @@ public class SosaState {
     public SosaState(Challenger challenger) {
         this.challenger = challenger;
         this.availableWorkers = new HashSet<>();
+        this.inProgressChallenges = new HashSet<>();
         this.sendChallengesAllowed = new AtomicBoolean(true);
         this.sendRequestsAllowed = new AtomicBoolean(true);
     }
@@ -72,6 +74,18 @@ public class SosaState {
 
     public synchronized boolean thereIsAvailableWorker() {
         return !availableWorkers.isEmpty();
+    }
+
+    public synchronized void addChallenge(String challengeId) {
+        inProgressChallenges.add(new Challenge(challengeId));
+    }
+
+    public synchronized void removeChallenge(String challengeId) {
+        inProgressChallenges.removeIf(challenge -> challenge.getChallengeId().equals(challengeId));
+    }
+
+    public synchronized boolean isChallengeAcceptable() {
+        return availableWorkers.size() >= inProgressChallenges.size();
     }
 
     public synchronized int getMyRating(StatsPerfType type) {
@@ -141,4 +155,5 @@ public class SosaState {
     boolean canSendRequests() {
         return sendRequestsAllowed.get() && sendChallengesAllowed.get();
     }
+
 }

@@ -33,6 +33,8 @@ public class GameHandler {
 
         if (sosaState.thereIsAvailableWorker()) {
 
+            sosaState.removeChallenge(gameStartEvent.id());
+
             String color = Enums.Color.white == gameStartEvent.game().color() ? "white" : "black";
 
             log.info("[{}] Playing game as {}", gameStartEvent.id(), color);
