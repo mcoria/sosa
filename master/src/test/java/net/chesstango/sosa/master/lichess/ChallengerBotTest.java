@@ -28,9 +28,6 @@ public class ChallengerBotTest {
     @Mock
     BotQueue botQueue;
 
-    @Mock
-    SosaState sosaState;
-
     ChallengerBot challengerBot;
 
     @BeforeEach
@@ -41,14 +38,13 @@ public class ChallengerBotTest {
     @Test
     void youCannotChallengeYourselfTest() {
         UserAuth userAuth = mock(UserProfileData.class);
-        when(sosaState.getMyProfile()).thenReturn(userAuth);
         when(userAuth.id()).thenReturn("myId");
 
         User user = mock(UserProfileData.class);
         when(botQueue.pickBot()).thenReturn(user);
         when(user.id()).thenReturn("myId");
 
-        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot();
+        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot(userAuth);
 
         assertTrue(challengeOpt.isEmpty());
 
