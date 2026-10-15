@@ -30,6 +30,7 @@ public class SosaState {
     private final Challenger challenger;
 
     private final Set<Worker> availableWorkers;
+
     private final Set<Challenge> inProgressChallenges;
 
     private final AtomicBoolean sendRequestsAllowed;
@@ -115,7 +116,8 @@ public class SosaState {
     public synchronized void challengeBot() {
         try {
             if (canSendRequests() && availableWorkers.size() > inProgressChallenges.size()) {
-                challenger.challengeRandomBot(myProfile);
+                Optional<chariot.model.Challenge> liChessChallengeOpt = challenger.challengeRandomBot(myProfile);
+                liChessChallengeOpt.ifPresent(challenge -> addChallenge(challenge.id()));
             } else {
                 log.warn("Can not challenge at this time.");
             }

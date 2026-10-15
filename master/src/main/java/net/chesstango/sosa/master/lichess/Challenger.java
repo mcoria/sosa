@@ -23,7 +23,7 @@ public class Challenger {
         this.challengerUser = challengerUser;
     }
 
-    public synchronized void challengeRandomBot(UserAuth myProfile) {
+    public synchronized Optional<Challenge> challengeRandomBot(UserAuth myProfile) {
         Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot(myProfile);
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
@@ -31,6 +31,7 @@ public class Challenger {
         } else {
             log.warn("No challenge sent to any bot");
         }
+        return challengeOpt;
     }
 
 
