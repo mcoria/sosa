@@ -35,7 +35,7 @@ public class ChallengerBotTest {
 
     @BeforeEach
     void before() {
-        challengerBot = new ChallengerBot(client, sosaState, botQueue, List.of("bullet"));
+        challengerBot = new ChallengerBot(client, botQueue, List.of("bullet"));
     }
 
     @Test
