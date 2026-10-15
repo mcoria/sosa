@@ -1,6 +1,7 @@
 package net.chesstango.sosa.master.lichess;
 
 import chariot.model.Challenge;
+import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +23,15 @@ public class Challenger {
         this.challengerUser = challengerUser;
     }
 
-    public synchronized void challengeRandomBot() {
-        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot();
+    public synchronized Optional<Challenge> challengeRandomBot(UserAuth myProfile) {
+        Optional<Challenge> challengeOpt = challengerBot.challengeRandomBot(myProfile);
         if (challengeOpt.isPresent()) {
             Challenge challenge = challengeOpt.get();
             log.info("[{}] Challenge sent: {}", challenge.id(), challenge);
         } else {
             log.warn("No challenge sent to any bot");
         }
+        return challengeOpt;
     }
 
 

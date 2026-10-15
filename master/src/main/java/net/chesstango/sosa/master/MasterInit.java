@@ -2,9 +2,9 @@ package net.chesstango.sosa.master;
 
 import chariot.model.UserAuth;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.lichess.BotEventsLoopReader;
 import net.chesstango.sosa.master.lichess.ChallengerBot;
 import net.chesstango.sosa.master.lichess.LichessClient;
-import net.chesstango.sosa.master.lichess.BotEventsLoopReader;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -41,8 +41,6 @@ public class MasterInit {
         UserAuth myProfile = lichessClient.getProfile();
 
         sosaState.setMyProfile(myProfile);
-
-        challengerBot.updateRatings();
 
         taskExecutor.submit(botEventsLoopReader);
     }

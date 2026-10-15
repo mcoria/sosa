@@ -3,16 +3,10 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.events.LichessTooManyExpired;
-import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
-import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -27,25 +21,16 @@ public class ChallengerBot {
 
     private final LichessClient client;
 
-    private final SosaState sosaState;
-
     private final BotQueue botQueue;
 
     private final List<Challenger> challengerTypes;
 
-    private final AtomicBoolean sendRequestsAllowed;
-
-    private final AtomicBoolean sendChallengesAllowed;
 
     public ChallengerBot(LichessClient client,
-                         SosaState sosaState,
                          BotQueue botQueue,
                          @Value("${app.challengeTypes}") List<String> challengeTypes) {
         this.client = client;
         this.botQueue = botQueue;
-        this.sosaState = sosaState;
-        this.sendChallengesAllowed = new AtomicBoolean(true);
-        this.sendRequestsAllowed = new AtomicBoolean(true);
         this.challengerTypes = new ArrayList<>();
 
         challengeTypes.forEach(challengeType -> {
@@ -58,81 +43,42 @@ public class ChallengerBot {
         });
     }
 
-    public void updateRatings() {
-        challengerTypes.forEach(challenger -> {
-            challenger.setMyRating(sosaState);
-            log.info("Rating for {}: {}", challenger.statsPerfType, challenger.myRating);
-        });
-    }
-
-    public Optional<Challenge> challengeRandomBot() {
+    public Optional<Challenge> challengeRandomBot(UserAuth myProfile) {
         log.info("Challenging random bot");
 
-        if (sendRequestsAllowed.get() && sendChallengesAllowed.get()) {
+        List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
 
-            List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
+        Collections.shuffle(challengerTypesRandom, rand);
 
-            Collections.shuffle(challengerTypesRandom, rand);
+        int counter = 0;
+        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
+            final User theBot = bot;
+            // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
+            if (!Objects.equals(bot.id(), myProfile.id())) {
+                log.info("Challenging bot {}", theBot.id());
+                Optional<Challenge> challengeOpt = challengerTypesRandom
+                        .stream()
+                        .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
+                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .findFirst();
 
-            int counter = 0;
-            for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
-                final User theBot = bot;
-                // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
-                if (!Objects.equals(theBot.id(), sosaState.getMyProfile().id())) {
-                    log.info("Challenging bot {}", theBot.id());
-                    Optional<Challenge> challengeOpt = challengerTypesRandom
-                            .stream()
-                            .filter(aChallenger -> aChallenger.filter(theBot))
-                            .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .findFirst();
-
-                    if (challengeOpt.isPresent()) {
-                        return challengeOpt;
-                    }
-                }
-
-                if (counter++ > 10) {
-                    log.debug("Braking loop after 10 attempts");
-                    break;
+                if (challengeOpt.isPresent()) {
+                    return challengeOpt;
                 }
             }
-        } else {
-            log.info("Skipping challenge - requests allowed: {}, challenges allowed: {}",
-                    sendRequestsAllowed.get(), sendChallengesAllowed.get());
+
+            if (counter++ > 10) {
+                log.info("Braking loop after 10 attempts");
+                break;
+            }
         }
 
         return Optional.empty();
     }
 
-    @EventListener(LichessTooManyRequestsSent.class)
-    public void onLichessTooManyRequests() {
-        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
-        sendRequestsAllowed.set(false);
-    }
-
-    @EventListener(LichessTooManyGamesPlayed.class)
-    public void onLichessTooManyGames() {
-        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
-        sendChallengesAllowed.set(false);
-    }
-
-    @EventListener
-    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
-        switch (lichessTooManyExpired.getExpirationType()) {
-            case GAMES:
-                log.info("Sending challenges again.");
-                sendChallengesAllowed.set(true);
-                break;
-            case REQUESTS:
-                log.warn("Sending requests again.");
-                sendRequestsAllowed.set(true);
-                break;
-        }
-    }
-
-    private abstract static class Challenger {
+    abstract static class Challenger {
         final StatsPerfType statsPerfType;
 
         final List<Consumer<ChallengesApiAuthCommon.ChallengeBuilder>> builders = new ArrayList<>();
@@ -143,11 +89,9 @@ public class ChallengerBot {
             this.statsPerfType = statsPerfType;
         }
 
-        void setMyRating(SosaState sosaState) {
-            myRating = sosaState.getMyRating(statsPerfType);
-        }
 
-        boolean filter(User bot) {
+        boolean filter(UserAuth myProfile, User bot) {
+            int myRating = getRating(myProfile.ratings());
             int botRating = getRating(bot.ratings());
             return botRating >= myRating - RATING_THRESHOLD && botRating <= myRating + RATING_THRESHOLD;
         }
@@ -167,7 +111,7 @@ public class ChallengerBot {
     }
 
 
-    private static class BulletChallengerBot extends Challenger {
+    class BulletChallengerBot extends Challenger {
         public BulletChallengerBot() {
             super(StatsPerfType.bullet);
 
@@ -186,7 +130,7 @@ public class ChallengerBot {
         }
     }
 
-    private static class BlitzChallengerBot extends Challenger {
+    class BlitzChallengerBot extends Challenger {
         public BlitzChallengerBot() {
             super(StatsPerfType.blitz);
 
@@ -211,7 +155,7 @@ public class ChallengerBot {
     }
 
 
-    private static class RapidChallengerBot extends Challenger {
+    class RapidChallengerBot extends Challenger {
         public RapidChallengerBot() {
             super(StatsPerfType.rapid);
 

@@ -37,21 +37,25 @@ public class ChallengeHandler {
 
     void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
+
+        sosaState.addChallenge(event.id());
+
         if (isMyChallenge(event)) {
             log.info("[{}] My challenge, ignoring", event.id());
             return;
         }
+
         if (acceptChallenges) {
-            if (sosaState.thereIsAvailableWorker()) {
-                if (isChallengeAcceptable(event)) {
-                    log.info("[{}] Challenge acceptable", event.id());
+            if (isChallengeAcceptable(event)) {
+                if (sosaState.isChallengeAcceptable()) {
+                    log.info("[{}] Accepting challenge", event.id());
                     sendAcceptChallenge(event);
                 } else {
-                    log.info("[{}] Challenge not acceptable", event.id());
+                    log.info("[{}] There is no available worker to accept this challenge", event.id());
                     sendDeclineChallenge(event);
                 }
             } else {
-                log.info("[{}] There is no available worker to accept this challenge", event.id());
+                log.info("[{}] Challenge not acceptable", event.id());
                 sendDeclineChallenge(event);
             }
         } else {
@@ -62,10 +66,12 @@ public class ChallengeHandler {
 
     void challengeCanceled(Event.ChallengeCanceledEvent event) {
         log.info("[{}] ChallengeCanceledEvent", event.id());
+        sosaState.removeChallenge(event.id());
     }
 
     void challengeDeclined(Event.ChallengeDeclinedEvent event) {
         log.info("[{}] ChallengeDeclinedEvent", event.id());
+        sosaState.removeChallenge(event.id());
     }
 
     void stopAcceptingChallenges() {
@@ -91,7 +97,7 @@ public class ChallengeHandler {
     private boolean isMyChallenge(Event.ChallengeEvent event) {
         ChallengeInfo.Players players = event.challenge().players();
 
-        return switch (players){
+        return switch (players) {
             case ChallengeInfo.FromTo fromTo -> fromTo.challenger().user().id().equals(sosaState.getMyProfile().id());
             case ChallengeInfo.From from -> from.challenger().user().id().equals(sosaState.getMyProfile().id());
             default -> false;

@@ -36,4 +36,6 @@ public interface LichessClient {
     void gameAbort(String gameId);
 
     Optional<UserAuth> findUser(String username);
+
+    Optional<ChallengeInfo> getChallenge(String challengeId);
 }
