@@ -54,7 +54,7 @@ public class ChallengerBot {
         for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
             final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
-            if (!Objects.equals(theBot.id(), myProfile.id())) {
+            if (!Objects.equals(bot.id(), myProfile.id())) {
                 log.info("Challenging bot {}", theBot.id());
                 Optional<Challenge> challengeOpt = challengerTypesRandom
                         .stream()
