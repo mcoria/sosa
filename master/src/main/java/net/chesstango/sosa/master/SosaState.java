@@ -102,7 +102,7 @@ public class SosaState {
         try {
             if (canSendRequests()) {
 
-                challenger.challengeRandomBot();
+                challenger.challengeRandomBot(myProfile);
             } else {
                 log.warn("Can not challenge at this time. Ignoring SendChallenge command.");
             }

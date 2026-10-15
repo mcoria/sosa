@@ -42,8 +42,6 @@ public class MasterInit {
 
         sosaState.setMyProfile(myProfile);
 
-        challengerBot.setMyProfile(myProfile);
-
         taskExecutor.submit(botEventsLoopReader);
     }
 }

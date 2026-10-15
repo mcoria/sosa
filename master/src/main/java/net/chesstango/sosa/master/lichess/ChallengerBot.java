@@ -25,7 +25,6 @@ public class ChallengerBot {
 
     private final List<Challenger> challengerTypes;
 
-    private UserAuth myProfile;
 
     public ChallengerBot(LichessClient client,
                          BotQueue botQueue,
@@ -44,15 +43,7 @@ public class ChallengerBot {
         });
     }
 
-    public void setMyProfile(UserAuth profile) {
-        this.myProfile = profile;
-        challengerTypes.forEach(challenger -> {
-            challenger.updateMyRating();
-            log.info("Rating for {}: {}", challenger.statsPerfType, challenger.myRating);
-        });
-    }
-
-    public Optional<Challenge> challengeRandomBot() {
+    public Optional<Challenge> challengeRandomBot(UserAuth myProfile) {
         log.info("Challenging random bot");
 
         List<Challenger> challengerTypesRandom = new ArrayList<>(this.challengerTypes);
@@ -67,7 +58,7 @@ public class ChallengerBot {
                 log.info("Challenging bot {}", theBot.id());
                 Optional<Challenge> challengeOpt = challengerTypesRandom
                         .stream()
-                        .filter(aChallenger -> aChallenger.filter(theBot))
+                        .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
                         .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
@@ -87,7 +78,7 @@ public class ChallengerBot {
         return Optional.empty();
     }
 
-    abstract class Challenger {
+    abstract static class Challenger {
         final StatsPerfType statsPerfType;
 
         final List<Consumer<ChallengesApiAuthCommon.ChallengeBuilder>> builders = new ArrayList<>();
@@ -98,13 +89,9 @@ public class ChallengerBot {
             this.statsPerfType = statsPerfType;
         }
 
-        void updateMyRating() {
-            Map<StatsPerfType, StatsPerf> rating = myProfile
-                    .ratings();
-            myRating = getRating(rating);
-        }
 
-        boolean filter(User bot) {
+        boolean filter(UserAuth myProfile, User bot) {
+            int myRating = getRating(myProfile.ratings());
             int botRating = getRating(bot.ratings());
             return botRating >= myRating - RATING_THRESHOLD && botRating <= myRating + RATING_THRESHOLD;
         }
