@@ -6,6 +6,11 @@ import chariot.model.UserAuth;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.LichessTooManyExpired;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
+import net.chesstango.sosa.master.lichess.Challenger;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -14,6 +19,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Mauricio Coria
@@ -21,11 +27,24 @@ import java.util.Set;
 @Slf4j
 @Component
 public class SosaState {
-    private final Set<Worker> availableWorkers = new HashSet<>();
+    private final Challenger challenger;
+
+    private final Set<Worker> availableWorkers;
+
+    private final AtomicBoolean sendRequestsAllowed;
+
+    private final AtomicBoolean sendChallengesAllowed;
 
     @Setter
     @Getter
     private UserAuth myProfile;
+
+    public SosaState(Challenger challenger) {
+        this.challenger = challenger;
+        this.availableWorkers = new HashSet<>();
+        this.sendChallengesAllowed = new AtomicBoolean(true);
+        this.sendRequestsAllowed = new AtomicBoolean(true);
+    }
 
     public synchronized void addAvailableWorker(String workerId) {
         Optional<Worker> workerOpt = availableWorkers.stream()
@@ -77,5 +96,49 @@ public class SosaState {
             }
             return remove;
         });
+    }
+
+    public synchronized void challengeBot() {
+        try {
+            if (canSendRequests()) {
+
+                challenger.challengeRandomBot();
+            } else {
+                log.warn("Can not challenge at this time. Ignoring SendChallenge command.");
+            }
+        } catch (RuntimeException e) {
+            log.error("Error challenging random bot", e);
+        }
+
+    }
+
+    @EventListener(LichessTooManyRequestsSent.class)
+    public void onLichessTooManyRequests() {
+        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
+        sendRequestsAllowed.set(false);
+    }
+
+    @EventListener(LichessTooManyGamesPlayed.class)
+    public void onLichessTooManyGames() {
+        log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
+        sendChallengesAllowed.set(false);
+    }
+
+    @EventListener
+    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
+        switch (lichessTooManyExpired.getExpirationType()) {
+            case GAMES:
+                log.info("Sending challenges again.");
+                sendChallengesAllowed.set(true);
+                break;
+            case REQUESTS:
+                log.warn("Sending requests again.");
+                sendRequestsAllowed.set(true);
+                break;
+        }
+    }
+
+    boolean canSendRequests() {
+        return sendRequestsAllowed.get() && sendChallengesAllowed.get();
     }
 }
