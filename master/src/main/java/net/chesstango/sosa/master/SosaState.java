@@ -114,16 +114,14 @@ public class SosaState {
 
     public synchronized void challengeBot() {
         try {
-            if (canSendRequests()) {
-
+            if (canSendRequests() && availableWorkers.size() > inProgressChallenges.size()) {
                 challenger.challengeRandomBot(myProfile);
             } else {
-                log.warn("Can not challenge at this time. Ignoring SendChallenge command.");
+                log.warn("Can not challenge at this time.");
             }
         } catch (RuntimeException e) {
             log.error("Error challenging random bot", e);
         }
-
     }
 
     @EventListener(LichessTooManyRequestsSent.class)
