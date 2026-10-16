@@ -60,13 +60,8 @@ public class LichessClientImp implements LichessClient {
         One<Challenge> challengeOne = client.bot()
                 .challenge(user.id(), challengeBuilderConsumer);
 
-        if (challengeOne.maybe().isPresent()) {
-            log.info("Challenging {} succeeded", user.id());
-            return Optional.of(challengeOne.get());
-        }
-
         if (challengeOne instanceof Fail<Challenge>(int status, String message)) {
-            log.warn("Challenging {} failed: {}", user.id(), message);
+            log.warn("Challenging {} failed: {} {}", user.id(), status, message);
             if (status == TOO_MANY_REQUESTS) {
                 Object erroPayload = lichessErrorParser.parse(message);
                 if (erroPayload instanceof RetryIn retryIn) {
@@ -75,16 +70,16 @@ public class LichessClientImp implements LichessClient {
                     applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
                 }
             }
-            return Optional.empty();
         }
 
-        throw new RuntimeException("Unexpected challenge result");
+        return challengeOne.maybe();
     }
 
     @Override
     public synchronized void challengeAccept(String challengeId) {
         Ack result = client.bot().acceptChallenge(challengeId);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("ChallengeAccept {} failed: {} {}", challengeId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -97,6 +92,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .declineChallenge(challengeId);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("ChallengeDecline {} failed: {} {}", challengeId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -109,6 +105,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .cancelChallenge(challengeId);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("CancelChallenge {} failed: {} {}", challengeId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -121,6 +118,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .move(gameId, moveUci);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("[{}] GameMove failed: {} {}", gameId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -133,6 +131,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .resign(gameId);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("[{}] GameResign failed: {} {}", gameId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -145,6 +144,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .chat(gameId, chatMessage);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("[{}] GameChat failed: {} {}", gameId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -157,6 +157,7 @@ public class LichessClientImp implements LichessClient {
         Ack result = client.bot()
                 .abort(gameId);
         if (result instanceof Fail<?>(int status, String message)) {
+            log.warn("[{}] GameAbort failed: {} {}", gameId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -174,6 +175,7 @@ public class LichessClientImp implements LichessClient {
         Many<UserAuth> userAuthMany = client.users().byIds(List.of(username));
 
         if (userAuthMany instanceof Fail<?>(int status, String message)) {
+            log.warn("FindUser {} failed: {} {}", username, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -188,6 +190,7 @@ public class LichessClientImp implements LichessClient {
         One<ChallengeInfo> challengeInfo = client.challenges().show(challengeId);
 
         if (challengeInfo instanceof Fail<?>(int status, String message)) {
+            log.warn("GetChallenge {} failed: {} {}", challengeId, status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
@@ -198,12 +201,35 @@ public class LichessClientImp implements LichessClient {
         return challengeInfo.maybe();
     }
 
+    @Override
+    public boolean isOnline(User theBot) {
+        Many<UserStatus> usersStatus = client.users().statusByIds(theBot.id());
+
+        if (usersStatus instanceof Fail<?>(int status, String message)) {
+            log.warn("IsOnline {} failed: {} {}", theBot.id(), status, message);
+            if (status == TOO_MANY_REQUESTS) {
+                applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
+            }
+            throw new RuntimeException(String.format("Finding user status %s failed: %s", theBot.id(), message));
+        }
+
+        Optional<UserStatus> userStatusOpt = usersStatus.stream().findFirst();
+
+        if (userStatusOpt.isPresent()) {
+            UserStatus userStatus = userStatusOpt.get();
+            return userStatus.online();
+        }
+
+        return false;
+    }
+
 
     @Override
     public synchronized Stream<GameInfo> meOngoingGames() {
         Many<GameInfo> gameInfoMany = client.games().ongoing();
 
         if (gameInfoMany instanceof Fail<?>(int status, String message)) {
+            log.warn("MeOngoingGames failed: {} {}", status, message);
             if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }

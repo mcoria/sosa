@@ -38,4 +38,6 @@ public interface LichessClient {
     Optional<UserAuth> findUser(String username);
 
     Optional<ChallengeInfo> getChallenge(String challengeId);
+
+    boolean isOnline(User theBot);
 }
