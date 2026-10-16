@@ -9,7 +9,9 @@ import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.sosa.worker.TangoController;
 import net.chesstango.sosa.worker.WorkerProducer;
+import net.chesstango.sosa.worker.events.GameInProgress;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
@@ -20,25 +22,28 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @Component
-public class LichessGameEventsReader implements Runnable {
+public class GameEventsLoopReader implements Runnable {
     private final String gameId;
     private final Color myColor;
     private final LichessClient lichessClient;
     private final TangoController tangoController;
     private final WorkerProducer workerProducer;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     private FEN startPosition;
-    
-    public LichessGameEventsReader(@Value("${gameId}") String gameId,
-                                   @Value("${color}") String myColor,
-                                   LichessClient lichessClient,
-                                   TangoController tangoController,
-                                   WorkerProducer workerProducer) {
+
+    public GameEventsLoopReader(@Value("${gameId}") String gameId,
+                                @Value("${color}") String myColor,
+                                LichessClient lichessClient,
+                                TangoController tangoController,
+                                WorkerProducer workerProducer,
+                                ApplicationEventPublisher applicationEventPublisher) {
         this.gameId = gameId;
         this.myColor = "white".equals(myColor) ? Color.WHITE : Color.BLACK;
         this.lichessClient = lichessClient;
         this.tangoController = tangoController;
         this.workerProducer = workerProducer;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 
@@ -94,6 +99,10 @@ public class LichessGameEventsReader implements Runnable {
 
     private void accept(GameStateEvent.State state) {
         log.info("[{}] GameStateEvent.State: {}", gameId, state);
+
+        if (state.moveList().size() >= 2) {
+            applicationEventPublisher.publishEvent(new GameInProgress(this));
+        }
 
         Enums.Status status = state.status();
 

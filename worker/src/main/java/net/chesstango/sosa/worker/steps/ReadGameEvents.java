@@ -1,7 +1,8 @@
 package net.chesstango.sosa.worker.steps;
 
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.worker.lichess.LichessGameEventsReader;
+import net.chesstango.sosa.worker.lichess.GameEventsLoopReader;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.listener.StepExecutionListener;
@@ -19,20 +20,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ReadGameEvents implements Tasklet, StepExecutionListener {
 
-    private final LichessGameEventsReader lichessGameEventsReader;
+    private final GameEventsLoopReader gameEventsLoopReader;
 
-    public ReadGameEvents(LichessGameEventsReader lichessGameEventsReader) {
-        this.lichessGameEventsReader = lichessGameEventsReader;
+    public ReadGameEvents(GameEventsLoopReader gameEventsLoopReader) {
+        this.gameEventsLoopReader = gameEventsLoopReader;
     }
 
     @Override
-    public @Nullable RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        lichessGameEventsReader.run();
+    public @Nullable RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) throws Exception {
+        gameEventsLoopReader.run();
         return RepeatStatus.FINISHED;
     }
 
     @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
+    public ExitStatus afterStep(@NonNull StepExecution stepExecution) {
         return ExitStatus.COMPLETED;
     }
 }

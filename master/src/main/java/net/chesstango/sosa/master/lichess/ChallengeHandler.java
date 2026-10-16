@@ -48,7 +48,7 @@ public class ChallengeHandler {
         if (acceptChallenges) {
             if (isChallengeAcceptable(event)) {
                 if (sosaState.isChallengeAcceptable()) {
-                    log.info("[{}] Accepting challenge", event.id());
+                    log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
                 } else {
                     log.info("[{}] There is no available worker to accept this challenge", event.id());
