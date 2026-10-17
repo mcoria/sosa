@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -51,19 +50,17 @@ public class ChallengerBot {
 
         Collections.shuffle(challengerTypesRandom, rand);
 
-        AtomicInteger counter = new AtomicInteger(0);
+        int counter = 0;
         for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
             final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
             if (!Objects.equals(bot.id(), myProfile.id())) {
-
                 if (client.isOnline(theBot)) {
                     return challengerTypesRandom
                             .stream()
                             .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
-                            .peek( aChallenger ->  log.info("Challenging bot {} {}", theBot.id(), aChallenger.getClass().getSimpleName()) )
+                            .peek(aChallenger -> log.info("Challenging bot {} {}", theBot.id(), aChallenger.getClass().getSimpleName()))
                             .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                            .peek(_ -> counter.incrementAndGet())
                             .filter(Optional::isPresent)
                             .peek(challenge -> log.info("Challenging bot {} succeeded", theBot.id()))
                             .map(Optional::get)
@@ -74,8 +71,8 @@ public class ChallengerBot {
                 }
             }
 
-            if (counter.get() >= 10) {
-                log.info("Braking loop after 10 attempts");
+            if (counter++ >= 10) {
+                log.info("Braking challenging random bots loop");
                 break;
             }
         }
