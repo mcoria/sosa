@@ -32,7 +32,7 @@ public class QuartzConfig {
                 .withIdentity("ChallengeBotJobTrigger")
                 .startAt(DateBuilder.futureDate(60, DateBuilder.IntervalUnit.SECOND))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(180) // Repeat every 3 minutes
+                        .withIntervalInSeconds(120) // Repeat every 3 minutes
                         .repeatForever())           // Repeat indefinitely
                 .build();
     }
@@ -52,9 +52,9 @@ public class QuartzConfig {
         return TriggerBuilder.newTrigger()
                 .forJob(expireChallengesJobDetails)
                 .withIdentity("ExpireChallengesJobTrigger")
-                .startAt(DateBuilder.futureDate(300, DateBuilder.IntervalUnit.SECOND))
+                .startAt(DateBuilder.futureDate(240, DateBuilder.IntervalUnit.SECOND))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(300) // Repeat every 5 minutes
+                        .withIntervalInSeconds(60)  // Repeat every 1 minutes
                         .repeatForever())           // Repeat indefinitely
                 .build();
     }
@@ -77,7 +77,7 @@ public class QuartzConfig {
                 .withIdentity("ExpireWorkersJobTrigger")
                 .startAt(DateBuilder.futureDate(120, DateBuilder.IntervalUnit.SECOND))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(300) // Repeat every 5 minutes
+                        .withIntervalInSeconds(120) // Repeat every 2 minutes
                         .repeatForever())           // Repeat indefinitely
                 .build();
     }

@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.jobs;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import org.jspecify.annotations.NonNull;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,6 +17,7 @@ import static net.chesstango.sosa.master.events.LichessTooManyExpired.Expiration
  * @author Mauricio Coria
  */
 @PersistJobDataAfterExecution
+@DisallowConcurrentExecution
 @Component
 @Slf4j
 public class PublishExpiredTimerEvent extends QuartzJobBean {

@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 @Component
 public class ChallengerBot {
     public static final int RATING_THRESHOLD = 300;
+    public static final int COUNTER_CHALLENGER = 20;
 
     private static final Random rand = new Random();
 
@@ -51,7 +52,7 @@ public class ChallengerBot {
         Collections.shuffle(challengerTypesRandom, rand);
 
         int counter = 0;
-        for (User bot = botQueue.pickBot(); bot != null; bot = botQueue.pickBot()) {
+        for (User bot = botQueue.pickBot(); bot != null && counter < COUNTER_CHALLENGER; bot = botQueue.pickBot(), counter++) {
             final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
             if (!Objects.equals(bot.id(), myProfile.id())) {
@@ -69,11 +70,6 @@ public class ChallengerBot {
                 } else {
                     log.info("Bot {} is offline", theBot.id());
                 }
-            }
-
-            if (counter++ >= 10) {
-                log.info("Braking challenging random bots loop");
-                break;
             }
         }
 

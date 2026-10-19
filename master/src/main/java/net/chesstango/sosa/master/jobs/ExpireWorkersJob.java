@@ -9,6 +9,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 @PersistJobDataAfterExecution
+
 @Component
 @Slf4j
 public class ExpireWorkersJob extends QuartzJobBean {
