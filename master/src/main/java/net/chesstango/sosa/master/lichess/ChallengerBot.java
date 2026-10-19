@@ -55,22 +55,24 @@ public class ChallengerBot {
             final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
             if (!Objects.equals(bot.id(), myProfile.id())) {
-                log.info("Challenging bot {}", theBot.id());
-                Optional<Challenge> challengeOpt = challengerTypesRandom
-                        .stream()
-                        .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
-                        .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .findFirst();
+                if (client.isOnline(theBot)) {
+                    return challengerTypesRandom
+                            .stream()
+                            .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
+                            .peek(aChallenger -> log.info("Challenging bot {} {}", theBot.id(), aChallenger.getClass().getSimpleName()))
+                            .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
+                            .filter(Optional::isPresent)
+                            .peek(challenge -> log.info("Challenging bot {} succeeded", theBot.id()))
+                            .map(Optional::get)
+                            .findFirst();
 
-                if (challengeOpt.isPresent()) {
-                    return challengeOpt;
+                } else {
+                    log.info("Bot {} is offline", theBot.id());
                 }
             }
 
-            if (counter++ > 10) {
-                log.info("Braking loop after 10 attempts");
+            if (counter++ >= 10) {
+                log.info("Braking challenging random bots loop");
                 break;
             }
         }
@@ -82,8 +84,6 @@ public class ChallengerBot {
         final StatsPerfType statsPerfType;
 
         final List<Consumer<ChallengesApiAuthCommon.ChallengeBuilder>> builders = new ArrayList<>();
-
-        int myRating;
 
         private Challenger(StatsPerfType statsPerfType) {
             this.statsPerfType = statsPerfType;
