@@ -20,18 +20,6 @@ import java.util.UUID;
 public class DynamicScheduler {
     private final Scheduler scheduler;
 
-    @Value("${app.gameWatchDog}")
-    @Setter
-    private Boolean gameWatchDogEnabled;
-
-    @Value("${app.gameExpire}")
-    @Setter
-    private int GAME_EXPIRE = 30;
-
-    @Value("${app.challengeExpire}")
-    @Setter
-    private int CHALLENGE_EXPIRE = 15;
-
     private final JobDetail publishExpiredTimerEventRequestsJob;
 
     private final JobDetail publishExpiredTimerEventGamesJob;

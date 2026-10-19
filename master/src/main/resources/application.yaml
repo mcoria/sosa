@@ -3,9 +3,6 @@ app:
   challengeJob: ${CHALLENGE_JOB:false}
   challengeTypes: ${CHALLENGE_TYPES:bullet,blitz,rapid}
   challengeExpire: 15
-  gameWatchDog: ${GAME_WATCHDOG:false}
-  gameExpire: 30
-
 
 spring:
   application:

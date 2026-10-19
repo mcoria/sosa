@@ -1,4 +1,6 @@
 app:
+  gameAbort: ${GAME_ABORT:true}
+  gameAbortTimer: 2
   botToken: ${BOT_TOKEN}
   polyglot_file: ${POLYGLOT_FILE}
   syzygy_path: ${SYZYGY_PATH}
