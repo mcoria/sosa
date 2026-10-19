@@ -9,6 +9,8 @@ import net.chesstango.board.position.PositionReader;
 import net.chesstango.gardel.fen.FEN;
 import net.chesstango.sosa.worker.TangoController;
 import net.chesstango.sosa.worker.WorkerProducer;
+import net.chesstango.sosa.worker.events.GameEventsLoopException;
+import net.chesstango.sosa.worker.events.GameEventsLoopFinished;
 import net.chesstango.sosa.worker.events.GameInProgress;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,6 +51,7 @@ public class GameEventsLoopReader implements Runnable {
 
     @Override
     public void run() {
+        boolean gameLoopException = false;
         log.info("[{}] Entering Game event loop...", gameId);
         try (Stream<GameStateEvent> gameEvents = lichessClient.streamGameStateEvent(gameId)) {
             gameEvents.forEach(gameEvent -> {
@@ -63,6 +66,13 @@ public class GameEventsLoopReader implements Runnable {
             log.info("[{}] Game event loop finished", gameId);
         } catch (RuntimeException e) {
             log.error("[{}] Game event loop failed", gameId, e);
+            gameLoopException = true;
+        }
+
+        if (gameLoopException) {
+            applicationEventPublisher.publishEvent(new GameEventsLoopException(this));
+        } else {
+            applicationEventPublisher.publishEvent(new GameEventsLoopFinished(this));
         }
     }
 

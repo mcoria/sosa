@@ -4,6 +4,7 @@ import chariot.ClientAuth;
 import chariot.model.Game;
 import chariot.model.GameStateEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.stream.Stream;
 
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
  * @author Mauricio Coria
  */
 @Slf4j
+@Service
 public class LichessClientImp implements LichessClient {
     private final ClientAuth client;
 
