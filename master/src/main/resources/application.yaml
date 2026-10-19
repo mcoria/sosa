@@ -33,6 +33,8 @@ spring:
         concurrency: 1
         # Sets the maximum number of consumers. Set to 1 to prevent dynamic scaling beyond a single consumer.
         max-concurrency: 1
+        # Sets the acknowledge, none = Fire-and-forget. RabbitMQ clears the message immediately when sent over the wire, regardless of successful processing.
+        acknowledge-mode: none # Options: auto, manual, none
 
   quartz:
     job-store-type: memory

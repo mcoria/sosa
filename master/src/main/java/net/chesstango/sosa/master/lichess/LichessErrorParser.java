@@ -22,7 +22,7 @@ public class LichessErrorParser {
             JsonNode rateLimitNode = rootNode.get("ratelimit");
 
             if (rateLimitNode != null) {
-                String rateLimitKey = rateLimitNode.get("key").asText();
+                String rateLimitKey = rateLimitNode.get("key").asString();
                 if ("bot.vsBot.day".equals(rateLimitKey)) {
                     long seconds = rateLimitNode.get("seconds").asLong();
                     return new RetryIn(seconds);

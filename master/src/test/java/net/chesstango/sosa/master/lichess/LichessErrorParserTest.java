@@ -18,7 +18,15 @@ public class LichessErrorParserTest {
 
     @Test
     void parseTooManyGamesTest() {
-        Object result = lichessErrorParser.parse("{\"error\":\"You played 100 games against other bots today, please wait before challenging another bot.\",\"ratelimit\":{\"key\":\"bot.vsBot.day\",\"seconds\":27594}}");
+        Object result = lichessErrorParser.parse("""
+                {
+                 "error": "You played 100 games against other bots today, please wait before challenging another bot.",
+                 "ratelimit":{
+                    "key":"bot.vsBot.day",
+                    "seconds":27594
+                 }
+                }
+                """);
 
         assertNotNull(result);
         assertInstanceOf(RetryIn.class, result);
