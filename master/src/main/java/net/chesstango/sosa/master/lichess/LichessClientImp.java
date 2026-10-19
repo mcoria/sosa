@@ -36,23 +36,24 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
+    public synchronized Stream<Event> streamEvents() {
+        return client.bot().connect().stream();
+    }
+
+    @Override
     public synchronized UserAuth getProfile() {
         One<UserAuth> userAuthOne = client.account()
                 .profile();
 
-        if (userAuthOne instanceof Fail<UserAuth> fail) {
-            if (fail.status() == TOO_MANY_REQUESTS) {
+        if (userAuthOne instanceof Fail<UserAuth>(int status, String message)) {
+            log.warn("Get profile failed: {} {}", status, message);
+            if (status == TOO_MANY_REQUESTS) {
                 applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(this));
             }
             throw new RuntimeException("Error getting profile");
         }
 
         return userAuthOne.get();
-    }
-
-    @Override
-    public synchronized Stream<Event> streamEvents() {
-        return client.bot().connect().stream();
     }
 
     @Override
