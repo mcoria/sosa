@@ -6,6 +6,7 @@ import net.chesstango.sosa.master.events.LichessMainLoopFinished;
 import net.chesstango.sosa.master.lichess.BotEventsLoopReader;
 import net.chesstango.sosa.master.lichess.LichessClient;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -15,19 +16,22 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class MasterInit {
+public class MasterInit implements Runnable {
     private final SosaState sosaState;
     private final LichessClient lichessClient;
     private final BotEventsLoopReader botEventsLoopReader;
     private final ThreadPoolTaskExecutor taskExecutor;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public MasterInit(SosaState sosaState,
                       LichessClient lichessClient,
                       BotEventsLoopReader botEventsLoopReader,
+                      ApplicationEventPublisher applicationEventPublisher,
                       ThreadPoolTaskExecutor taskExecutor) {
         this.sosaState = sosaState;
         this.lichessClient = lichessClient;
         this.botEventsLoopReader = botEventsLoopReader;
+        this.applicationEventPublisher = applicationEventPublisher;
         this.taskExecutor = taskExecutor;
     }
 
@@ -36,7 +40,7 @@ public class MasterInit {
     public void onApplicationReadyEvent() {
         log.info("ApplicationReadyEvent received");
 
-        runBotEventsLoopReader();
+        taskExecutor.submit(this);
     }
 
     /**
@@ -46,16 +50,22 @@ public class MasterInit {
     public void onLichessMainLoopFinished() {
         log.info("LichessMainLoopFinished received");
 
-        runBotEventsLoopReader();
+        taskExecutor.submit(this);
     }
 
-    void runBotEventsLoopReader() {
-        log.info("Reading profile");
+    @Override
+    public void run() {
+        try {
+            log.info("Reading profile");
 
-        UserAuth myProfile = lichessClient.getProfile();
+            UserAuth myProfile = lichessClient.getProfile();
 
-        sosaState.setMyProfile(myProfile);
+            sosaState.setMyProfile(myProfile);
 
-        taskExecutor.submit(botEventsLoopReader);
+            botEventsLoopReader.run();
+        } catch (Exception e) {
+            log.error("Error detected", e);
+        }
+        applicationEventPublisher.publishEvent(new LichessMainLoopFinished(this));
     }
 }
