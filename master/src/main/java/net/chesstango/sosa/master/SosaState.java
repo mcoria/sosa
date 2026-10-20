@@ -100,13 +100,13 @@ public class SosaState {
         throw new RuntimeException("Rating not found");
     }
 
-    public synchronized void expireWorker() {
+    public synchronized void expireWorker(int workerExpire) {
         log.info("Expiring workers");
 
         Instant now = Instant.now();
         availableWorkers.removeIf(worker -> {
             Duration duration = Duration.between(worker.getLastAvailable(), now);
-            boolean remove = duration.toMinutes() > 5;
+            boolean remove = duration.toMinutes() >= workerExpire;
             if (remove) {
                 log.info("Worker expired: {}", worker.getWorkerId());
             }

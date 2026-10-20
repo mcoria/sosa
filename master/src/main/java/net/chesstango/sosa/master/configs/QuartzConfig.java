@@ -69,24 +69,25 @@ public class QuartzConfig {
 
 
     @Bean
-    public JobDetail expireWorkersJobDetails() {
+    public JobDetail expireWorkersJobDetails(@Value("${app.workerExpire}") int workerExpire) {
         return JobBuilder.newJob(ExpireWorkersJob.class)
                 .withIdentity("ExpireWorkersJob")
-                .withDescription("Send Worker Ready Job")
+                .withDescription("Expire Workers Job")
+                .usingJobData("workerExpire", Integer.toString(workerExpire))
                 .storeDurably()
                 .build();
     }
 
 
     @Bean
-    public Trigger expireWorkersJobTrigger(JobDetail expireWorkersJobDetails) {
+    public Trigger expireWorkersJobTrigger(JobDetail expireWorkersJobDetails, @Value("${app.workerExpire}") int workerExpire) {
         return TriggerBuilder.newTrigger()
                 .forJob(expireWorkersJobDetails)
                 .withIdentity("ExpireWorkersJobTrigger")
-                .startAt(DateBuilder.futureDate(120, DateBuilder.IntervalUnit.SECOND))
+                .startAt(DateBuilder.futureDate(workerExpire, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(120) // Repeat every 2 minutes
-                        .repeatForever())           // Repeat indefinitely
+                        .withIntervalInMinutes(workerExpire) // Repeat every workerExpire minutes
+                        .repeatForever())                    // Repeat indefinitely
                 .build();
     }
 

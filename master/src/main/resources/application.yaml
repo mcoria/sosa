@@ -3,6 +3,7 @@ app:
   challengeJob: ${CHALLENGE_JOB:true}
   challengeTypes: ${CHALLENGE_TYPES:bullet,blitz,rapid}
   challengeExpire: 1
+  workerExpire: 3
 
 spring:
   application:
