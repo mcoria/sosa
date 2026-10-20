@@ -114,7 +114,7 @@ public class SosaState {
         });
     }
 
-    public synchronized void expireChallenges() {
+    public synchronized void expireChallenges(int challengeExpireSecs) {
         log.info("Expiring challenges");
 
         Instant now = Instant.now();
@@ -123,7 +123,7 @@ public class SosaState {
         while (iterator.hasNext()) {
             Challenge challenge = iterator.next();
             Duration duration = Duration.between(challenge.getCreated(), now);
-            if (duration.toMinutes() > 3) {
+            if (duration.toMinutes() >= challengeExpireSecs) {
                 log.info("Challenge expired: {}", challenge.getChallengeId());
                 if (challengeExpire.expire(challenge.getChallengeId())) {
                     iterator.remove();

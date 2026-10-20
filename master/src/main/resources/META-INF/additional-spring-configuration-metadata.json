@@ -2,7 +2,8 @@
   "properties": [
     {
       "name": "app.challengeJob",
-      "type": "java.lang.String",
+      "type": "java.lang.Boolean",
       "description": "Description for app.challengeJob."
-  }
-] }
+    }
+  ]
+}

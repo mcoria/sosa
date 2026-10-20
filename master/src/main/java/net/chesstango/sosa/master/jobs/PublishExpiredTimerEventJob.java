@@ -20,11 +20,11 @@ import static net.chesstango.sosa.master.events.LichessTooManyExpired.Expiration
 @DisallowConcurrentExecution
 @Component
 @Slf4j
-public class PublishExpiredTimerEvent extends QuartzJobBean {
+public class PublishExpiredTimerEventJob extends QuartzJobBean {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public PublishExpiredTimerEvent(ApplicationEventPublisher applicationEventPublisher) {
+    public PublishExpiredTimerEventJob(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 

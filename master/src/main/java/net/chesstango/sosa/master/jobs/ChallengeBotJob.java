@@ -6,6 +6,7 @@ import org.jspecify.annotations.NonNull;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.PersistJobDataAfterExecution;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 @DisallowConcurrentExecution
 @Component
 @Slf4j
+@ConditionalOnProperty(name = "app.challengeJob", havingValue = "true")
 public class ChallengeBotJob extends QuartzJobBean {
 
     private final SosaState sosaState;

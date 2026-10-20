@@ -1,8 +1,8 @@
 app:
   botToken: ${BOT_TOKEN}
-  challengeJob: ${CHALLENGE_JOB:false}
+  challengeJob: ${CHALLENGE_JOB:true}
   challengeTypes: ${CHALLENGE_TYPES:bullet,blitz,rapid}
-  challengeExpire: 15
+  challengeExpire: 1
 
 spring:
   application:
