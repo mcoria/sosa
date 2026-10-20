@@ -31,27 +31,30 @@ public class GameHandler {
     public void handleGameStart(Event.GameStartEvent gameStartEvent) {
         log.info("[{}] GameStartEvent", gameStartEvent.id());
 
-        if (sosaState.thereIsAvailableWorker()) {
+        if (!sosaState.isInProgressGame(gameStartEvent.id())) {
+            if (sosaState.thereIsAvailableWorker()) {
 
-            sosaState.removeChallenge(gameStartEvent.id());
+                String color = Enums.Color.white == gameStartEvent.game().color() ? "white" : "black";
 
-            String color = Enums.Color.white == gameStartEvent.game().color() ? "white" : "black";
+                log.info("[{}] Playing game as {}", gameStartEvent.id(), color);
 
-            log.info("[{}] Playing game as {}", gameStartEvent.id(), color);
+                masterProducer.sendGameStart(gameStartEvent.id(), color);
 
-            masterProducer.sendGameStart(gameStartEvent.id(), color);
+                sosaState.addGame(gameStartEvent.id());
+
+            } else {
+                log.warn("[{}] No available workers, aborting game", gameStartEvent.id());
+
+                lichessClient.gameAbort(gameStartEvent.id());
+            }
         } else {
-            log.warn("[{}] No available workers, aborting game", gameStartEvent.id());
-
-            lichessClient.gameAbort(gameStartEvent.id());
+            log.warn("[{}] GameStartEvent already processed", gameStartEvent.id());
         }
     }
 
     public void handleGameFinish(Event.GameStopEvent gameStopEvent) {
         log.info("[{}] GameStopEvent", gameStopEvent.id());
 
-        //GameFinishEvent gameFinishEvent = new GameFinishEvent(this, gameStopEvent);
-
-        //applicationEventPublisher.publishEvent(gameFinishEvent);
+        sosaState.removeGame(gameStopEvent.id());
     }
 }

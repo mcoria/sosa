@@ -32,6 +32,8 @@ public class SosaState {
 
     private final Set<Challenge> inProgressChallenges;
 
+    private final Set<String> inProgressGames;
+
     private final AtomicBoolean sendRequestsAllowed;
 
     private final AtomicBoolean sendChallengesAllowed;
@@ -46,6 +48,7 @@ public class SosaState {
         this.challengeExpire = challengeExpire;
         this.availableWorkers = new HashSet<>();
         this.inProgressChallenges = new HashSet<>();
+        this.inProgressGames = new HashSet<>();
         this.sendChallengesAllowed = new AtomicBoolean(true);
         this.sendRequestsAllowed = new AtomicBoolean(true);
     }
@@ -84,6 +87,19 @@ public class SosaState {
 
     public synchronized void removeChallenge(String challengeId) {
         inProgressChallenges.removeIf(challenge -> challenge.getChallengeId().equals(challengeId));
+    }
+
+    public synchronized void addGame(String gameId) {
+        removeChallenge(gameId);
+        inProgressGames.add(gameId);
+    }
+
+    public synchronized void removeGame(String gameId) {
+        inProgressGames.remove(gameId);
+    }
+
+    public synchronized boolean isInProgressGame(String gameId) {
+        return inProgressGames.contains(gameId);
     }
 
     public synchronized boolean isChallengeAcceptable() {
