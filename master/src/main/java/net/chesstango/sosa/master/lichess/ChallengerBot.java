@@ -53,22 +53,21 @@ public class ChallengerBot {
 
         int counter = 0;
         for (User bot = botQueue.pickBot(); bot != null && counter < COUNTER_CHALLENGER; bot = botQueue.pickBot(), counter++) {
-            final User theBot = bot;
             // Avoid Fail[status=400, info=Info[message={"error":"You cannot challenge yourself"}]]
             if (!Objects.equals(bot.id(), myProfile.id())) {
-                if (client.isOnline(theBot)) {
-                    return challengerTypesRandom
-                            .stream()
-                            .filter(aChallenger -> aChallenger.filter(myProfile, theBot))
-                            .peek(aChallenger -> log.info("Challenging bot {} {}", theBot.id(), aChallenger.getClass().getSimpleName()))
-                            .map(aChallenger -> client.challenge(theBot, aChallenger::consumeChallengeBuilder))
-                            .filter(Optional::isPresent)
-                            .peek(challenge -> log.info("Challenging bot {} succeeded", theBot.id()))
-                            .map(Optional::get)
-                            .findFirst();
-
+                if (client.isOnline(bot)) {
+                    for (Challenger challenger : challengerTypesRandom) {
+                        if (challenger.filter(myProfile, bot)) {
+                            log.info("Challenging bot {} {}", bot.id(), challenger.getClass().getSimpleName());
+                            Optional<Challenge> challenge = client.challenge(bot, challenger::consumeChallengeBuilder);
+                            if (challenge.isPresent()) {
+                                log.info("Challenging bot {} succeeded", bot.id());
+                                return challenge;
+                            }
+                        }
+                    }
                 } else {
-                    log.info("Bot {} is offline", theBot.id());
+                    log.info("Bot {} is offline", bot.id());
                 }
             }
         }
