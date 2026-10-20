@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.worker.events.GameInProgress;
 import net.chesstango.sosa.worker.lichess.LichessClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
+@ConditionalOnProperty(name = "app.gameAbort", havingValue = "true")
 public class GameAbort implements Runnable {
     private final LichessClient client;
     private final String gameId;
@@ -41,5 +44,10 @@ public class GameAbort implements Runnable {
 
             gameInProgress = true;
         }
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReadyEvent() {
+        log.info("[{}] GameAbort service activated", gameId);
     }
 }

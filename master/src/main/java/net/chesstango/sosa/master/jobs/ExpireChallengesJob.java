@@ -23,7 +23,8 @@ public class ExpireChallengesJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        sosaState.expireChallenges();
+        int challengeExpire = context.getJobDetail().getJobDataMap().getInt ("challengeExpire");
+        sosaState.expireChallenges(challengeExpire);
     }
 }
 

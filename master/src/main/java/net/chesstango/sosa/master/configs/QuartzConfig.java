@@ -3,8 +3,10 @@ package net.chesstango.sosa.master.configs;
 import net.chesstango.sosa.master.jobs.ChallengeBotJob;
 import net.chesstango.sosa.master.jobs.ExpireChallengesJob;
 import net.chesstango.sosa.master.jobs.ExpireWorkersJob;
-import net.chesstango.sosa.master.jobs.PublishExpiredTimerEvent;
+import net.chesstango.sosa.master.jobs.PublishExpiredTimerEventJob;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +17,9 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
  */
 @Configuration
 public class QuartzConfig {
+
     @Bean
+    @ConditionalOnProperty(name = "app.challengeJob", havingValue = "true")
     public JobDetail challengeBotJobDetails() {
         return JobBuilder.newJob(ChallengeBotJob.class)
                 .withIdentity("ChallengeBotJob")
@@ -26,6 +30,7 @@ public class QuartzConfig {
 
 
     @Bean
+    @ConditionalOnProperty(name = "app.challengeJob", havingValue = "true")
     public Trigger challengeBotJobTrigger(JobDetail challengeBotJobDetails) {
         return TriggerBuilder.newTrigger()
                 .forJob(challengeBotJobDetails)
@@ -38,54 +43,58 @@ public class QuartzConfig {
     }
 
     @Bean
-    public JobDetail expireChallengesJobDetails() {
+    public JobDetail expireChallengesJobDetails(@Value("${app.challengeExpire}") int challengeExpire) {
         return JobBuilder.newJob(ExpireChallengesJob.class)
                 .withIdentity("ExpireChallengesJob")
-                .withDescription("Send Worker Ready Job")
+                .withDescription("Expire Challenges Job")
+                .usingJobData("challengeExpire", Integer.toString(challengeExpire))
                 .storeDurably()
                 .build();
     }
 
 
     @Bean
-    public Trigger expireChallengesJobTrigger(JobDetail expireChallengesJobDetails) {
+    public Trigger expireChallengesJobTrigger(JobDetail expireChallengesJobDetails, @Value("${app.challengeExpire}") int challengeExpire) {
         return TriggerBuilder.newTrigger()
                 .forJob(expireChallengesJobDetails)
                 .withIdentity("ExpireChallengesJobTrigger")
-                .startAt(DateBuilder.futureDate(240, DateBuilder.IntervalUnit.SECOND))
-                .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(60)  // Repeat every 1 minutes
-                        .repeatForever())           // Repeat indefinitely
+                .startAt(DateBuilder.futureDate(challengeExpire, DateBuilder.IntervalUnit.MINUTE))
+                .withSchedule(
+                        simpleSchedule()
+                        .withIntervalInMinutes(challengeExpire) // Repeat every challengeExpire minutes
+                        .repeatForever()                        // Repeat indefinitely
+                )
                 .build();
     }
 
 
     @Bean
-    public JobDetail expireWorkersJobDetails() {
+    public JobDetail expireWorkersJobDetails(@Value("${app.workerExpire}") int workerExpire) {
         return JobBuilder.newJob(ExpireWorkersJob.class)
                 .withIdentity("ExpireWorkersJob")
-                .withDescription("Send Worker Ready Job")
+                .withDescription("Expire Workers Job")
+                .usingJobData("workerExpire", Integer.toString(workerExpire))
                 .storeDurably()
                 .build();
     }
 
 
     @Bean
-    public Trigger expireWorkersJobTrigger(JobDetail expireWorkersJobDetails) {
+    public Trigger expireWorkersJobTrigger(JobDetail expireWorkersJobDetails, @Value("${app.workerExpire}") int workerExpire) {
         return TriggerBuilder.newTrigger()
                 .forJob(expireWorkersJobDetails)
                 .withIdentity("ExpireWorkersJobTrigger")
-                .startAt(DateBuilder.futureDate(120, DateBuilder.IntervalUnit.SECOND))
+                .startAt(DateBuilder.futureDate(workerExpire, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(120) // Repeat every 2 minutes
-                        .repeatForever())           // Repeat indefinitely
+                        .withIntervalInMinutes(workerExpire) // Repeat every workerExpire minutes
+                        .repeatForever())                    // Repeat indefinitely
                 .build();
     }
 
 
     @Bean
     public JobDetail publishExpiredTimerEventRequestsJob(){
-        return JobBuilder.newJob(PublishExpiredTimerEvent.class)
+        return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
                 .withIdentity("PublishTooManyExpiredTimerEvent_Requests")
                 .usingJobData("expirationType", "REQUESTS")
                 .storeDurably()
@@ -95,7 +104,7 @@ public class QuartzConfig {
 
     @Bean
     public JobDetail publishExpiredTimerEventGamesJob(){
-        return JobBuilder.newJob(PublishExpiredTimerEvent.class)
+        return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
                 .withIdentity("PublishTooManyExpiredTimerEvent_Game")
                 .usingJobData("expirationType", "GAMES")
                 .storeDurably()

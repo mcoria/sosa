@@ -100,13 +100,13 @@ public class SosaState {
         throw new RuntimeException("Rating not found");
     }
 
-    public synchronized void expireWorker() {
+    public synchronized void expireWorker(int workerExpire) {
         log.info("Expiring workers");
 
         Instant now = Instant.now();
         availableWorkers.removeIf(worker -> {
             Duration duration = Duration.between(worker.getLastAvailable(), now);
-            boolean remove = duration.toMinutes() > 5;
+            boolean remove = duration.toMinutes() >= workerExpire;
             if (remove) {
                 log.info("Worker expired: {}", worker.getWorkerId());
             }
@@ -114,7 +114,7 @@ public class SosaState {
         });
     }
 
-    public synchronized void expireChallenges() {
+    public synchronized void expireChallenges(int challengeExpireSecs) {
         log.info("Expiring challenges");
 
         Instant now = Instant.now();
@@ -123,7 +123,7 @@ public class SosaState {
         while (iterator.hasNext()) {
             Challenge challenge = iterator.next();
             Duration duration = Duration.between(challenge.getCreated(), now);
-            if (duration.toMinutes() > 3) {
+            if (duration.toMinutes() >= challengeExpireSecs) {
                 log.info("Challenge expired: {}", challenge.getChallengeId());
                 if (challengeExpire.expire(challenge.getChallengeId())) {
                     iterator.remove();

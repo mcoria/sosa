@@ -22,7 +22,8 @@ public class ExpireWorkersJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) {
-        sosaState.expireWorker();
+        int workerExpire = context.getJobDetail().getJobDataMap().getInt("workerExpire");
+        sosaState.expireWorker(workerExpire);
     }
 }
 
