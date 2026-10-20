@@ -4,4 +4,5 @@ metadata:
   name: sosa-master-config
 data:
   CHALLENGE_JOB: "true"
+  CHALLENGE_TIME: "1"
   CHALLENGE_TYPES: "bullet,blitz,rapid"

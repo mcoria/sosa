@@ -31,13 +31,13 @@ public class QuartzConfig {
 
     @Bean
     @ConditionalOnProperty(name = "app.challengeJob", havingValue = "true")
-    public Trigger challengeBotJobTrigger(JobDetail challengeBotJobDetails) {
+    public Trigger challengeBotJobTrigger(JobDetail challengeBotJobDetails, @Value("${app.challengeTime}") int challengeTime) {
         return TriggerBuilder.newTrigger()
                 .forJob(challengeBotJobDetails)
                 .withIdentity("ChallengeBotJobTrigger")
-                .startAt(DateBuilder.futureDate(60, DateBuilder.IntervalUnit.SECOND))
+                .startAt(DateBuilder.futureDate(challengeTime, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInSeconds(120) // Repeat every 3 minutes
+                        .withIntervalInMinutes(challengeTime) // Repeat every 3 minutes
                         .repeatForever())           // Repeat indefinitely
                 .build();
     }
@@ -61,8 +61,8 @@ public class QuartzConfig {
                 .startAt(DateBuilder.futureDate(challengeExpire, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(
                         simpleSchedule()
-                        .withIntervalInMinutes(challengeExpire) // Repeat every challengeExpire minutes
-                        .repeatForever()                        // Repeat indefinitely
+                                .withIntervalInMinutes(challengeExpire) // Repeat every challengeExpire minutes
+                                .repeatForever()                        // Repeat indefinitely
                 )
                 .build();
     }
@@ -93,7 +93,7 @@ public class QuartzConfig {
 
 
     @Bean
-    public JobDetail publishExpiredTimerEventRequestsJob(){
+    public JobDetail publishExpiredTimerEventRequestsJob() {
         return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
                 .withIdentity("PublishTooManyExpiredTimerEvent_Requests")
                 .usingJobData("expirationType", "REQUESTS")
@@ -103,7 +103,7 @@ public class QuartzConfig {
     }
 
     @Bean
-    public JobDetail publishExpiredTimerEventGamesJob(){
+    public JobDetail publishExpiredTimerEventGamesJob() {
         return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
                 .withIdentity("PublishTooManyExpiredTimerEvent_Game")
                 .usingJobData("expirationType", "GAMES")
