@@ -4,5 +4,4 @@ metadata:
   name: sosa-master-config
 data:
   CHALLENGE_JOB: "true"
-  GAME_WATCHDOG: "true"
   CHALLENGE_TYPES: "bullet,blitz,rapid"
