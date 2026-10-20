@@ -3,8 +3,8 @@ app:
   challengeJob: ${CHALLENGE_JOB:true}
   challengeTime: ${CHALLENGE_TIME:1}
   challengeTypes: ${CHALLENGE_TYPES:bullet,blitz,rapid}
-  challengeExpire: 2
-  workerExpire: 3
+  challengeExpire: ${CHALLENGE_EXPIRE:2}
+  workerExpire: ${WORKER_EXPIRE:3}
 
 spring:
   application:

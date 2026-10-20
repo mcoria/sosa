@@ -6,3 +6,5 @@ data:
   CHALLENGE_JOB: "true"
   CHALLENGE_TIME: "1"
   CHALLENGE_TYPES: "bullet,blitz,rapid"
+  CHALLENGE_EXPIRE: "2"
+  WORKER_EXPIRE: "3"
