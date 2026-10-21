@@ -43,7 +43,7 @@ public class ChallengerUser {
         Optional<UserAuth> user = client.findUser(username);
 
         if (user.isPresent()) {
-            return client.challenge(user.get(), challengeBuilderConsumer);
+            return Optional.of(client.challenge(user.get(), challengeBuilderConsumer));
         }
 
         log.info("User '{}' not found", username);

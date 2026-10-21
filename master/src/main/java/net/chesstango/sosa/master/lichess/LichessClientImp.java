@@ -50,7 +50,7 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized Optional<Challenge> challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
+    public synchronized Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         One<Challenge> challengeOne = client.bot()
                 .challenge(user.id(), challengeBuilderConsumer);
 
@@ -64,9 +64,13 @@ public class LichessClientImp implements LichessClient {
                     throw new TooManyRequestsException();
                 }
             }
+            throw new RuntimeException(String.format("Challenging %s failed: %s %s", user.id(), status, message));
+
+        } else if (challengeOne instanceof Some<Challenge>(Challenge challenge)) {
+            return challenge;
         }
 
-        return challengeOne.maybe();
+        throw new RuntimeException("Challenge failed");
     }
 
     @Override

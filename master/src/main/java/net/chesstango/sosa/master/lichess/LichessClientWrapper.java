@@ -45,7 +45,7 @@ public class LichessClientWrapper implements LichessClient{
     }
 
     @Override
-    public Optional<Challenge> challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
+    public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         return lichessClientImp.challenge(user, challengeBuilderConsumer);
     }
 

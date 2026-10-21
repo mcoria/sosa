@@ -59,11 +59,9 @@ public class ChallengerBot {
                     for (Challenger challenger : challengerTypesRandom) {
                         if (challenger.filter(myProfile, bot)) {
                             log.info("Challenging bot {} {}", bot.id(), challenger.getClass().getSimpleName());
-                            Optional<Challenge> challenge = client.challenge(bot, challenger::consumeChallengeBuilder);
-                            if (challenge.isPresent()) {
-                                log.info("Challenging bot {} succeeded", bot.id());
-                                return challenge;
-                            }
+                            Challenge challenge = client.challenge(bot, challenger::consumeChallengeBuilder);
+                            log.info("Challenging bot {} succeeded", bot.id());
+                            return Optional.of(challenge);
                         }
                     }
                 } else {
