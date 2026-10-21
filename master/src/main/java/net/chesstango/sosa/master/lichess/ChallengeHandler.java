@@ -1,8 +1,12 @@
 package net.chesstango.sosa.master.lichess;
 
 import chariot.model.*;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.events.LichessTooManyExpired;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -24,7 +28,11 @@ public class ChallengeHandler {
                             SosaState sosaState) {
         this.client = client;
         this.sosaState = sosaState;
-        this.acceptChallenges = true;
+    }
+
+    @PostConstruct
+    public void init() {
+        startAcceptingChallenges();
     }
 
     public void handleChallengeEvent(Event event) {
@@ -33,6 +41,24 @@ public class ChallengeHandler {
             case challengeCanceled -> challengeCanceled((Event.ChallengeCanceledEvent) event);
             case challengeDeclined -> challengeDeclined((Event.ChallengeDeclinedEvent) event);
         }
+    }
+
+    @EventListener
+    public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
+        switch (lichessTooManyExpired.getExpirationType()) {
+            case GAMES:
+                startAcceptingChallenges();
+                break;
+            case REQUESTS:
+                break;
+            default:
+                break;
+        }
+    }
+
+    @EventListener(LichessTooManyGamesPlayed.class)
+    public void onLichessTooManyGamesPlayed() {
+        stopAcceptingChallenges();
     }
 
     void challengeCreated(Event.ChallengeCreatedEvent event) {
@@ -75,7 +101,13 @@ public class ChallengeHandler {
     }
 
     void stopAcceptingChallenges() {
+        log.info("Accepting challenges disabled");
         this.acceptChallenges = false;
+    }
+
+    void startAcceptingChallenges() {
+        log.info("Accepting challenges enabled");
+        this.acceptChallenges = true;
     }
 
 
