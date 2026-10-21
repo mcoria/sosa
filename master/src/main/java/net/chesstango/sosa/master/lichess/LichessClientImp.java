@@ -30,7 +30,15 @@ public class LichessClientImp implements LichessClient {
 
     @Override
     public synchronized Stream<Event> streamEvents() {
-        return client.bot().connect().stream();
+        Many<Event> events = client.bot().connect();
+        if (events instanceof Fail<Event>(int status, String message)) {
+            log.warn("Stream events failed: {} {}", status, message);
+            if (status == TOO_MANY_REQUESTS) {
+                throw new TooManyRequestsException();
+            }
+            throw new RuntimeException("Error streaming events");
+        }
+        return events.stream();
     }
 
     @Override
@@ -165,7 +173,15 @@ public class LichessClientImp implements LichessClient {
 
     @Override
     public synchronized Stream<User> botsOnline() {
-        return client.bot().botsOnline().stream();
+        Many<User> events = client.bot().botsOnline();
+        if (events instanceof Fail<User>(int status, String message)) {
+            log.warn("Stream users failed: {} {}", status, message);
+            if (status == TOO_MANY_REQUESTS) {
+                throw new TooManyRequestsException();
+            }
+            throw new RuntimeException("Error streaming users");
+        }
+        return events.stream();
     }
 
     @Override
@@ -211,7 +227,9 @@ public class LichessClientImp implements LichessClient {
             throw new RuntimeException(String.format("Finding user status %s failed: %s", theBot.id(), message));
         }
 
-        Optional<UserStatus> userStatusOpt = usersStatus.stream().findFirst();
+        Optional<UserStatus> userStatusOpt = usersStatus
+                .stream()
+                .findFirst();
 
         if (userStatusOpt.isPresent()) {
             UserStatus userStatus = userStatusOpt.get();
@@ -231,7 +249,7 @@ public class LichessClientImp implements LichessClient {
             if (status == TOO_MANY_REQUESTS) {
                 throw new TooManyRequestsException();
             }
-            throw new RuntimeException(String.format("Getting ongoing failed: %s", message));
+            throw new RuntimeException(String.format("Getting ongoing games failed: %s", message));
         }
 
         return gameInfoMany.stream();
