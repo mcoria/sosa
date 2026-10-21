@@ -17,9 +17,7 @@ public class LichessClientMain {
 
         LichessErrorParser errorParser = new LichessErrorParser();
 
-        ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
-
-        LichessClientImp lichessClient = new LichessClientImp(clientAuth, errorParser, applicationEventPublisher);
+        LichessClientImp lichessClient = new LichessClientImp(clientAuth, errorParser);
 
         lichessClient.gameMove("vJV8bIlk", "c3b1");
 
