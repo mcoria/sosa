@@ -11,7 +11,6 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 import static net.chesstango.sosa.master.events.LichessTooManyExpired.ExpirationType.GAMES;
-import static net.chesstango.sosa.master.events.LichessTooManyExpired.ExpirationType.REQUESTS;
 
 /**
  * @author Mauricio Coria
@@ -35,8 +34,6 @@ public class PublishExpiredTimerEventJob extends QuartzJobBean {
 
             if (expirationType.equals("GAMES")) {
                 applicationEventPublisher.publishEvent(new LichessTooManyExpired(this, GAMES));
-            } else if (expirationType.equals("REQUESTS")) {
-                applicationEventPublisher.publishEvent(new LichessTooManyExpired(this, REQUESTS));
             } else {
                 log.warn("ExpirationType not supported {}", expirationType);
             }

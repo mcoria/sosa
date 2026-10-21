@@ -62,6 +62,7 @@ public class ChallengerBot {
                             Challenge challenge = client.challenge(bot, challenger::consumeChallengeBuilder);
                             log.info("Challenging bot {} succeeded", bot.id());
                             return Optional.of(challenge);
+
                         }
                     }
                 } else {

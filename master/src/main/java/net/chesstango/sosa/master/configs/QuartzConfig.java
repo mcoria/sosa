@@ -37,8 +37,8 @@ public class QuartzConfig {
                 .withIdentity("ChallengeBotJobTrigger")
                 .startAt(DateBuilder.futureDate(challengeTime, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInMinutes(challengeTime) // Repeat every 3 minutes
-                        .repeatForever())           // Repeat indefinitely
+                        .withIntervalInMinutes(challengeTime)   // Repeat every 3 minutes
+                        .repeatForever())                       // Repeat indefinitely
                 .build();
     }
 
@@ -89,17 +89,6 @@ public class QuartzConfig {
                         .withIntervalInMinutes(workerExpire) // Repeat every workerExpire minutes
                         .repeatForever())                    // Repeat indefinitely
                 .build();
-    }
-
-
-    @Bean
-    public JobDetail publishExpiredTimerEventRequestsJob() {
-        return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
-                .withIdentity("PublishTooManyExpiredTimerEvent_Requests")
-                .usingJobData("expirationType", "REQUESTS")
-                .storeDurably()
-                .build();
-
     }
 
     @Bean

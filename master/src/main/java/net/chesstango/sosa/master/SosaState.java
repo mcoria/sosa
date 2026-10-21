@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
-import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.Challenger;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -34,8 +33,6 @@ public class SosaState {
 
     private final Set<String> inProgressGames;
 
-    private final AtomicBoolean sendRequestsAllowed;
-
     private final AtomicBoolean sendChallengesAllowed;
 
     @Setter
@@ -50,7 +47,6 @@ public class SosaState {
         this.inProgressChallenges = new HashSet<>();
         this.inProgressGames = new HashSet<>();
         this.sendChallengesAllowed = new AtomicBoolean(true);
-        this.sendRequestsAllowed = new AtomicBoolean(true);
     }
 
     public synchronized void addAvailableWorker(String workerId) {
@@ -165,12 +161,6 @@ public class SosaState {
         }
     }
 
-    @EventListener(LichessTooManyRequestsSent.class)
-    public void onLichessTooManyRequests() {
-        log.warn("Lichess API: too many requests. Stop sending requests to lichess.");
-        sendRequestsAllowed.set(false);
-    }
-
     @EventListener(LichessTooManyGamesPlayed.class)
     public void onLichessTooManyGames() {
         log.warn("Lichess API: too many games. Stop sending challenges to lichess.");
@@ -179,19 +169,13 @@ public class SosaState {
 
     @EventListener
     public void onLichessTooManyExpired(LichessTooManyExpired lichessTooManyExpired) {
-        switch (lichessTooManyExpired.getExpirationType()) {
-            case GAMES:
-                log.info("Sending challenges again.");
-                sendChallengesAllowed.set(true);
-                break;
-            case REQUESTS:
-                log.warn("Sending requests again.");
-                sendRequestsAllowed.set(true);
-                break;
+        if (Objects.requireNonNull(lichessTooManyExpired.getExpirationType()) == LichessTooManyExpired.ExpirationType.GAMES) {
+            log.info("Sending challenges again.");
+            sendChallengesAllowed.set(true);
         }
     }
 
     boolean canSendRequests() {
-        return sendRequestsAllowed.get() && sendChallengesAllowed.get();
+        return sendChallengesAllowed.get();
     }
 }
