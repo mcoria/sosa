@@ -11,15 +11,21 @@ import java.util.stream.Stream;
  * @author Mauricio Coria
  */
 public interface LichessClient {
-    UserAuth getProfile();
-
     Stream<Event> streamEvents();
 
     Stream<User> botsOnline();
 
     Stream<GameInfo> meOngoingGames();
 
+    UserAuth getProfile();
+
     Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer);
+
+    Optional<UserAuth> findUser(String username);
+
+    Optional<ChallengeInfo> getChallenge(String challengeId);
+
+    boolean isOnline(User theBot);
 
     void challengeAccept(String challengeId);
 
@@ -34,10 +40,4 @@ public interface LichessClient {
     void gameChat(String gameId, String message);
 
     void gameAbort(String gameId);
-
-    Optional<UserAuth> findUser(String username);
-
-    Optional<ChallengeInfo> getChallenge(String challengeId);
-
-    boolean isOnline(User theBot);
 }
