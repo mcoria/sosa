@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class LichessTooManyExpired extends ApplicationEvent {
     public enum ExpirationType {
+        REQUESTS,
         GAMES
     };
 

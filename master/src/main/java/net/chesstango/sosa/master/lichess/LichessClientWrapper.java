@@ -3,7 +3,8 @@ package net.chesstango.sosa.master.lichess;
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -21,107 +22,161 @@ public class LichessClientWrapper implements LichessClient {
 
     private final LichessClientImp lichessClientImp;
 
-    private final CircuitBreakerFactory circuitBreakerFactory;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public LichessClientWrapper(LichessClientImp lichessClientImp,
-                                CircuitBreakerFactory circuitBreakerFactory) {
+                                ApplicationEventPublisher applicationEventPublisher) {
         this.lichessClientImp = lichessClientImp;
-        this.circuitBreakerFactory = circuitBreakerFactory;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
     public UserAuth getProfile() {
-        return circuitBreakerFactory.create("lichess").run(lichessClientImp::getProfile);
-    }
-
-    @Override
-    public Stream<Event> streamEvents() {
-        return circuitBreakerFactory.create("lichess").run(lichessClientImp::streamEvents);
-    }
-
-    @Override
-    public Stream<User> botsOnline() {
-        return circuitBreakerFactory.create("lichess").run(lichessClientImp::botsOnline);
-    }
-
-    @Override
-    public Stream<GameInfo> meOngoingGames() {
-        return circuitBreakerFactory.create("lichess").run(lichessClientImp::meOngoingGames);
+        try {
+            return lichessClientImp.getProfile();
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
-        return circuitBreakerFactory.create("lichess").run(() -> lichessClientImp.challenge(user, challengeBuilderConsumer));
+        try {
+            return lichessClientImp.challenge(user, challengeBuilderConsumer);
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
+    }
+
+    @Override
+    public Stream<Event> streamEvents() {
+        try {
+            return lichessClientImp.streamEvents();
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
+    }
+
+    @Override
+    public Stream<User> botsOnline() {
+        try {
+            return lichessClientImp.botsOnline();
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
+    }
+
+    @Override
+    public Stream<GameInfo> meOngoingGames() {
+        try {
+            return lichessClientImp.meOngoingGames();
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public Optional<UserAuth> findUser(String username) {
-        return circuitBreakerFactory.create("lichess").run(() -> lichessClientImp.findUser(username));
+        try {
+            return lichessClientImp.findUser(username);
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public Optional<ChallengeInfo> getChallenge(String challengeId) {
-        return circuitBreakerFactory.create("lichess").run(() -> lichessClientImp.getChallenge(challengeId));
+        try {
+            return lichessClientImp.getChallenge(challengeId);
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public boolean isOnline(User theBot) {
-        return circuitBreakerFactory.create("lichess").run(() -> lichessClientImp.isOnline(theBot));
+        try {
+            return lichessClientImp.isOnline(theBot);
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void challengeAccept(String challengeId) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.challengeAccept(challengeId);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void challengeDecline(String challengeId) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.challengeDecline(challengeId);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void cancelChallenge(String challengeId) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.cancelChallenge(challengeId);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void gameMove(String gameId, String moveUci) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.gameMove(gameId, moveUci);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void gameResign(String gameId) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.gameResign(gameId);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void gameChat(String gameId, String message) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.gameChat(gameId, message);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 
     @Override
     public void gameAbort(String gameId) {
-        circuitBreakerFactory.create("lichess").<Void>run(() -> {
+        try {
             lichessClientImp.gameAbort(gameId);
-            return null;
-        });
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
     }
 }

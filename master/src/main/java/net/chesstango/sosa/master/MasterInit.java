@@ -73,7 +73,5 @@ public class MasterInit implements Runnable {
         } catch (InterruptedException e) {
             log.error("InterruptedException", e);
         }
-
-
     }
 }

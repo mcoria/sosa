@@ -91,6 +91,17 @@ public class QuartzConfig {
                 .build();
     }
 
+
+    @Bean
+    public JobDetail publishExpiredTimerEventRequestsJob() {
+        return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
+                .withIdentity("PublishTooManyExpiredTimerEvent_Requests")
+                .usingJobData("expirationType", "REQUESTS")
+                .storeDurably()
+                .build();
+
+    }
+
     @Bean
     public JobDetail publishExpiredTimerEventGamesJob() {
         return JobBuilder.newJob(PublishExpiredTimerEventJob.class)
