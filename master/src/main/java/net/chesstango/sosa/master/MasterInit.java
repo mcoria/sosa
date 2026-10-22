@@ -72,6 +72,7 @@ public class MasterInit implements Runnable {
             applicationEventPublisher.publishEvent(new LichessMainLoopFinished(this));
         } catch (InterruptedException e) {
             log.error("InterruptedException", e);
+            Thread.currentThread().interrupt();
         }
     }
 }

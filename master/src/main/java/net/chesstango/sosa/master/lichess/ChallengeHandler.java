@@ -22,7 +22,7 @@ public class ChallengeHandler {
 
     private final SosaState sosaState;
 
-    private boolean acceptChallenges;
+    private volatile boolean acceptChallenges;
 
     public ChallengeHandler(LichessClient client,
                             SosaState sosaState) {
