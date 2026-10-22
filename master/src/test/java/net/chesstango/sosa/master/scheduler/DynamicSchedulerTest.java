@@ -1,9 +1,8 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.master.scheduler;
 
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
 import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.lichess.RetryIn;
-import net.chesstango.sosa.master.scheduler.DynamicScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
