@@ -4,7 +4,7 @@ metadata:
   name: sosa-worker
 spec:
   completions: 15000
-  parallelism: 1
+  parallelism: 3
   ttlSecondsAfterFinished: 600
   template:
     metadata:
