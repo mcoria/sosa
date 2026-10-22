@@ -47,8 +47,8 @@ public class DynamicScheduler {
     @EventListener(LichessTooManyRequestsSent.class)
     public void onLichessTooManyRequestsSent() {
         try {
-
             log.info("Scheduling Expired Timer Event for lichess REQUESTS");
+
             Trigger trigger = TriggerBuilder.newTrigger()
                     .forJob(publishExpiredTimerEventRequestsJob)
                     .withIdentity("PublishTooManyExpiredTimerEventTrigger_Requests-" + UUID.randomUUID())
@@ -73,10 +73,11 @@ public class DynamicScheduler {
 
     @EventListener
     public void onLichessTooManyGamesPlayed(LichessTooManyGamesPlayed lichessTooManyGamesPlayed) {
-        log.info("Scheduling Expired Timer Event for CHALLENGES");
         try {
+            log.info("Scheduling Expired Timer Event for accepting CHALLENGES again");
 
             RetryIn retryIn = lichessTooManyGamesPlayed.getRetryIn();
+
             Trigger trigger = TriggerBuilder.newTrigger()
                     .forJob(publishExpiredTimerEventGamesJob)
                     .withIdentity("PublishTooManyExpiredTimerEventTrigger_Game-" + UUID.randomUUID())
