@@ -20,6 +20,7 @@ public class LichessClientImp implements LichessClient {
     public static final int TOO_MANY_REQUESTS = 429;
 
     private final ClientAuth client;
+
     private final LichessErrorParser lichessErrorParser;
 
     public LichessClientImp(ClientAuth client,
@@ -39,6 +40,34 @@ public class LichessClientImp implements LichessClient {
             throw new RuntimeException("Error streaming events");
         }
         return events.stream();
+    }
+
+    @Override
+    public synchronized Stream<User> botsOnline() {
+        Many<User> events = client.bot().botsOnline();
+        if (events instanceof Fail<User>(int status, String message)) {
+            log.warn("Stream users failed: {} {}", status, message);
+            if (status == TOO_MANY_REQUESTS) {
+                throw new TooManyRequestsException();
+            }
+            throw new RuntimeException("Error streaming users");
+        }
+        return events.stream();
+    }
+
+    @Override
+    public synchronized Stream<GameInfo> meOngoingGames() {
+        Many<GameInfo> gameInfoMany = client.games().ongoing();
+
+        if (gameInfoMany instanceof Fail<?>(int status, String message)) {
+            log.warn("MeOngoingGames failed: {} {}", status, message);
+            if (status == TOO_MANY_REQUESTS) {
+                throw new TooManyRequestsException();
+            }
+            throw new RuntimeException(String.format("Getting ongoing games failed: %s", message));
+        }
+
+        return gameInfoMany.stream();
     }
 
     @Override
@@ -171,19 +200,6 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public synchronized Stream<User> botsOnline() {
-        Many<User> events = client.bot().botsOnline();
-        if (events instanceof Fail<User>(int status, String message)) {
-            log.warn("Stream users failed: {} {}", status, message);
-            if (status == TOO_MANY_REQUESTS) {
-                throw new TooManyRequestsException();
-            }
-            throw new RuntimeException("Error streaming users");
-        }
-        return events.stream();
-    }
-
-    @Override
     public synchronized Optional<UserAuth> findUser(String username) {
         Many<UserAuth> userAuthMany = client.users().byIds(List.of(username));
 
@@ -199,7 +215,7 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public Optional<ChallengeInfo> getChallenge(String challengeId) {
+    public synchronized Optional<ChallengeInfo> getChallenge(String challengeId) {
         One<ChallengeInfo> challengeInfo = client.challenges().show(challengeId);
 
         if (challengeInfo instanceof Fail<?>(int status, String message)) {
@@ -215,7 +231,7 @@ public class LichessClientImp implements LichessClient {
     }
 
     @Override
-    public boolean isOnline(User theBot) {
+    public synchronized boolean isOnline(User theBot) {
         Many<UserStatus> usersStatus = client.users().statusByIds(theBot.id());
 
         if (usersStatus instanceof Fail<?>(int status, String message)) {
@@ -236,22 +252,6 @@ public class LichessClientImp implements LichessClient {
         }
 
         return false;
-    }
-
-
-    @Override
-    public synchronized Stream<GameInfo> meOngoingGames() {
-        Many<GameInfo> gameInfoMany = client.games().ongoing();
-
-        if (gameInfoMany instanceof Fail<?>(int status, String message)) {
-            log.warn("MeOngoingGames failed: {} {}", status, message);
-            if (status == TOO_MANY_REQUESTS) {
-                throw new TooManyRequestsException();
-            }
-            throw new RuntimeException(String.format("Getting ongoing games failed: %s", message));
-        }
-
-        return gameInfoMany.stream();
     }
 
 }
