@@ -10,8 +10,4 @@ import java.util.stream.Stream;
  */
 public interface LichessClient {
     Stream<GameStateEvent> streamGameStateEvent(String gameId);
-
-    Game game(String gameId);
-
-    void gameAbort(String gameId);
 }

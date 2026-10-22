@@ -24,14 +24,4 @@ public class LichessClientImp implements LichessClient {
     public synchronized Stream<GameStateEvent> streamGameStateEvent(String gameId) {
         return client.bot().connectToGame(gameId).stream();
     }
-
-    @Override
-    public Game game(String gameId) {
-        return client.games().byGameId(gameId).get();
-    }
-
-    @Override
-    public void gameAbort(String gameId) {
-        client.bot().abort(gameId);
-    }
 }

@@ -2,7 +2,6 @@ package net.chesstango.sosa.worker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.worker.events.GameInProgress;
-import net.chesstango.sosa.worker.lichess.LichessClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -16,12 +15,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @ConditionalOnProperty(name = "app.gameAbort", havingValue = "true")
 public class GameAbort implements Runnable {
-    private final LichessClient client;
+    private final WorkerProducer workerProducer;
     private final String gameId;
     private volatile boolean gameInProgress;
 
-    public GameAbort(LichessClient client, @Value("${gameId}") String gameId) {
-        this.client = client;
+    public GameAbort(WorkerProducer workerProducer, @Value("${gameId}") String gameId) {
+        this.workerProducer = workerProducer;
         this.gameId = gameId;
         this.gameInProgress = false;
     }
@@ -31,7 +30,7 @@ public class GameAbort implements Runnable {
         log.info("[{}] Executing Game Abort task", gameId);
         if (!gameInProgress) {
             log.info("[{}] Game is not in progress. Aborting.", gameId);
-            client.gameAbort(gameId);
+            workerProducer.sendAbort();
         } else {
             log.info("[{}] Game is in progress", gameId);
         }

@@ -2,6 +2,7 @@ package net.chesstango.sosa.worker;
 
 
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.messages.master.SendAbort;
 import net.chesstango.sosa.messages.master.SendMove;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ public class WorkerProducer {
         this.gameId = gameId;
     }
 
-    public void send_GoResult(String bestMove) {
+    public void sendMove(String bestMove) {
         log.info("Sending response: {}", bestMove);
         SendMove payload = new SendMove(gameId, bestMove);
         rabbitTemplate.convertAndSend(
@@ -36,4 +37,13 @@ public class WorkerProducer {
         );
     }
 
+    public void sendAbort() {
+        log.info("Sending abort command");
+        SendAbort payload = new SendAbort(gameId);
+        rabbitTemplate.convertAndSend(
+                SOSA_EXCHANGE,
+                MASTER_ROUTING_KEY,
+                payload
+        );
+    }
 }

@@ -141,7 +141,7 @@ public class GameEventsLoopReader implements Runnable {
 
             String move = tangoController.goFast((int) wTime, (int) bTime, (int) wInc, (int) bInc, state.moveList());
 
-            workerProducer.send_GoResult(move);
+            workerProducer.sendMove(move);
         }
     }
 
