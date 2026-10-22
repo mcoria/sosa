@@ -73,7 +73,7 @@ public class ChallengeHandlerTest {
         /**
          * No respondemos nada
          */
-        verify(sosaState).addChallenge("challengeId");
+        verify(sosaState, never()).addChallenge(any());
         verifyNoInteractions(client);
     }
 
@@ -99,7 +99,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.challengeCreated(challengeCreatedEvent);
 
-        verify(sosaState).addChallenge("challengeFromId");
+        verify(sosaState, never()).addChallenge(any());
         verifyNoInteractions(client);
     }
 
@@ -126,7 +126,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.handleChallengeEvent(challengeCreatedEvent);
 
-        verify(sosaState).addChallenge("challengeEventId");
+        verify(sosaState, never()).addChallenge(any());
         verifyNoInteractions(client);
     }
 
@@ -213,7 +213,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.challengeCreated(event);
 
-        verify(sosaState).addChallenge("cDeclineNoWorker");
+        verify(sosaState, never()).addChallenge(any());
         verify(client).challengeDecline("cDeclineNoWorker");
         verify(client, never()).challengeAccept(any());
     }
@@ -242,7 +242,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.challengeCreated(event);
 
-        verify(sosaState).addChallenge("cDisabled");
+        verify(sosaState, never()).addChallenge(any());
         verify(client).challengeDecline("cDisabled");
         verify(client, never()).challengeAccept(any());
     }
@@ -269,6 +269,7 @@ public class ChallengeHandlerTest {
         challengeHandler.challengeCreated(event);
 
         verify(client).challengeAccept("cResumed");
+        verify(sosaState).addChallenge("cResumed");
     }
 
     @Test
@@ -325,7 +326,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.challengeCreated(event);
 
-        verify(sosaState).addChallenge("cNoChallenger");
+        verify(sosaState, never()).addChallenge(any());
         verify(client).challengeDecline("cNoChallenger");
     }
 
@@ -344,7 +345,7 @@ public class ChallengeHandlerTest {
 
         challengeHandler.challengeCreated(event);
 
-        verify(sosaState).addChallenge("cUnsupportedVariant");
+        verify(sosaState, never()).addChallenge(any());
         verify(client).challengeDecline("cUnsupportedVariant");
         verify(client, never()).challengeAccept(any());
     }
@@ -367,6 +368,7 @@ public class ChallengeHandlerTest {
         challengeHandler.challengeCreated(event);
 
         verify(client).challengeAccept("cFromPos");
+        verify(sosaState).addChallenge("cFromPos");
     }
 
     @Test
@@ -439,6 +441,7 @@ public class ChallengeHandlerTest {
         challengeHandler.challengeCreated(event);
 
         verify(client).challengeAccept("cBotBlitz");
+        verify(sosaState).addChallenge("cBotBlitz");
     }
 
     @Test
@@ -459,6 +462,7 @@ public class ChallengeHandlerTest {
         challengeHandler.challengeCreated(event);
 
         verify(client).challengeAccept("cBotBullet");
+        verify(sosaState).addChallenge("cBotBullet");
     }
 
     @Test
@@ -479,6 +483,7 @@ public class ChallengeHandlerTest {
         challengeHandler.challengeCreated(event);
 
         verify(client).challengeAccept("cBotRapid");
+        verify(sosaState).addChallenge("cBotRapid");
     }
 
     @Test
