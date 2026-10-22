@@ -39,3 +39,11 @@ spring:
   quartz:
     job-store-type: memory
     properties.org.quartz.threadPool.threadCount: 1
+
+resilience4j:
+  ratelimiter:
+    instances:
+      lichessClientService:
+        limitForPeriod: 1         # Number of permits available during one limit refresh period
+        limitRefreshPeriod: 1s    # The period of a limit refresh
+        timeoutDuration: 15s      # Thread wait timeout for a permit. Set to 0s to fail immediately

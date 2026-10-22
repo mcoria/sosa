@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,16 +32,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
-    public UserAuth getProfile() {
-        try {
-            return lichessClientImp.getProfile();
-        } catch (TooManyRequestsException e) {
-            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
-            throw e;
-        }
-    }
-
-    @Override
+    @RateLimiter(name = "lichessClientService")
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         try {
             return lichessClientImp.challenge(user, challengeBuilderConsumer);
@@ -51,6 +43,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public Stream<Event> streamEvents() {
         try {
             return lichessClientImp.streamEvents();
@@ -61,6 +54,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public Stream<User> botsOnline() {
         try {
             return lichessClientImp.botsOnline();
@@ -71,6 +65,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public Stream<GameInfo> meOngoingGames() {
         try {
             return lichessClientImp.meOngoingGames();
@@ -81,6 +76,19 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
+    public UserAuth getProfile() {
+        try {
+            return lichessClientImp.getProfile();
+        } catch (TooManyRequestsException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
+            throw e;
+        }
+    }
+
+
+    @Override
+    @RateLimiter(name = "lichessClientService")
     public Optional<UserAuth> findUser(String username) {
         try {
             return lichessClientImp.findUser(username);
@@ -91,6 +99,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public Optional<ChallengeInfo> getChallenge(String challengeId) {
         try {
             return lichessClientImp.getChallenge(challengeId);
@@ -101,6 +110,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public boolean isOnline(User theBot) {
         try {
             return lichessClientImp.isOnline(theBot);
@@ -111,6 +121,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void challengeAccept(String challengeId) {
         try {
             lichessClientImp.challengeAccept(challengeId);
@@ -121,6 +132,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void challengeDecline(String challengeId) {
         try {
             lichessClientImp.challengeDecline(challengeId);
@@ -131,6 +143,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void cancelChallenge(String challengeId) {
         try {
             lichessClientImp.cancelChallenge(challengeId);
@@ -141,6 +154,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void gameMove(String gameId, String moveUci) {
         try {
             lichessClientImp.gameMove(gameId, moveUci);
@@ -151,6 +165,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void gameResign(String gameId) {
         try {
             lichessClientImp.gameResign(gameId);
@@ -161,6 +176,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void gameChat(String gameId, String message) {
         try {
             lichessClientImp.gameChat(gameId, message);
@@ -171,6 +187,7 @@ public class LichessClientWrapper implements LichessClient {
     }
 
     @Override
+    @RateLimiter(name = "lichessClientService")
     public void gameAbort(String gameId) {
         try {
             lichessClientImp.gameAbort(gameId);
