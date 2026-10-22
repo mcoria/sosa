@@ -42,6 +42,12 @@ public class SosaState {
         this.inProgressGames = new HashSet<>();
     }
 
+    public synchronized SosaStatus getSosaStatus() {
+        return new SosaStatus(Collections.unmodifiableCollection(availableWorkers),
+                Collections.unmodifiableCollection(inProgressChallenges),
+                Collections.unmodifiableCollection(inProgressGames));
+    }
+
     public synchronized void addAvailableWorker(String workerId) {
         Optional<Worker> workerOpt = availableWorkers.stream()
                 .filter(worker -> worker.getWorkerId().equals(workerId))
