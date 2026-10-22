@@ -6,6 +6,7 @@ import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import net.chesstango.sosa.master.lichess.RetryIn;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class DynamicScheduler {
     private final boolean challengeJob;
 
     public DynamicScheduler(Scheduler scheduler,
-                            JobDetail challengeBotJobDetails,
+                            @Autowired(required = false) JobDetail challengeBotJobDetails,
                             JobDetail publishExpiredTimerEventRequestsJob,
                             JobDetail publishExpiredTimerEventGamesJob,
                             @Value("${app.tooManyRequestExpire}") int tooManyRequestExpire,

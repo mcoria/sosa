@@ -4,6 +4,7 @@ import chariot.api.ChallengesApiAuthCommon;
 import chariot.model.*;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.events.LichessTooManyGamesPlayed;
 import net.chesstango.sosa.master.events.LichessTooManyRequestsSent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
@@ -36,6 +37,9 @@ public class LichessClientWrapper implements LichessClient {
     public Challenge challenge(User user, Consumer<ChallengesApiAuthCommon.ChallengeBuilder> challengeBuilderConsumer) {
         try {
             return lichessClientImp.challenge(user, challengeBuilderConsumer);
+        } catch (TooManyGamesException e) {
+            applicationEventPublisher.publishEvent(new LichessTooManyGamesPlayed(this, e.getRetryIn()));
+            throw e;
         } catch (TooManyRequestsException e) {
             applicationEventPublisher.publishEvent(new LichessTooManyRequestsSent(e));
             throw e;
