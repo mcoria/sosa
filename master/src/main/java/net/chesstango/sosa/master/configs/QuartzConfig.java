@@ -37,8 +37,8 @@ public class QuartzConfig {
                 .withIdentity("ChallengeBotJobTrigger")
                 .startAt(DateBuilder.futureDate(challengeTime, DateBuilder.IntervalUnit.MINUTE))
                 .withSchedule(simpleSchedule()
-                        .withIntervalInMinutes(challengeTime) // Repeat every 3 minutes
-                        .repeatForever())           // Repeat indefinitely
+                        .withIntervalInMinutes(challengeTime)   // Repeat every 3 minutes
+                        .repeatForever())                       // Repeat indefinitely
                 .build();
     }
 

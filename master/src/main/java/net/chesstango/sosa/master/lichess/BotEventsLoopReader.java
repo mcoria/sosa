@@ -44,6 +44,7 @@ public class BotEventsLoopReader implements Runnable {
                     log.warn("Event processing failed", e);
                 }
             });
+
             log.info("main event loop finished");
         } catch (RuntimeException e) {
             log.error("main event loop failed", e);

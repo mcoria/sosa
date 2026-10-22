@@ -2,6 +2,7 @@ package net.chesstango.sosa.master.lichess;
 
 import chariot.Client;
 import chariot.ClientAuth;
+import chariot.model.UserAuth;
 import org.springframework.context.ApplicationEventPublisher;
 
 import static org.mockito.Mockito.mock;
@@ -17,11 +18,11 @@ public class LichessClientMain {
 
         LichessErrorParser errorParser = new LichessErrorParser();
 
-        ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
+        LichessClientImp lichessClient = new LichessClientImp(clientAuth, errorParser);
 
-        LichessClientImp lichessClient = new LichessClientImp(clientAuth, errorParser, applicationEventPublisher);
+        UserAuth profile = lichessClient.getProfile();
 
-        lichessClient.gameMove("vJV8bIlk", "c3b1");
+        System.out.println(profile);
 
     }
 }
