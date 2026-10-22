@@ -144,6 +144,55 @@ public class SosaStateTest {
     }
 
     @Test
+    @DisplayName("getStatus returns empty collections when state is unpopulated")
+    void getStatus_empty() {
+        SosaStatus status = sosaState.getStatus();
+
+        assertThat(status).isNotNull();
+        assertThat(status.availableWorkers()).isEmpty();
+        assertThat(status.inProgressChallenges()).isEmpty();
+        assertThat(status.inProgressGames()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("getStatus returns snapshot of current workers, challenges, and games")
+    void getStatus_populated() {
+        sosaState.addAvailableWorker("w1");
+        sosaState.addAvailableWorker("w2");
+        sosaState.addChallenge("c1");
+        sosaState.addGame("g1");
+
+        SosaStatus status = sosaState.getStatus();
+
+        assertThat(status).isNotNull();
+        assertThat(status.availableWorkers())
+                .extracting(Worker::getWorkerId)
+                .containsExactlyInAnyOrder("w1", "w2");
+        assertThat(status.inProgressChallenges())
+                .extracting(Challenge::getChallengeId)
+                .containsExactly("c1");
+        assertThat(status.inProgressGames())
+                .containsExactly("g1");
+    }
+
+    @Test
+    @DisplayName("getStatus returns unmodifiable collections protecting internal state")
+    void getStatus_unmodifiableCollections() {
+        sosaState.addAvailableWorker("w1");
+        sosaState.addChallenge("c1");
+        sosaState.addGame("g1");
+
+        SosaStatus status = sosaState.getStatus();
+
+        assertThatThrownBy(() -> status.availableWorkers().clear())
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> status.inProgressChallenges().clear())
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> status.inProgressGames().clear())
+                .isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
     @DisplayName("getMyRating throws exception when rating is not StatsPerfGame or missing")
     void getMyRating_notFound() {
         UserAuth userAuth = mock(UserProfileData.class);
