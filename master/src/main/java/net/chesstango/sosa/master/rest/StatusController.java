@@ -1,10 +1,12 @@
 package net.chesstango.sosa.master.rest;
 
 import net.chesstango.sosa.master.SosaState;
-import net.chesstango.sosa.master.SosaStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Mauricio Coria
@@ -21,8 +23,11 @@ public class StatusController {
 
 
     @GetMapping
-    public SosaStatus get() {
-        return sosaState.getSosaStatus();
+    public Map<String, Object> get() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("sosaStatus", sosaState.getSosaStatus());
+        result.put("jobEnabled", false);
+        return result;
     }
 
 }
