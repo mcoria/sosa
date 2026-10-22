@@ -64,8 +64,6 @@ public class ChallengeHandler {
     void challengeCreated(Event.ChallengeCreatedEvent event) {
         log.info("[{}] ChallengeCreatedEvent", event.id());
 
-        sosaState.addChallenge(event.id());
-
         if (isMyChallenge(event)) {
             log.info("[{}] My challenge, ignoring", event.id());
             return;
@@ -80,6 +78,7 @@ public class ChallengeHandler {
                 if (sosaState.isChallengeAcceptable(challengerPlayer)) {
                     log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
+                    sosaState.addChallenge(event.id());
                 } else {
                     log.info("[{}] There is no available worker to accept this challenge", event.id());
                     sendDeclineChallenge(event);
