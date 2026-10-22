@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/status") //
 public class StatusController {
 
-    // Maps HTTP GET requests for "/api/hello"
+
     @GetMapping
-    public String sayHello() {
+    public String get() {
         return "Hello, Spring Boot 4!";
     }
 
