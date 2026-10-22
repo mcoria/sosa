@@ -12,7 +12,7 @@ spring:
     name: sosa-master
 
   main:
-    web-application-type: none
+    web-application-type: servlet
 
   rabbitmq:
     host: ${RABBIT_HOST}
