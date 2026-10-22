@@ -3,6 +3,7 @@ package net.chesstango.sosa.master.queues;
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.SosaState;
 import net.chesstango.sosa.master.lichess.LichessClient;
+import net.chesstango.sosa.messages.master.SendAbort;
 import net.chesstango.sosa.messages.master.SendMove;
 import net.chesstango.sosa.messages.master.WorkerBusy;
 import net.chesstango.sosa.messages.master.WorkerReady;
@@ -49,5 +50,12 @@ public class MasterConsumer {
         log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
 
         client.gameMove(sendMove.getGameId(), sendMove.getMove());
+    }
+
+    @RabbitHandler
+    public void handle(SendAbort sendAbort) {
+        log.info("[{}] Received: {}", sendAbort.getGameId(), sendAbort);
+
+        client.gameAbort(sendAbort.getGameId());
     }
 }
