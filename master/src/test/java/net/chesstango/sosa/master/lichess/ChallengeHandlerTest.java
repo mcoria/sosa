@@ -188,7 +188,7 @@ public class ChallengeHandlerTest {
                 createRealTimeControl(Enums.Speed.blitz, 180L)
         );
 
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 
@@ -209,7 +209,7 @@ public class ChallengeHandlerTest {
                 createRealTimeControl(Enums.Speed.blitz, 180L)
         );
 
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(false);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(false);
 
         challengeHandler.challengeCreated(event);
 
@@ -264,7 +264,7 @@ public class ChallengeHandlerTest {
                 createRealTimeControl(Enums.Speed.rapid, 600L)
         );
 
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 
@@ -363,7 +363,7 @@ public class ChallengeHandlerTest {
                 createRealTimeControl(Enums.Speed.blitz, 180L)
         );
 
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 
@@ -436,7 +436,7 @@ public class ChallengeHandlerTest {
         );
 
         when(sosaState.getMyRating(StatsPerfType.blitz)).thenReturn(1500);
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 
@@ -457,7 +457,7 @@ public class ChallengeHandlerTest {
         );
 
         when(sosaState.getMyRating(StatsPerfType.bullet)).thenReturn(1500);
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 
@@ -478,7 +478,7 @@ public class ChallengeHandlerTest {
         );
 
         when(sosaState.getMyRating(StatsPerfType.rapid)).thenReturn(1500);
-        when(sosaState.isChallengeAcceptable(any())).thenReturn(true);
+        when(sosaState.isChallengeAcceptable(anyBoolean())).thenReturn(true);
 
         challengeHandler.challengeCreated(event);
 

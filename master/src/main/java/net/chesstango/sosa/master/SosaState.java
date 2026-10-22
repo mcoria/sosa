@@ -1,13 +1,11 @@
 package net.chesstango.sosa.master;
 
-import chariot.model.ChallengeInfo;
 import chariot.model.StatsPerf;
 import chariot.model.StatsPerfType;
 import chariot.model.UserAuth;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.chesstango.sosa.master.lichess.ChallengeHandler;
 import net.chesstango.sosa.master.lichess.Challenger;
 import org.springframework.stereotype.Component;
 
@@ -93,14 +91,8 @@ public class SosaState {
         return inProgressGames.contains(gameId);
     }
 
-    public synchronized boolean isChallengeAcceptable(Optional<ChallengeInfo.Player> challengerPlayerOpt) {
-        if (challengerPlayerOpt.isEmpty()) {
-            return false;
-        }
-
-        ChallengeInfo.Player challengerPlayer = challengerPlayerOpt.get();
-
-        if (ChallengeHandler.isChallengerHuman(challengerPlayer)) {
+    public synchronized boolean isChallengeAcceptable(boolean isHuman) {
+        if (isHuman) {
             return thereAreAvailableWorkersForHuman();
         } else {
             return thereAreAvailableWorkersForBot();

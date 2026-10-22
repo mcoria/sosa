@@ -70,12 +70,22 @@ public class ChallengeHandler {
         }
 
         if (acceptChallenges) {
-            if (isChallengeAcceptable(event)) {
-                Optional<ChallengeInfo.Player> challengerPlayer = event
-                        .challenge()
-                        .players()
-                        .challengerOpt();
-                if (sosaState.isChallengeAcceptable(challengerPlayer)) {
+            Optional<ChallengeInfo.Player> challengerPlayerOpt = event
+                    .challenge()
+                    .players()
+                    .challengerOpt();
+
+            if (challengerPlayerOpt.isEmpty()) {
+                log.warn("[{}] Challenge has no challenger", event.id());
+                sendDeclineChallenge(event);
+                return;
+            }
+
+            ChallengeInfo.Player challengerPlayer = challengerPlayerOpt.get();
+
+            if (isChallengeAcceptable(event, challengerPlayer)) {
+                boolean isHuman = isChallengerHuman(challengerPlayer);
+                if (sosaState.isChallengeAcceptable(isHuman)) {
                     log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
                     sosaState.addChallenge(event.id());
@@ -139,19 +149,7 @@ public class ChallengeHandler {
         };
     }
 
-    private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
-        Optional<ChallengeInfo.Player> challengerPlayerOpt = event
-                .challenge()
-                .players()
-                .challengerOpt();
-
-        if (challengerPlayerOpt.isEmpty()) {
-            log.warn("Challenge has no challenger");
-            return false;
-        }
-
-        ChallengeInfo.Player challengerPlayer = challengerPlayerOpt.get();
-
+    private boolean isChallengeAcceptable(Event.ChallengeEvent event, ChallengeInfo.Player challengerPlayer) {
         GameType gameType = event.challenge().gameType();
 
         return isVariantAcceptable(gameType.variant())                          // Chess variant
