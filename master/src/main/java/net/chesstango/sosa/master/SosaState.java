@@ -42,7 +42,7 @@ public class SosaState {
         this.inProgressGames = new HashSet<>();
     }
 
-    public synchronized SosaStatus getSosaStatus() {
+    public synchronized SosaStatus getStatus() {
         return new SosaStatus(Collections.unmodifiableCollection(availableWorkers),
                 Collections.unmodifiableCollection(inProgressChallenges),
                 Collections.unmodifiableCollection(inProgressGames));

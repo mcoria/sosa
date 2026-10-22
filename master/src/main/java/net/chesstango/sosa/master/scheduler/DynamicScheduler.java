@@ -1,4 +1,4 @@
-package net.chesstango.sosa.master;
+package net.chesstango.sosa.master.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
 import net.chesstango.sosa.master.events.LichessTooManyExpired;
