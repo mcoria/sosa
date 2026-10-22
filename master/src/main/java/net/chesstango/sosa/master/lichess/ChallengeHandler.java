@@ -73,7 +73,11 @@ public class ChallengeHandler {
 
         if (acceptChallenges) {
             if (isChallengeAcceptable(event)) {
-                if (sosaState.isChallengeAcceptable()) {
+                Optional<ChallengeInfo.Player> challengerPlayer = event
+                        .challenge()
+                        .players()
+                        .challengerOpt();
+                if (sosaState.isChallengeAcceptable(challengerPlayer)) {
                     log.info("[{}] Challenge acceptable", event.id());
                     sendAcceptChallenge(event);
                 } else {
@@ -137,31 +141,26 @@ public class ChallengeHandler {
     }
 
     private boolean isChallengeAcceptable(Event.ChallengeEvent event) {
-        Optional<ChallengeInfo.Player> challengerPlayer = event
+        Optional<ChallengeInfo.Player> challengerPlayerOpt = event
                 .challenge()
                 .players()
                 .challengerOpt();
 
-        if (challengerPlayer.isEmpty()) {
+        if (challengerPlayerOpt.isEmpty()) {
             log.warn("Challenge has no challenger");
             return false;
         }
+
+        ChallengeInfo.Player challengerPlayer = challengerPlayerOpt.get();
 
         GameType gameType = event.challenge().gameType();
 
         return isVariantAcceptable(gameType.variant())                          // Chess variant
                 && isTimeControlAcceptable(gameType.timeControl())              // Time control
-                && isChallengerAcceptable(challengerPlayer.get(), gameType.timeControl().speed());
+                && (isChallengerHuman(challengerPlayer) || isChallengerAcceptable(challengerPlayer, gameType.timeControl().speed()));
     }
 
-    private boolean isChallengerAcceptable(ChallengeInfo.Player player, Enums.Speed speed) {
-        if (player.user().titleOpt().isEmpty()) { // Quiere decir que es human - aceptamos en todos los casos
-            log.info("Challenger {} is human", player.user().id());
-            return true;
-        }
-
-        String userTitle = player.user().titleOpt().get();
-
+    private boolean isChallengerAcceptable(ChallengeInfo.Player challengerPlayer, Enums.Speed speed) {
         StatsPerfType statsPerfType = switch (speed) {
             case bullet -> StatsPerfType.bullet;
             case blitz -> StatsPerfType.blitz;
@@ -175,14 +174,14 @@ public class ChallengeHandler {
 
         int myRating = sosaState.getMyRating(statsPerfType);
 
-        return "BOT".equals(userTitle) && player.rating() <= myRating + ChallengerBot.RATING_THRESHOLD;
+        return challengerPlayer.rating() <= myRating + ChallengerBot.RATING_THRESHOLD;
     }
 
-    private static boolean isVariantAcceptable(Variant variant) {
+    public static boolean isVariantAcceptable(Variant variant) {
         return Variant.Basic.standard.equals(variant) || variant instanceof Variant.FromPosition;
     }
 
-    private static boolean isTimeControlAcceptable(TimeControl timeControl) {
+    public static boolean isTimeControlAcceptable(TimeControl timeControl) {
         Predicate<RealTime> supportedRealtimeGames = realtime ->
                 (Enums.Speed.bullet.equals(realtime.speed())
                         || Enums.Speed.blitz.equals(realtime.speed())
@@ -193,5 +192,13 @@ public class ChallengeHandler {
         return //timeControl instanceof Unlimited ||                                                   // Unlimited games x el momento no soportados
                 (timeControl instanceof RealTime realtime && supportedRealtimeGames.test(realtime));   // Realtime
 
+    }
+
+    public static boolean isChallengerHuman(ChallengeInfo.Player challengerPlayer) {
+        if (challengerPlayer.user().titleOpt().isEmpty()) { // Quiere decir que es human - aceptamos en todos los casos
+            log.info("Challenger {} is human", challengerPlayer.user().id());
+            return true;
+        }
+        return false;
     }
 }

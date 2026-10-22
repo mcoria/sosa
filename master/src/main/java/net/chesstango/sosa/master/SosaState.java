@@ -1,11 +1,13 @@
 package net.chesstango.sosa.master;
 
+import chariot.model.ChallengeInfo;
 import chariot.model.StatsPerf;
 import chariot.model.StatsPerfType;
 import chariot.model.UserAuth;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.chesstango.sosa.master.lichess.ChallengeHandler;
 import net.chesstango.sosa.master.lichess.Challenger;
 import org.springframework.stereotype.Component;
 
@@ -91,8 +93,18 @@ public class SosaState {
         return inProgressGames.contains(gameId);
     }
 
-    public synchronized boolean isChallengeAcceptable() {
-        return availableWorkers.size() >= inProgressChallenges.size();
+    public synchronized boolean isChallengeAcceptable(Optional<ChallengeInfo.Player> challengerPlayerOpt) {
+        if (challengerPlayerOpt.isEmpty()) {
+            return false;
+        }
+
+        ChallengeInfo.Player challengerPlayer = challengerPlayerOpt.get();
+
+        if (ChallengeHandler.isChallengerHuman(challengerPlayer)) {
+            return thereAreAvailableWorkersForHuman();
+        } else {
+            return thereAreAvailableWorkersForBot();
+        }
     }
 
     public synchronized int getMyRating(StatsPerfType type) {
@@ -138,11 +150,20 @@ public class SosaState {
     }
 
     public synchronized void challengeBot() {
-        if (availableWorkers.size() > inProgressChallenges.size()) {
+        if (thereAreAvailableWorkersForBot()) {
             Optional<chariot.model.Challenge> liChessChallengeOpt = challenger.challengeRandomBot(myProfile);
             liChessChallengeOpt.ifPresent(challenge -> addChallenge(challenge.id()));
         } else {
             log.info("No available workers to challenge or too many challenges in progress.");
         }
+    }
+
+
+    boolean thereAreAvailableWorkersForBot() {
+        return availableWorkers.size() > inProgressChallenges.size() + 1;
+    }
+
+    boolean thereAreAvailableWorkersForHuman() {
+        return availableWorkers.size() > inProgressChallenges.size();
     }
 }
