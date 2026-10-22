@@ -10,7 +10,7 @@ This document provides project context, architecture guidelines, build/test comm
 
 ### Core Tech Stack
 - **Java**: 25 (Java compiler release 25)
-- **Frameworks**: Spring Boot 4.1.x, Spring Batch, Spring AMQP (RabbitMQ), Quartz Scheduler
+- **Frameworks**: Spring Boot 4.1.x (Spring Web, Actuator, Batch, AMQP), Quartz Scheduler
 - **Resilience**: Resilience4j (RateLimiter)
 - **Chess Libraries**:
   - `chesstango`: Chess engine and board logic (`net.chesstango:engine`, `net.chesstango:board`)
@@ -45,7 +45,8 @@ sosa/
 2. **`master` (`sosa-master`)**:
    - Interacts with Lichess API (handling challenges, bot queue, game streams).
    - Publishes jobs and coordinates worker lifecycle via RabbitMQ.
-   - Uses Quartz Scheduler for periodic challenge creation and watchdog jobs (`DynamicScheduler`, `ExpireChallengesJob`, `ExpireWorkersJob`).
+   - Uses Quartz Scheduler for periodic challenge creation and watchdog jobs (`DynamicScheduler`, `ExpireChallengesJob`, `ExpireWorkersJob`, `QueryScheduler`).
+   - Exposes REST endpoints (`StatusController` at `/status`) to monitor orchestrator status (`SosaStatus`) and scheduler state (`ScheduleStatus`).
 3. **`worker` (`sosa-worker`)**:
    - Instantiates and controls the `chesstango` engine (`TangoController`).
    - Evaluates positions, queries opening books (`polyglot_file`) and endgame tablebases (`syzygy_path`).
@@ -95,7 +96,7 @@ Use the Maven Wrapper located in the repository root.
 
 ## 4. Environment Variables & Configuration
 
-Applications are non-web Spring Boot services (`spring.main.web-application-type=none`) configured via `application.yaml` with environment variable overrides:
+Applications are configured via `application.yaml` with environment variable overrides (`master` runs as a servlet web application with `spring.main.web-application-type=servlet` exposing REST APIs, while `worker` and `worker-init` run as non-web services with `spring.main.web-application-type=none`):
 
 | Variable | Target Module(s) | Description | Default / Example |
 |---|---|---|---|
@@ -124,6 +125,8 @@ Applications are non-web Spring Boot services (`spring.main.web-application-type
 - **Logging**: Use SLF4J (`@Slf4j`) for logging. Prefer structured, informative log messages (`log.info(...)`, `log.debug(...)`, `log.error(...)`).
 - **Spring Architecture**:
   - Keep configuration classes organized under `net.chesstango.sosa.<module>.configs`.
+  - Keep REST controllers organized under `net.chesstango.sosa.<module>.rest`.
+  - Keep scheduler services and handlers under `net.chesstango.sosa.<module>.scheduler`.
   - Keep jobs and scheduled tasks organized under `net.chesstango.sosa.<module>.jobs`.
   - Keep AMQP producers and consumers under `queues` or root module packages.
   - Keep domain messages in `net.chesstango.sosa.messages` inside the `model` module.
