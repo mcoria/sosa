@@ -96,6 +96,6 @@ public class LichessClientImpTest {
 
 
         assertEquals("Too many games", exception.getMessage());
-        assertEquals(27594, exception.getRetryIn().getSeconds());
+        assertEquals(27594, exception.getRetryIn().seconds());
     }
 }

@@ -49,13 +49,13 @@ public class WriteGamePropertyFile implements Tasklet, StepExecutionListener {
                 .getJobExecution()
                 .getExecutionContext();
         this.gameStart = (GameStart) executionContext.get("gameStart");
-        log.info("[{}] Writing property file", gameStart.getGameId());
+        log.info("[{}] Writing property file", gameStart.gameId());
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         if (gameStart != null) {
-            writePropertyFile(gameStart.getGameId(), gameStart.getColor());
+            writePropertyFile(gameStart.gameId(), gameStart.color());
         }
         return RepeatStatus.FINISHED;
     }

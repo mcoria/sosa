@@ -1,13 +1,7 @@
 package net.chesstango.sosa.messages.master;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 /**
  * @author Mauricio Coria
  */
-@Data
-@AllArgsConstructor
-public class WorkerReady {
-    private final String workerId;
+public record WorkerReady(String workerId) {
 }

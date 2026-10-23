@@ -42,7 +42,7 @@ public class WaitGameStart implements Tasklet, StepExecutionListener {
             log.warn("No GameStart message received");
             return RepeatStatus.FINISHED;
         }
-        log.info("[{}] GameStart message received", gameStart.getGameId());
+        log.info("[{}] GameStart message received", gameStart.gameId());
         return RepeatStatus.FINISHED;
     }
 

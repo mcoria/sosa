@@ -32,7 +32,7 @@ public class LichessErrorParserTest {
         assertInstanceOf(RetryIn.class, result);
 
         RetryIn retryIn = (RetryIn) result;
-        assertEquals(27594L, retryIn.getSeconds());
+        assertEquals(27594L, retryIn.seconds());
     }
 
 

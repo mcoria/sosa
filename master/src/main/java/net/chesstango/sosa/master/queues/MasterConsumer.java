@@ -35,27 +35,27 @@ public class MasterConsumer {
     public void handle(WorkerReady workerReady) {
         log.info("Received: {}", workerReady);
 
-        sosaState.addAvailableWorker(workerReady.getWorkerId());
+        sosaState.addAvailableWorker(workerReady.workerId());
     }
 
     @RabbitHandler
     public void handle(WorkerBusy workerBusy) {
         log.info("Received: {}", workerBusy);
 
-        sosaState.removeAvailableWorker(workerBusy.getWorkerId());
+        sosaState.removeAvailableWorker(workerBusy.workerId());
     }
 
     @RabbitHandler
     public void handle(SendMove sendMove) {
-        log.info("[{}] Received: {}", sendMove.getGameId(), sendMove);
+        log.info("[{}] Received: {}", sendMove.gameId(), sendMove);
 
-        client.gameMove(sendMove.getGameId(), sendMove.getMove());
+        client.gameMove(sendMove.gameId(), sendMove.move());
     }
 
     @RabbitHandler
     public void handle(SendAbort sendAbort) {
-        log.info("[{}] Received: {}", sendAbort.getGameId(), sendAbort);
+        log.info("[{}] Received: {}", sendAbort.gameId(), sendAbort);
 
-        client.gameAbort(sendAbort.getGameId());
+        client.gameAbort(sendAbort.gameId());
     }
 }
