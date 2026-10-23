@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sosa-master-svc
+spec:
+  selector:
+    app: sosa-master
+  ports:
+    - name: sosa-master-http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,6 +37,9 @@ spec:
             preStop:
               sleep:
                 seconds: 60
+          ports:
+            - containerPort: 8080
+              protocol: TCP
           env:
             - name: RABBIT_HOST
               value: "chesstango-rabbit-svc.default.svc.cluster.local"
