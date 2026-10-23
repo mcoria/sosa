@@ -1,7 +1,9 @@
 package net.chesstango.sosa.master.rest;
 
 import net.chesstango.sosa.master.SosaState;
+import net.chesstango.sosa.master.SosaStatus;
 import net.chesstango.sosa.master.scheduler.QueryScheduler;
+import net.chesstango.sosa.master.scheduler.ScheduleStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,8 +31,16 @@ public class StatusController {
     @GetMapping
     public Map<String, Object> get() {
         Map<String, Object> result = new HashMap<>();
-        result.put("sosaStatus", sosaState.getStatus());
-        result.put("jobEnabled", queryScheduler.getStatus());
+        SosaStatus sosaStatus = sosaState.getStatus();
+        ScheduleStatus schedulerStatus = queryScheduler.getStatus();
+
+        result.put("availableWorkers", sosaStatus.availableWorkers());
+        result.put("inProgressChallenges", sosaStatus.inProgressChallenges());
+        result.put("inProgressGames", sosaStatus.inProgressGames());
+
+        result.put("challengeJobEnabled", schedulerStatus.challengeJobEnabled());
+        result.put("challengeJobLastExecution", schedulerStatus.challengeJobLastExecution());
+
         return result;
     }
 
