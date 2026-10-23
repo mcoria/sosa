@@ -112,7 +112,6 @@ public class ChallengeHandlerTest {
         ChallengeInfo.Player player = mock(ChallengeInfo.Player.class);
         IdNameTitle user = mock(IdNameTitle.class);
 
-        when(challengeCreatedEvent.type()).thenReturn(Event.Type.challenge);
         when(challengeCreatedEvent.id()).thenReturn("challengeEventId");
         when(challengeCreatedEvent.challenge()).thenReturn(challengeInfo);
         when(challengeInfo.players()).thenReturn(fromToPlayers);
@@ -134,7 +133,6 @@ public class ChallengeHandlerTest {
     @DisplayName("handleChallengeEvent dispatches challengeCanceled event correctly")
     void handleChallengeEvent_challengeCanceled() {
         Event.ChallengeCanceledEvent challengeCanceledEvent = mock(Event.ChallengeCanceledEvent.class);
-        when(challengeCanceledEvent.type()).thenReturn(Event.Type.challengeCanceled);
         when(challengeCanceledEvent.id()).thenReturn("canceledId");
 
         challengeHandler.handleChallengeEvent(challengeCanceledEvent);
@@ -146,7 +144,6 @@ public class ChallengeHandlerTest {
     @DisplayName("handleChallengeEvent dispatches challengeDeclined event correctly")
     void handleChallengeEvent_challengeDeclined() {
         Event.ChallengeDeclinedEvent challengeDeclinedEvent = mock(Event.ChallengeDeclinedEvent.class);
-        when(challengeDeclinedEvent.type()).thenReturn(Event.Type.challengeDeclined);
         when(challengeDeclinedEvent.id()).thenReturn("declinedId");
 
         challengeHandler.handleChallengeEvent(challengeDeclinedEvent);

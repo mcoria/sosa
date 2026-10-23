@@ -36,10 +36,11 @@ public class ChallengeHandler {
     }
 
     public void handleChallengeEvent(Event event) {
-        switch (event.type()) {
-            case challenge -> challengeCreated((Event.ChallengeCreatedEvent) event);
-            case challengeCanceled -> challengeCanceled((Event.ChallengeCanceledEvent) event);
-            case challengeDeclined -> challengeDeclined((Event.ChallengeDeclinedEvent) event);
+        switch (event) {
+            case Event.ChallengeCreatedEvent created -> challengeCreated(created);
+            case Event.ChallengeCanceledEvent canceled -> challengeCanceled(canceled);
+            case Event.ChallengeDeclinedEvent declined -> challengeDeclined(declined);
+            default -> {}
         }
     }
 
