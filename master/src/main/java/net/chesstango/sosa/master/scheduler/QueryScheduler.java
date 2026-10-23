@@ -28,6 +28,7 @@ public class QueryScheduler {
     public ScheduleStatus getStatus() {
         boolean challengeJobEnabled = false;
         Date challengeJobLastExecution = null;
+        Date challengeJobNextExecution = null;
 
         if (challengeBotJobTrigger != null) {
             try {
@@ -41,12 +42,13 @@ public class QueryScheduler {
 
                 // 2 - Get the last execution time of the challenge bot job trigger
                 challengeJobLastExecution = challengeBotJobTrigger.getPreviousFireTime();
+                challengeJobNextExecution = challengeBotJobTrigger.getNextFireTime();
 
             } catch (SchedulerException e) {
                 log.error("Error getting TriggerState", e);
             }
         }
 
-        return new ScheduleStatus(challengeJobEnabled, challengeJobLastExecution);
+        return new ScheduleStatus(challengeJobEnabled, challengeJobLastExecution, challengeJobNextExecution);
     }
 }

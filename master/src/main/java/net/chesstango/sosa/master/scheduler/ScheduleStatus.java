@@ -6,5 +6,6 @@ import java.util.Date;
  * @author Mauricio Coria
  */
 public record ScheduleStatus(boolean challengeJobEnabled,
-                             Date challengeJobLastExecution) {
+                             Date challengeJobLastExecution,
+                             Date challengeJobNextExecution) {
 }

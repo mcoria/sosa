@@ -40,6 +40,7 @@ public class StatusController {
 
         result.put("challengeJobEnabled", schedulerStatus.challengeJobEnabled());
         result.put("challengeJobLastExecution", schedulerStatus.challengeJobLastExecution());
+        result.put("challengeJobNextExecution", schedulerStatus.challengeJobNextExecution());
 
         return result;
     }
