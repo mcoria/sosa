@@ -73,7 +73,7 @@ public class ChallengerBot {
         return Optional.empty();
     }
 
-    abstract static class Challenger {
+    abstract static sealed class Challenger permits BulletChallengerBot, BlitzChallengerBot, RapidChallengerBot {
         final StatsPerfType statsPerfType;
 
         final List<Consumer<ChallengesApiAuthCommon.ChallengeBuilder>> builders = new ArrayList<>();
@@ -104,7 +104,7 @@ public class ChallengerBot {
     }
 
 
-    class BulletChallengerBot extends Challenger {
+    final class BulletChallengerBot extends Challenger {
         public BulletChallengerBot() {
             super(StatsPerfType.bullet);
 
@@ -123,7 +123,7 @@ public class ChallengerBot {
         }
     }
 
-    class BlitzChallengerBot extends Challenger {
+    final class BlitzChallengerBot extends Challenger {
         public BlitzChallengerBot() {
             super(StatsPerfType.blitz);
 
@@ -148,7 +148,7 @@ public class ChallengerBot {
     }
 
 
-    class RapidChallengerBot extends Challenger {
+    final class RapidChallengerBot extends Challenger {
         public RapidChallengerBot() {
             super(StatsPerfType.rapid);
 
